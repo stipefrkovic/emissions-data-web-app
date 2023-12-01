@@ -1,0 +1,187 @@
+openapi: '3.0.2'
+info:
+  title: Web Engineering CO2 API
+  version: '1.0'
+  description: 'Specification of the CO2 API from Group 23 
+                of the 2023-24 Web Engineering course at the University of Groningen.'
+
+# Stipe: 
+# So far I think we should crete two main entities: records and areas
+# The records are of different types (e.g. emission) to minimize network traffic and to easily satisfy different bulletpoints of REQ1
+# The areas are also of two types: countries and continents 
+# This is because they have different properties (e.g. continents do not have iso codes), have different data, and are implicitly differentied in the data (countries, continents, lists of countries, ...?)
+# This might be useful when either the name or the iso code of a country can be used:
+# https://stackoverflow.com/questions/53782328/how-to-require-at-least-one-of-two-parameters-in-openapi
+
+# further specify endpoint paths? e.g. in energy records, '/records/emission-records/per-year'? 
+
+servers:
+  - url: http://localhost:3001
+    description: ExpressJS backend
+
+paths:
+  /records/general-records:
+    parameters:
+      - name: name
+        in: query
+        required: false
+        description: Name of the country.
+        schema:
+          type: string
+      - name: iso-code
+        in: query
+        required: false
+        description: ISO 3166-1 alpha-3, three-letter code, of the country.
+        schema:
+          type: string
+      - name: year
+        in: query
+        required: true
+        description: Year of the creation of the record.
+        schema:
+          type: string
+
+    get:
+      tags: 
+        - All Records
+        - Population & GDP Records
+      description: Retrieve a population and GDP record of a country for a specific year.
+      responses:
+        '200':
+          description: OK
+    post:
+      tags: 
+        - All Records
+        - Population & GDP Records
+      description: Create a population and GDP record of a country for a specific year.
+      responses:
+        '200':
+          description: OK
+    put:
+      tags: 
+        - All Records
+        - Population & GDP Records
+      description: Update a population and GDP record of a country for a specific year.
+      responses:
+        '200':
+          description: OK
+    delete:
+      tags: 
+        - All Records
+        - Population & GDP Records
+      description: Delete a population and GDP record of a country for the specified year.
+      responses:
+        '200':
+          description: OK
+  
+  /records/emission-records:
+    parameters:
+      - name: name
+        in: query
+        required: false
+        description: Name of the country.
+        schema:
+          type: string
+      - name: iso-code
+        in: query
+        required: false
+        description: ISO 3166-1 alpha-3, three-letter code, of the country.
+        schema:
+          type: string
+      - name: year
+        in: query
+        required: false
+        description: Year of the creation of the record.
+        schema:
+          type: string
+      - name: all-since-year
+        in: query
+        required: false
+        description: Get all records since the specified year.
+        schema:
+          type: boolean
+          default: false
+    get:
+      tags: 
+        - All Records
+        - Emission Records
+      description: Get emission record(s) of a country, optionally for or since a specified year.
+      responses:
+        '200':
+          description: OK
+
+  /records/temp-change-records:
+    parameters:
+      - name: name
+        in: query
+        required: true
+        description: Name of the continent.
+        schema:
+          type: string
+      - name: year
+        in: query
+        required: false
+        description: Year of the creation of the record.
+        schema:
+          type: string
+      - name: all-since-year
+        in: query
+        required: false
+        description: Get all records since the specified year.
+        schema:
+          type: boolean
+          default: false
+    get:
+      tags: 
+        - All Records
+        - Temperature Change Records
+      description: Get temperature change record(s) of a continent, optinally for or since a specified year.
+      responses:
+        '200':
+          description: OK
+  
+  /records/energy-records:
+    parameters:
+      - name: year
+        in: query
+        required: true
+        description: Year of the creation of the records.
+        schema:
+          type: string
+      - name: sort-per
+        in: query
+        required: false
+        description: Sort records of countries on descending population size.
+        schema:
+          type: string
+          enum:
+            - none
+            - population-size
+          default: none
+      - name: batch-size
+        in: query
+        required: false
+        description: Size of batch of records retrieved.
+        schema:
+          type: integer
+          enum:
+            - 10
+            - 20
+            - 50
+            - 100
+          default: 10
+      - name: batch-idx
+        in: query
+        required: false
+        description: Index of the batch of records.
+        schema: 
+          type: integer
+          default: 1
+    get:
+      tags: 
+        - All Records
+        - Energy Records
+      description: Get energy records of countries for a specified year optionally sorted per population size and split in batches.
+      responses:
+        '200':
+          description: OK
