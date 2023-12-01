@@ -10,10 +10,11 @@ info:
 # The records are of different types (e.g. emission) to minimize network traffic and to easily satisfy different bulletpoints of REQ1
 # The areas are also of two types: countries and continents 
 # This is because they have different properties (e.g. continents do not have iso codes), have different data, and are implicitly differentied in the data (countries, continents, lists of countries, ...?)
+
 # This might be useful when either the name or the iso code of a country can be used:
 # https://stackoverflow.com/questions/53782328/how-to-require-at-least-one-of-two-parameters-in-openapi
-
 # further specify endpoint paths? e.g. in energy records, '/records/emission-records/per-year'? 
+# it's a bit wonky how the endpoint queries should be used? e.g. it's not set that we either the name or the iso code of a country query should be used
 
 servers:
   - url: http://localhost:3001
@@ -45,7 +46,7 @@ paths:
       tags: 
         - All Records
         - General Records
-      description: Retrieve the population and GDP record of a country for a specific year.
+      description: Retrieve the general record of a country for a specific year.
       responses:
         '200':
           description: OK
@@ -53,7 +54,7 @@ paths:
       tags: 
         - All Records
         - General Records
-      description: Create the population and GDP record of a country for a specific year.
+      description: Create the general record of a country for a specific year.
       responses:
         '200':
           description: OK
@@ -61,7 +62,7 @@ paths:
       tags: 
         - All Records
         - General Records
-      description: Update the population and GDP record of a country for a specific year.
+      description: Update the general record of a country for a specific year.
       responses:
         '200':
           description: OK
@@ -69,7 +70,7 @@ paths:
       tags: 
         - All Records
         - General Records
-      description: Delete the population and GDP record of a country for the specified year.
+      description: Delete the general record of a country for the specified year.
       responses:
         '200':
           description: OK
@@ -135,7 +136,7 @@ paths:
       tags: 
         - All Records
         - Temperature Change Records
-      description: Get temperature change record(s) of a continent, optinally for or since a specified year.
+      description: Get temperature change record(s) of a continent, optionally for or since a specified year.
       responses:
         '200':
           description: OK
@@ -189,7 +190,7 @@ paths:
 
   /areas/countries/:
     parameters:
-      - name: num-countries
+      - name: n-countries
         in: query
         required: true
         description: Number n (≥1) of countries to be retrieved.
