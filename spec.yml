@@ -1,8 +1,8 @@
 openapi: '3.0.2'
 info:
-  title: Web Engineering CO2 API
+  title: CO2 and GHG API
   version: '1.0'
-  description: 'Specification of the CO2 API from Group 23 
+  description: 'Specification of the CO2 and GHG API from Group 23 
                 of the 2023-24 Web Engineering course at the University of Groningen.'
 
 # Stipe: 
