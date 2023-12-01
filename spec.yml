@@ -20,7 +20,7 @@ servers:
     description: ExpressJS backend
 
 paths:
-  /records/general-records:
+  /records/general:
     parameters:
       - name: name
         in: query
@@ -44,37 +44,37 @@ paths:
     get:
       tags: 
         - All Records
-        - Population & GDP Records
-      description: Retrieve a population and GDP record of a country for a specific year.
+        - General Records
+      description: Retrieve the population and GDP record of a country for a specific year.
       responses:
         '200':
           description: OK
     post:
       tags: 
         - All Records
-        - Population & GDP Records
-      description: Create a population and GDP record of a country for a specific year.
+        - General Records
+      description: Create the population and GDP record of a country for a specific year.
       responses:
         '200':
           description: OK
     put:
       tags: 
         - All Records
-        - Population & GDP Records
-      description: Update a population and GDP record of a country for a specific year.
+        - General Records
+      description: Update the population and GDP record of a country for a specific year.
       responses:
         '200':
           description: OK
     delete:
       tags: 
         - All Records
-        - Population & GDP Records
-      description: Delete a population and GDP record of a country for the specified year.
+        - General Records
+      description: Delete the population and GDP record of a country for the specified year.
       responses:
         '200':
           description: OK
   
-  /records/emission-records:
+  /records/emission:
     parameters:
       - name: name
         in: query
@@ -110,7 +110,7 @@ paths:
         '200':
           description: OK
 
-  /records/temp-change-records:
+  /records/temp-change:
     parameters:
       - name: name
         in: query
@@ -140,7 +140,7 @@ paths:
         '200':
           description: OK
   
-  /records/energy-records:
+  /records/energy:
     parameters:
       - name: year
         in: query
@@ -161,7 +161,7 @@ paths:
       - name: batch-size
         in: query
         required: false
-        description: Size of batch of records retrieved.
+        description: Size of records batch to be retrieved.
         schema:
           type: integer
           enum:
@@ -181,7 +181,56 @@ paths:
       tags: 
         - All Records
         - Energy Records
-      description: Get energy records of countries for a specified year optionally sorted per population size and split in batches.
+      description: Get energy records of countries for a specified year 
+                  optionally sorted per population size and split in batches.
+      responses:
+        '200':
+          description: OK
+
+  /areas/countries/:
+    parameters:
+      - name: num-countries
+        in: query
+        required: true
+        description: Number n (≥1) of countries to be retrieved.
+        schema:
+          type: integer
+      - name: filter
+        in: query
+        description: Sorting filter for the countries.
+        schema:
+          type: string
+          enum:
+            - none
+            - climate-change-contribution-share
+          default: none
+      - name: order
+        in: query
+        required: false
+        description: Order in which the countries are retrieved based on the filter.
+        schema:
+          type: string
+          enum:
+            - ascending
+            - descending
+          default: descending
+      - name: year
+        in: query
+        required: false
+        description: Sort countries' records for this year.
+        schema:
+          type: integer
+      - name: last-m-years
+        in: query
+        required: false
+        description: Sort countries' records for the past m (≥1) years.
+        schema:
+          type: integer
+    get:
+      tags: 
+        - All Areas
+        - Countries
+      description: Retrieve a number of countries with an optional sorting filter.
       responses:
         '200':
           description: OK
