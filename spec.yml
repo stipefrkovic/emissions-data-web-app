@@ -1,0 +1,237 @@
+openapi: '3.0.2'
+info:
+  title: CO2 and GHG API
+  version: '1.0'
+  description: 'Specification of the CO2 and GHG API from Group 23 
+                of the 2023-24 Web Engineering course at the University of Groningen.'
+
+# Stipe: 
+# So far I think we should crete two main entities: records and areas
+# The records are of different types (e.g. emission) to minimize network traffic and to easily satisfy different bulletpoints of REQ1
+# The areas are also of two types: countries and continents 
+# This is because they have different properties (e.g. continents do not have iso codes), have different data, and are implicitly differentied in the data (countries, continents, lists of countries, ...?)
+
+# This might be useful when either the name or the iso code of a country can be used:
+# https://stackoverflow.com/questions/53782328/how-to-require-at-least-one-of-two-parameters-in-openapi
+# further specify endpoint paths? e.g. in energy records, '/records/emission-records/per-year'? 
+# it's a bit wonky how the endpoint queries should be used? e.g. it's not set that we either the name or the iso code of a country query should be used
+
+servers:
+  - url: http://localhost:3001
+    description: ExpressJS backend
+
+paths:
+  /records/general:
+    parameters:
+      - name: name
+        in: query
+        required: false
+        description: Name of the country.
+        schema:
+          type: string
+      - name: iso-code
+        in: query
+        required: false
+        description: ISO 3166-1 alpha-3, three-letter code, of the country.
+        schema:
+          type: string
+      - name: year
+        in: query
+        required: true
+        description: Year of the creation of the record.
+        schema:
+          type: string
+
+    get:
+      tags: 
+        - All Records
+        - General Records
+      description: Retrieve the general record of a country for a specific year.
+      responses:
+        '200':
+          description: OK
+    post:
+      tags: 
+        - All Records
+        - General Records
+      description: Create the general record of a country for a specific year.
+      responses:
+        '200':
+          description: OK
+    put:
+      tags: 
+        - All Records
+        - General Records
+      description: Update the general record of a country for a specific year.
+      responses:
+        '200':
+          description: OK
+    delete:
+      tags: 
+        - All Records
+        - General Records
+      description: Delete the general record of a country for the specified year.
+      responses:
+        '200':
+          description: OK
+  
+  /records/emission:
+    parameters:
+      - name: name
+        in: query
+        required: false
+        description: Name of the country.
+        schema:
+          type: string
+      - name: iso-code
+        in: query
+        required: false
+        description: ISO 3166-1 alpha-3, three-letter code, of the country.
+        schema:
+          type: string
+      - name: year
+        in: query
+        required: false
+        description: Year of the creation of the record.
+        schema:
+          type: string
+      - name: all-since-year
+        in: query
+        required: false
+        description: Get all records since the specified year.
+        schema:
+          type: boolean
+          default: false
+    get:
+      tags: 
+        - All Records
+        - Emission Records
+      description: Get emission record(s) of a country, optionally for or since a specified year.
+      responses:
+        '200':
+          description: OK
+
+  /records/temp-change:
+    parameters:
+      - name: name
+        in: query
+        required: true
+        description: Name of the continent.
+        schema:
+          type: string
+      - name: year
+        in: query
+        required: false
+        description: Year of the creation of the record.
+        schema:
+          type: string
+      - name: all-since-year
+        in: query
+        required: false
+        description: Get all records since the specified year.
+        schema:
+          type: boolean
+          default: false
+    get:
+      tags: 
+        - All Records
+        - Temperature Change Records
+      description: Get temperature change record(s) of a continent, optionally for or since a specified year.
+      responses:
+        '200':
+          description: OK
+  
+  /records/energy:
+    parameters:
+      - name: year
+        in: query
+        required: true
+        description: Year of the creation of the records.
+        schema:
+          type: string
+      - name: sort-per
+        in: query
+        required: false
+        description: Sort records of countries on descending population size.
+        schema:
+          type: string
+          enum:
+            - none
+            - population-size
+          default: none
+      - name: batch-size
+        in: query
+        required: false
+        description: Size of records batch to be retrieved.
+        schema:
+          type: integer
+          enum:
+            - 10
+            - 20
+            - 50
+            - 100
+          default: 10
+      - name: batch-idx
+        in: query
+        required: false
+        description: Index of the batch of records.
+        schema: 
+          type: integer
+          default: 1
+    get:
+      tags: 
+        - All Records
+        - Energy Records
+      description: Get energy records of countries for a specified year 
+                  optionally sorted per population size and split in batches.
+      responses:
+        '200':
+          description: OK
+
+  /areas/countries/:
+    parameters:
+      - name: n-countries
+        in: query
+        required: true
+        description: Number n (≥1) of countries to be retrieved.
+        schema:
+          type: integer
+      - name: filter
+        in: query
+        description: Sorting filter for the countries.
+        schema:
+          type: string
+          enum:
+            - none
+            - climate-change-contribution-share
+          default: none
+      - name: order
+        in: query
+        required: false
+        description: Order in which the countries are retrieved based on the filter.
+        schema:
+          type: string
+          enum:
+            - ascending
+            - descending
+          default: descending
+      - name: year
+        in: query
+        required: false
+        description: Sort countries' records for this year.
+        schema:
+          type: integer
+      - name: last-m-years
+        in: query
+        required: false
+        description: Sort countries' records for the past m (≥1) years.
+        schema:
+          type: integer
+    get:
+      tags: 
+        - All Areas
+        - Countries
+      description: Retrieve a number of countries with an optional sorting filter.
+      responses:
+        '200':
+          description: OK
