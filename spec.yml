@@ -218,13 +218,13 @@ paths:
       - name: year
         in: query
         required: false
-        description: Sort countries' records for this year.
+        description: Sort countries based on their records for this year.
         schema:
           type: integer
       - name: last-m-years
         in: query
         required: false
-        description: Sort countries' records for the past m (≥1) years.
+        description: Sort countries based on their records for the past m (≥1) years.
         schema:
           type: integer
     get:
