@@ -22,20 +22,26 @@ servers:
   - url: http://localhost:3001
     description: ExpressJS backend
 
-# - name: iso-code
-# in: query
-# required: false
-# description: ISO 3166-1 alpha-3, three-letter code, of the country.
-# schema:
-#   type: string
+# TODO
+# - update and integrate json schemas - christopher
+# - endpoint operation summaries - stipe
+# - response codes including example values and media type csv (all) and json (except 200)- andro
 
 paths:
-  /records/general/{country-name}:
+  /records/general/:
     parameters:
-      - name: country-name
-        in: path
+      - name: id-type
+        in: query
         required: true
-        description: Name of the country.
+        description: Name of the country or the ISO 3166-1 alpha-3 code of the country.
+        schema:
+          type: string
+          enum: 
+            - country-name
+            - country-iso-code
+      - name: id
+        in: query
+        required: true
         schema:
           type: string
       - name: year
@@ -80,44 +86,39 @@ paths:
   
   /records/emission:
     parameters:
-      - name: name
+      - name: id-type
         in: query
-        required: false
-        description: Name of the country.
+        required: true
+        description: Name of the country or the ISO 3166-1 alpha-3 code of the country.
         schema:
           type: string
-      - name: iso-code
+          enum: 
+            - country-name
+            - country-iso-code
+      - name: id
         in: query
-        required: false
-        description: ISO 3166-1 alpha-3, three-letter code, of the country.
+        required: true
         schema:
           type: string
       - name: year
         in: query
         required: false
-        description: Year of the creation of the record.
+        description: Year from which to get records.
         schema:
           type: string
-      - name: all-since-year
-        in: query
-        required: false
-        description: Get all records since the specified year.
-        schema:
-          type: boolean
-          default: false
     get:
       tags: 
         - All Records
         - Emission Records
-      description: Get emission record(s) of a country, optionally for or since a specified year.
+      description: Get emission record(s) of a country, optionally since a specified year and later.
       responses:
         '200':
           description: OK
 
-  /records/temp-change:
+  /records/temp-change/:
     parameters:
-      - name: name
-        in: query
+      - name: continent-name
+        in: path
         required: true
         description: Name of the continent.
         schema:
@@ -125,29 +126,22 @@ paths:
       - name: year
         in: query
         required: false
-        description: Year of the creation of the record.
+        description: Year from which to get records.
         schema:
           type: string
-      - name: all-since-year
-        in: query
-        required: false
-        description: Get all records since the specified year.
-        schema:
-          type: boolean
-          default: false
     get:
       tags: 
         - All Records
         - Temperature Change Records
-      description: Get temperature change record(s) of a continent, optionally for or since a specified year.
+      description: Get temperature change record(s) of a continent, optionally since a specified year and later.
       responses:
         '200':
           description: OK
   
   /records/energy:
     parameters:
-      - name: year
-        in: query
+      - name: query
+        in: path
         required: true
         description: Year of the creation of the records.
         schema:
@@ -218,17 +212,19 @@ paths:
             - ascending
             - descending
           default: descending
-# could be improved
-      - name: year
+      - name: period-type
         in: query
-        required: false
-        description: Sort countries based on their records for this year.
+        required: true
+        description: Time period type on which the countries will be sorted.
         schema:
-          type: integer
-      - name: last-m-years
+          type: string
+          enum:
+            - specific-year
+            - last-m-years
+      - name: period-value
         in: query
-        required: false
-        description: Sort countries based on their records for the past m (≥1) years.
+        required: true
+        description: Time period value.
         schema:
           type: integer
     get:
