@@ -59,6 +59,22 @@ paths:
       responses:
         '200':
           description: OK
+        '204':
+          description: List empty; no results
+
+        '400':
+          description: Request was not well-formed, see error details
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error-message:
+                    type: string
+                    description: Error message detailing the problem with the request
+
+        '5XX':
+          description: Server error; no results, try again later
     post:
       tags: 
         - All Records
