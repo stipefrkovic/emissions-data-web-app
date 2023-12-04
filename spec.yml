@@ -16,23 +16,26 @@ info:
 # further specify endpoint paths? e.g. in energy records, '/records/emission-records/per-year'? 
 # it's a bit wonky how the endpoint queries should be used? e.g. it's not set that we either the name or the iso code of a country query should be used
 
+# for the multiple identifiers, we could have multiple endpoints? e.g. one for iso-code and one for country name, etc.
+
 servers:
   - url: http://localhost:3001
     description: ExpressJS backend
 
+# - name: iso-code
+# in: query
+# required: false
+# description: ISO 3166-1 alpha-3, three-letter code, of the country.
+# schema:
+#   type: string
+
 paths:
-  /records/general:
+  /records/general/{country-name}:
     parameters:
-      - name: name
-        in: query
-        required: false
+      - name: country-name
+        in: path
+        required: true
         description: Name of the country.
-        schema:
-          type: string
-      - name: iso-code
-        in: query
-        required: false
-        description: ISO 3166-1 alpha-3, three-letter code, of the country.
         schema:
           type: string
       - name: year
@@ -215,6 +218,7 @@ paths:
             - ascending
             - descending
           default: descending
+# could be improved
       - name: year
         in: query
         required: false
