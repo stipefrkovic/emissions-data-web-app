@@ -27,6 +27,63 @@ servers:
 # - endpoint operation summaries - stipe
 # - response codes including example values and media type csv (all) and json (except 200)- andro
 
+components:
+  schemas:
+    general:
+      type: object
+      properties:
+        GDP:
+          type: integer
+          description: GDP of the country
+        population:
+          type: integer
+          description: Population of the country
+
+    emission:
+      type: object
+      properties:
+        co2:
+          type: integer
+          description: CO2 emission of the country
+        methane:
+          type: integer
+          description: Methane emission of the country
+        nitrous oxide:
+          type: integer
+          description: Nitrous oxide emission of the country
+        total ghg:
+          type: integer
+          description: Total greenhouse gas emission of the country
+
+    temp-change:
+      type: object
+      properties:
+        share of temperature change from:
+          type: integer
+          description: Temperature change of the country
+        temperature change from *:
+          type: integer
+          description: Temperature change of the country
+    energy:
+      type: object
+      properties:
+        energy per capita:
+          type: integer
+          description: Energy per capita of the country
+        GDP per capita:
+          type: integer
+          description: GDP per capita of the country
+
+    country:
+      type: object
+      properties:
+        name:
+          type: string
+          description: name of the country
+        share of temperature change from ghg:
+          type: integer
+          description: share of temperature change from ghg of the country
+
 paths:
   /records/general/:
     parameters:
@@ -59,6 +116,13 @@ paths:
       responses:
         '200':
           description: OK
+          content:
+            application/json:
+              schema:
+                  $ref: "#/components/schemas/general"
+            text/csv:
+              schema:
+                  $ref: "#/components/schemas/general"
         '204':
           description: List empty; no results
 
@@ -81,8 +145,15 @@ paths:
         - General Records
       description: Create the general record of a country for a specific year.
       responses:
-        '200':
-          description: OK
+        '201':
+          description: general info succesfully created.
+          content:
+            application/json:
+              schema:
+                  $ref: "#/components/schemas/general"
+            text/csv:
+              schema:
+                  $ref: "#/components/schemas/general"
     put:
       tags: 
         - All Records
@@ -91,14 +162,21 @@ paths:
       responses:
         '200':
           description: OK
+          content:
+            application/json:
+              schema:
+                  $ref: "#/components/schemas/general"
+            text/csv:
+              schema:
+                  $ref: "#/components/schemas/general"
     delete:
       tags: 
         - All Records
         - General Records
       description: Delete the general record of a country for the specified year.
       responses:
-        '200':
-          description: OK
+        '204':
+          description: General info succesfully deleted
   
   /records/emission:
     parameters:
@@ -130,6 +208,17 @@ paths:
       responses:
         '200':
           description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/emission"
+            text/csv:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/emission"
 
   /records/temp-change/:
     parameters:
@@ -153,6 +242,17 @@ paths:
       responses:
         '200':
           description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/temp-change"
+            text/csv:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/temp-change"
   
   /records/energy:
     parameters:
@@ -200,6 +300,17 @@ paths:
       responses:
         '200':
           description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/energy"
+            text/csv:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/energy"
 
   /areas/countries/:
     parameters:
@@ -251,3 +362,14 @@ paths:
       responses:
         '200':
           description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/country"
+            text/csv:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/country"
