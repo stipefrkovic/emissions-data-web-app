@@ -83,6 +83,34 @@ components:
         share of temperature change from ghg:
           type: integer
           description: share of temperature change from ghg of the country
+  
+  responses:
+    BadRequest:
+      description: Request was not well-formed, see error details
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              error-message:
+                type: string
+                description: Error message detailing the problem with the request
+        text/csv:
+          schema:
+            type: object
+            properties:
+              error-message:
+                type: string
+                description: Error message detailing the problem with the request
+
+    NotFound:
+      description: Resource not found
+
+    NoResults:
+      description: List empty; no results
+
+    ServerError:
+      description: Server error; no results, try again later
 
 paths:
   /records/general/:
@@ -123,22 +151,15 @@ paths:
             text/csv:
               schema:
                   $ref: "#/components/schemas/general"
-        '204':
-          description: List empty; no results
 
         '400':
-          description: Request was not well-formed, see error details
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  error-message:
-                    type: string
-                    description: Error message detailing the problem with the request
+          $ref: '#/components/responses/BadRequest'
+
+        '404':
+          $ref: "#/components/responses/NotFound"
 
         '5XX':
-          description: Server error; no results, try again later
+          $ref: '#/components/responses/ServerError'
     post:
       tags: 
         - All Records
@@ -154,6 +175,14 @@ paths:
             text/csv:
               schema:
                   $ref: "#/components/schemas/general"
+        '400':
+          $ref: '#/components/responses/BadRequest'
+
+        '409':
+          description: Record with the same name already exists
+
+        '5XX':
+          $ref: '#/components/responses/ServerError'
     put:
       tags: 
         - All Records
@@ -169,6 +198,14 @@ paths:
             text/csv:
               schema:
                   $ref: "#/components/schemas/general"
+        '400':
+          $ref: '#/components/responses/BadRequest'
+
+        '404':
+          $ref: "#/components/responses/NotFound"
+
+        '5XX':
+          $ref: '#/components/responses/ServerError'
     delete:
       tags: 
         - All Records
@@ -177,6 +214,14 @@ paths:
       responses:
         '204':
           description: General info succesfully deleted
+        '400':
+          $ref: '#/components/responses/BadRequest'
+
+        '404':
+          $ref: "#/components/responses/NotFound"
+
+        '5XX':
+          $ref: '#/components/responses/ServerError'
   
   /records/emission:
     parameters:
@@ -220,6 +265,15 @@ paths:
                 items:
                   $ref: "#/components/schemas/emission"
 
+        '204':
+          $ref: "#/components/responses/NoResults"
+
+        '400':
+          $ref: '#/components/responses/BadRequest'
+
+        '5XX':
+          $ref: '#/components/responses/ServerError'
+
   /records/temp-change/:
     parameters:
       - name: continent-name
@@ -253,6 +307,15 @@ paths:
                 type: array
                 items:
                   $ref: "#/components/schemas/temp-change"
+        
+        '204':
+          $ref: "#/components/responses/NoResults"
+
+        '400':
+          $ref: '#/components/responses/BadRequest'
+
+        '5XX':
+          $ref: '#/components/responses/ServerError'
   
   /records/energy:
     parameters:
@@ -311,6 +374,15 @@ paths:
                 type: array
                 items:
                   $ref: "#/components/schemas/energy"
+
+        '204':
+          $ref: "#/components/responses/NoResults"
+
+        '400':
+          $ref: '#/components/responses/BadRequest'
+
+        '5XX':
+          $ref: '#/components/responses/ServerError'
 
   /areas/countries/:
     parameters:
@@ -373,3 +445,12 @@ paths:
                 type: array
                 items:
                   $ref: "#/components/schemas/country"
+        
+        '204':
+          $ref: "#/components/responses/NoResults"
+
+        '400':
+          $ref: '#/components/responses/BadRequest'
+
+        '5XX':
+          $ref: '#/components/responses/ServerError'
