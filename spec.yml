@@ -5,33 +5,10 @@ info:
   description: 'Specification of the CO2 and GHG API from Group 23 
                 of the 2023-24 Web Engineering course at the University of Groningen.'
 
-# Stipe: 
-# So far I think we should crete two main entities: records and areas
-# The records are of different types (e.g. emission) to minimize network traffic and to easily satisfy different bulletpoints of REQ1
-# The areas are also of two types: countries and continents 
-# This is because they have different properties (e.g. continents do not have iso codes), have different data, and are implicitly differentied in the data (countries, continents, lists of countries, ...?)
-
-# This might be useful when either the name or the iso code of a country can be used:
-# https://stackoverflow.com/questions/53782328/how-to-require-at-least-one-of-two-parameters-in-openapi
-# further specify endpoint paths? e.g. in energy records, '/records/emission-records/per-year'? 
-# it's a bit wonky how the endpoint queries should be used? e.g. it's not set that we either the name or the iso code of a country query should be used
-
-# for the multiple identifiers, we could have multiple endpoints? e.g. one for iso-code and one for country name, etc.
-
-# Notes (Stipe)
-# Make sure integer/float types are correct in schemas
-# Discuss area change and path n-countries change
-
 
 servers:
   - url: http://localhost:3001
     description: ExpressJS backend
-
-# TODO
-# - update and integrate json schemas - christopher
-# - endpoint operation summaries - stipe
-# - response codes including example values and media type csv (all) and json (except 200)- andro
-
 
 
 components:
@@ -171,6 +148,11 @@ paths:
 
         '409':
           description: Record with the same name already exists
+          headers:
+            Location:
+              schema:
+                type: string
+              description: The URL of the pre-existing record
 
         '5XX':
           $ref: '#/components/responses/ServerError'
@@ -228,6 +210,12 @@ paths:
         - All Records
         - General Records
       description: Update the record with population and GDP data of a country for a specific year.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/general"
       responses:
         '200':
           description: General record updated, returns the new state
