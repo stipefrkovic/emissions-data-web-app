@@ -1,8 +1,8 @@
 openapi: '3.0.2'
 info:
-  title: CO2 and GHG API
+  title: Emission Data API
   version: '1.0'
-  description: 'Specification of the CO2 and GHG API from Group 23 
+  description: 'Specification of the emission data API from Group 23 
                 of the 2023-24 Web Engineering course at the University of Groningen.'
 
 
@@ -27,35 +27,35 @@ components:
       type: object
       properties:
         co2:
-          type: integer
+          type: number
           description: CO2 emission of the country
         methane:
-          type: integer
+          type: number
           description: Methane emission of the country
         nitrous oxide:
-          type: integer
+          type: number
           description: Nitrous oxide emission of the country
         total ghg:
-          type: integer
+          type: number
           description: Total greenhouse gas emission of the country
 
     temp-change:
       type: object
       properties:
         share of temperature change from:
-          type: integer
+          type: number
           description: Temperature change of the country
         temperature change from *:
-          type: integer
+          type: number
           description: Temperature change of the country
     energy:
       type: object
       properties:
         energy per capita:
-          type: integer
+          type: number
           description: Energy per capita of the country
         GDP per capita:
-          type: integer
+          type: number
           description: GDP per capita of the country
 
     country:
@@ -65,7 +65,7 @@ components:
           type: string
           description: name of the country
         share of temperature change from ghg:
-          type: integer
+          type: number
           description: share of temperature change from ghg of the country
   
   responses:
@@ -102,7 +102,7 @@ paths:
       - name: id-type
         in: query
         required: true
-        description: Name of the country or the ISO 3166-1 alpha-3 code of the country.
+        description: Name of the country or the ISO 3166-1 alpha-3 code of the country
         schema:
           type: string
           enum: 
@@ -116,15 +116,15 @@ paths:
       - name: year
         in: path
         required: true
-        description: Year of the creation of the record.
+        description: Year of the creation of the record
         schema:
           type: string
     post:
-      summary: Create a general record.
+      summary: Create a general record
       tags: 
         - All Records
         - General Records
-      description: Retrieve the record with population and GDP data of a country for a specific year.
+      description: Create the record with population and GDP data of a country for a specific year
       requestBody:
         required: true
         content:
@@ -133,7 +133,7 @@ paths:
               $ref: "#/components/schemas/general"
       responses:
         '201':
-          description: general info succesfully created.
+          description: General information succesfully created
           content:
             application/json:
                 schema:
@@ -162,7 +162,7 @@ paths:
       - name: id-type
         in: query
         required: true
-        description: Name of the country or the ISO 3166-1 alpha-3 code of the country.
+        description: Name of the country or the ISO 3166-1 alpha-3 code of the country
         schema:
           type: string
           enum: 
@@ -176,15 +176,15 @@ paths:
       - name: year
         in: path
         required: true
-        description: Year of the creation of the record.
+        description: Year of the creation of the record
         schema:
           type: string
     get:
-      summary: Retrieve a general record.
+      summary: Retrieve a general record
       tags: 
         - All Records
         - General Records
-      description: Retrieve the record with population and GDP data of a country for a specific year.
+      description: Retrieve the record with population and GDP data of a country for a specific year
       responses:
         '200':
           description: OK
@@ -205,11 +205,11 @@ paths:
         '5XX':
           $ref: '#/components/responses/ServerError'
     put:
-      summary: Update a general record.
-      tags: 
+      summary: Update a general record
+      tags:
         - All Records
         - General Records
-      description: Update the record with population and GDP data of a country for a specific year.
+      description: Update the record with population and GDP data of a country for a specific year
       requestBody:
         required: true
         content:
@@ -235,11 +235,11 @@ paths:
         '5XX':
           $ref: '#/components/responses/ServerError'
     delete:
-      summary: Delete a general record.
+      summary: Delete a general record
       tags: 
         - All Records
         - General Records
-      description: Delete the record with population and GDP data of a country for a specific year.
+      description: Delete the record with population and GDP data of a country for a specific year
       responses:
         '204':
           description: General info succesfully deleted
@@ -257,7 +257,7 @@ paths:
       - name: id-type
         in: query
         required: true
-        description: Name of the country or the ISO 3166-1 alpha-3 code of the country.
+        description: Name of the country or the ISO 3166-1 alpha-3 code of the country
         schema:
           type: string
           enum: 
@@ -271,15 +271,15 @@ paths:
       - name: year
         in: query
         required: false
-        description: Year from which to retrieve records.
+        description: Year from which to retrieve records
         schema:
           type: string
     get:
-      summary: Retrieve an emission record.
+      summary: Retrieve an emission record
       tags: 
         - All Records
         - Emission Records
-      description: Retrieve emission record(s) of a country, optionally since a specified year and later.
+      description: Retrieve emission record(s) of a country, optionally since a specified year and later
       responses:
         '200':
           description: OK
@@ -309,21 +309,21 @@ paths:
       - name: continent-name
         in: path
         required: true
-        description: Name of the continent.
+        description: Name of the continent
         schema:
           type: string
       - name: year
         in: query
         required: false
-        description: Year from which to retrieve records.
+        description: Year from which to retrieve records
         schema:
           type: string
     get:
-      summary: Retrieve a temperature change records.
+      summary: Retrieve a temperature change records
       tags: 
         - All Records
         - Temperature Change Records
-      description: Retrieve temperature change record(s) of a continent, optionally since a specified year and later.
+      description: Retrieve temperature change record(s) of a continent, optionally since a specified year and later
       responses:
         '200':
           description: OK
@@ -353,13 +353,13 @@ paths:
       - name: year
         in: path
         required: true
-        description: Year of the creation of the records.
+        description: Year of the creation of the records
         schema:
           type: string
       - name: sort-per
         in: query
         required: false
-        description: Sort records of countries on descending population size.
+        description: Sort records of countries on descending population size
         schema:
           type: string
           enum:
@@ -369,7 +369,7 @@ paths:
       - name: batch-size
         in: query
         required: false
-        description: Size of records batch to be retrieved.
+        description: Size of records batch to be retrieved
         schema:
           type: integer
           enum:
@@ -381,17 +381,17 @@ paths:
       - name: batch-idx
         in: query
         required: false
-        description: Index of the batch of records.
+        description: Index of the batch of records
         schema: 
           type: integer
           default: 1
     get:
-      summary: Retrieve an energy record.
+      summary: Retrieve an energy record
       tags: 
         - All Records
         - Energy Records
       description: Retrieve energy records of countries for a specified year 
-                  optionally sorted per population size and split in batches.
+                  optionally sorted per population size and split in batches
       responses:
         '200':
           description: OK
@@ -421,12 +421,12 @@ paths:
       - name: n-countries
         in: query
         required: true
-        description: Number n (≥1) of countries to be retrieved.
+        description: Number n (≥1) of countries to be retrieved
         schema:
           type: integer
       - name: filter
         in: query
-        description: Sorting filter for the countries.
+        description: Sorting filter for the countries
         schema:
           type: string
           enum:
@@ -436,7 +436,7 @@ paths:
       - name: order
         in: query
         required: false
-        description: Order in which the countries are retrieved based on the filter.
+        description: Order in which the countries are retrieved based on the filter
         schema:
           type: string
           enum:
@@ -446,7 +446,7 @@ paths:
       - name: period-type
         in: query
         required: true
-        description: Time period type on which the countries will be sorted.
+        description: Time period type on which the countries will be sorted
         schema:
           type: string
           enum:
@@ -455,15 +455,15 @@ paths:
       - name: period-value
         in: query
         required: true
-        description: Time period value.
+        description: Time period value
         schema:
           type: integer
     get:
-      summary: Retrieve countries.
+      summary: Retrieve countries
       tags: 
         - All Records
         - Countries
-      description: Retrieve a number of countries with an optional sorting filter.
+      description: Retrieve a number of countries with an optional sorting filter
       responses:
         '200':
           description: OK
