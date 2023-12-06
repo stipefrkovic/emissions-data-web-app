@@ -148,16 +148,24 @@ paths:
         - All Records
         - General Records
       description: Retrieve the record with population and GDP data of a country for a specific year.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/general"
       responses:
         '201':
           description: general info succesfully created.
           content:
             application/json:
-              schema:
-                  $ref: "#/components/schemas/general"
-            text/csv:
-              schema:
-                  $ref: "#/components/schemas/general"
+                schema:
+                  type: integer
+          headers:
+              Location:
+                schema:
+                  type: string
+                description: The URL of the newly-created general record
         '400':
           $ref: '#/components/responses/BadRequest'
 
@@ -222,7 +230,7 @@ paths:
       description: Update the record with population and GDP data of a country for a specific year.
       responses:
         '200':
-          description: OK
+          description: General record updated, returns the new state
           content:
             application/json:
               schema:
