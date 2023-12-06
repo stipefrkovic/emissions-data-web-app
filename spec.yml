@@ -113,7 +113,7 @@ components:
       description: Server error; no results, try again later
 
 paths:
-  /records/general/:
+  /records/general:
     parameters:
       - name: id-type
         in: query
@@ -274,7 +274,7 @@ paths:
         '5XX':
           $ref: '#/components/responses/ServerError'
 
-  /records/temp-change/:
+  /records/temp-change/{continent}:
     parameters:
       - name: continent-name
         in: path
@@ -317,9 +317,9 @@ paths:
         '5XX':
           $ref: '#/components/responses/ServerError'
   
-  /records/energy:
+  /records/energy/{year}:
     parameters:
-      - name: query
+      - name: year
         in: path
         required: true
         description: Year of the creation of the records.
@@ -384,10 +384,10 @@ paths:
         '5XX':
           $ref: '#/components/responses/ServerError'
 
-  /areas/countries/:
+  /countries/{n-countries}:
     parameters:
       - name: n-countries
-        in: query
+        in: path
         required: true
         description: Number n (≥1) of countries to be retrieved.
         schema:
@@ -428,8 +428,7 @@ paths:
           type: integer
     get:
       tags: 
-        - All Areas
-        - Countries
+        - All Countries
       description: Retrieve a number of countries with an optional sorting filter.
       responses:
         '200':
