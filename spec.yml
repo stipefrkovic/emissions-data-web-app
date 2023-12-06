@@ -18,6 +18,11 @@ info:
 
 # for the multiple identifiers, we could have multiple endpoints? e.g. one for iso-code and one for country name, etc.
 
+# Notes (Stipe)
+# Make sure integer/float types are correct in schemas
+# Discuss area change and path n-countries change
+
+
 servers:
   - url: http://localhost:3001
     description: ExpressJS backend
@@ -26,6 +31,8 @@ servers:
 # - update and integrate json schemas - christopher
 # - endpoint operation summaries - stipe
 # - response codes including example values and media type csv (all) and json (except 200)- andro
+
+
 
 components:
   schemas:
@@ -137,10 +144,11 @@ paths:
           type: string
 
     get:
+      summary: Retrieve a general record.
       tags: 
         - All Records
         - General Records
-      description: Retrieve the general record of a country for a specific year.
+      description: Retrieve the record with population and GDP data of a country for a specific year.
       responses:
         '200':
           description: OK
@@ -161,10 +169,11 @@ paths:
         '5XX':
           $ref: '#/components/responses/ServerError'
     post:
+      summary: Create a general record.
       tags: 
         - All Records
         - General Records
-      description: Create the general record of a country for a specific year.
+      description: Retrieve the record with population and GDP data of a country for a specific year.
       responses:
         '201':
           description: general info succesfully created.
@@ -184,10 +193,11 @@ paths:
         '5XX':
           $ref: '#/components/responses/ServerError'
     put:
+      summary: Update a general record.
       tags: 
         - All Records
         - General Records
-      description: Update the general record of a country for a specific year.
+      description: Update the record with population and GDP data of a country for a specific year.
       responses:
         '200':
           description: OK
@@ -207,10 +217,11 @@ paths:
         '5XX':
           $ref: '#/components/responses/ServerError'
     delete:
+      summary: Delete a general record.
       tags: 
         - All Records
         - General Records
-      description: Delete the general record of a country for the specified year.
+      description: Delete the record with population and GDP data of a country for a specific year.
       responses:
         '204':
           description: General info succesfully deleted
@@ -242,14 +253,15 @@ paths:
       - name: year
         in: query
         required: false
-        description: Year from which to get records.
+        description: Year from which to retrieve records.
         schema:
           type: string
     get:
+      summary: Retrieve an emission record.
       tags: 
         - All Records
         - Emission Records
-      description: Get emission record(s) of a country, optionally since a specified year and later.
+      description: Retrieve emission record(s) of a country, optionally since a specified year and later.
       responses:
         '200':
           description: OK
@@ -285,14 +297,15 @@ paths:
       - name: year
         in: query
         required: false
-        description: Year from which to get records.
+        description: Year from which to retrieve records.
         schema:
           type: string
     get:
+      summary: Retrieve a temperature change records.
       tags: 
         - All Records
         - Temperature Change Records
-      description: Get temperature change record(s) of a continent, optionally since a specified year and later.
+      description: Retrieve temperature change record(s) of a continent, optionally since a specified year and later.
       responses:
         '200':
           description: OK
@@ -355,10 +368,11 @@ paths:
           type: integer
           default: 1
     get:
+      summary: Retrieve an energy record.
       tags: 
         - All Records
         - Energy Records
-      description: Get energy records of countries for a specified year 
+      description: Retrieve energy records of countries for a specified year 
                   optionally sorted per population size and split in batches.
       responses:
         '200':
@@ -427,6 +441,7 @@ paths:
         schema:
           type: integer
     get:
+      summary: Retrieve countries.
       tags: 
         - All Countries
       description: Retrieve a number of countries with an optional sorting filter.
