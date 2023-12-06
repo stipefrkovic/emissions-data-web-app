@@ -132,17 +132,63 @@ paths:
             - country-name
             - country-iso-code
       - name: id
-        in: query
+        in: path
         required: true
         schema:
           type: string
       - name: year
-        in: query
+        in: path
         required: true
         description: Year of the creation of the record.
         schema:
           type: string
+    post:
+      summary: Create a general record.
+      tags: 
+        - All Records
+        - General Records
+      description: Retrieve the record with population and GDP data of a country for a specific year.
+      responses:
+        '201':
+          description: general info succesfully created.
+          content:
+            application/json:
+              schema:
+                  $ref: "#/components/schemas/general"
+            text/csv:
+              schema:
+                  $ref: "#/components/schemas/general"
+        '400':
+          $ref: '#/components/responses/BadRequest'
 
+        '409':
+          description: Record with the same name already exists
+
+        '5XX':
+          $ref: '#/components/responses/ServerError'
+  
+  /records/{id}/{year}/general:
+    parameters:
+      - name: id-type
+        in: query
+        required: true
+        description: Name of the country or the ISO 3166-1 alpha-3 code of the country.
+        schema:
+          type: string
+          enum: 
+            - country-name
+            - country-iso-code
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+      - name: year
+        in: path
+        required: true
+        description: Year of the creation of the record.
+        schema:
+          type: string
     get:
       summary: Retrieve a general record.
       tags: 
@@ -165,30 +211,6 @@ paths:
 
         '404':
           $ref: "#/components/responses/NotFound"
-
-        '5XX':
-          $ref: '#/components/responses/ServerError'
-    post:
-      summary: Create a general record.
-      tags: 
-        - All Records
-        - General Records
-      description: Retrieve the record with population and GDP data of a country for a specific year.
-      responses:
-        '201':
-          description: general info succesfully created.
-          content:
-            application/json:
-              schema:
-                  $ref: "#/components/schemas/general"
-            text/csv:
-              schema:
-                  $ref: "#/components/schemas/general"
-        '400':
-          $ref: '#/components/responses/BadRequest'
-
-        '409':
-          description: Record with the same name already exists
 
         '5XX':
           $ref: '#/components/responses/ServerError'
@@ -234,7 +256,7 @@ paths:
         '5XX':
           $ref: '#/components/responses/ServerError'
   
-  /records/emission:
+  /records/{id}/emission:
     parameters:
       - name: id-type
         in: query
@@ -246,7 +268,7 @@ paths:
             - country-name
             - country-iso-code
       - name: id
-        in: query
+        in: path
         required: true
         schema:
           type: string
@@ -286,7 +308,7 @@ paths:
         '5XX':
           $ref: '#/components/responses/ServerError'
 
-  /records/temp-change/{continent}:
+  /records/{continent}/temp-change:
     parameters:
       - name: continent-name
         in: path
@@ -330,7 +352,7 @@ paths:
         '5XX':
           $ref: '#/components/responses/ServerError'
   
-  /records/energy/{year}:
+  /records/{year}/energy:
     parameters:
       - name: year
         in: path
@@ -398,10 +420,10 @@ paths:
         '5XX':
           $ref: '#/components/responses/ServerError'
 
-  /countries/{n-countries}:
+  /records/countries:
     parameters:
       - name: n-countries
-        in: path
+        in: query
         required: true
         description: Number n (≥1) of countries to be retrieved.
         schema:
@@ -443,7 +465,8 @@ paths:
     get:
       summary: Retrieve countries.
       tags: 
-        - All Countries
+        - All Records
+        - Countries
       description: Retrieve a number of countries with an optional sorting filter.
       responses:
         '200':
