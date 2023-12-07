@@ -1,158 +1,365 @@
 openapi: '3.0.2'
 info:
-  title: CO2 and GHG API
+  title: Emission Data API
   version: '1.0'
-  description: 'Specification of the CO2 and GHG API from Group 23 
+  description: 'Specification of the emission data API from Group 23 
                 of the 2023-24 Web Engineering course at the University of Groningen.'
 
-# Stipe: 
-# So far I think we should crete two main entities: records and areas
-# The records are of different types (e.g. emission) to minimize network traffic and to easily satisfy different bulletpoints of REQ1
-# The areas are also of two types: countries and continents 
-# This is because they have different properties (e.g. continents do not have iso codes), have different data, and are implicitly differentied in the data (countries, continents, lists of countries, ...?)
-
-# This might be useful when either the name or the iso code of a country can be used:
-# https://stackoverflow.com/questions/53782328/how-to-require-at-least-one-of-two-parameters-in-openapi
-# further specify endpoint paths? e.g. in energy records, '/records/emission-records/per-year'? 
-# it's a bit wonky how the endpoint queries should be used? e.g. it's not set that we either the name or the iso code of a country query should be used
 
 servers:
   - url: http://localhost:3001
     description: ExpressJS backend
 
+
+components:
+  schemas:
+    general:
+      type: object
+      properties:
+        GDP:
+          type: integer
+          description: GDP of the country
+        population:
+          type: integer
+          description: Population of the country
+
+    emission:
+      type: object
+      properties:
+        co2:
+          type: number
+          description: CO2 emission of the country
+        methane:
+          type: number
+          description: Methane emission of the country
+        nitrous oxide:
+          type: number
+          description: Nitrous oxide emission of the country
+        total ghg:
+          type: number
+          description: Total greenhouse gas emission of the country
+
+    temp-change:
+      type: object
+      properties:
+        share of temperature change from:
+          type: number
+          description: Temperature change of the country
+        temperature change from *:
+          type: number
+          description: Temperature change of the country
+    energy:
+      type: object
+      properties:
+        energy per capita:
+          type: number
+          description: Energy per capita of the country
+        GDP per capita:
+          type: number
+          description: GDP per capita of the country
+
+    country:
+      type: object
+      properties:
+        name:
+          type: string
+          description: name of the country
+        share of temperature change from ghg:
+          type: number
+          description: share of temperature change from ghg of the country
+  
+  responses:
+    BadRequest:
+      description: Request was not well-formed, see error details
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              error-message:
+                type: string
+                description: Error message detailing the problem with the request
+        text/csv:
+          schema:
+            type: object
+            properties:
+              error-message:
+                type: string
+                description: Error message detailing the problem with the request
+
+    NotFound:
+      description: Resource not found
+
+    NoResults:
+      description: List empty; no results
+
+    ServerError:
+      description: Server error; no results, try again later
+
 paths:
   /records/general:
     parameters:
-      - name: name
-        in: query
-        required: false
-        description: Name of the country.
-        schema:
-          type: string
-      - name: iso-code
-        in: query
-        required: false
-        description: ISO 3166-1 alpha-3, three-letter code, of the country.
-        schema:
-          type: string
-      - name: year
+      - name: id-type
         in: query
         required: true
-        description: Year of the creation of the record.
+        description: Name of the country or the ISO 3166-1 alpha-3 code of the country
         schema:
           type: string
-
-    get:
-      tags: 
-        - All Records
-        - General Records
-      description: Retrieve the general record of a country for a specific year.
-      responses:
-        '200':
-          description: OK
+          enum: 
+            - country-name
+            - country-iso-code
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+      - name: year
+        in: path
+        required: true
+        description: Year of the creation of the record
+        schema:
+          type: string
     post:
+      summary: Create a general record
       tags: 
         - All Records
         - General Records
-      description: Create the general record of a country for a specific year.
+      description: Create the record with population and GDP data of a country for a specific year
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/general"
       responses:
-        '200':
-          description: OK
-    put:
-      tags: 
-        - All Records
-        - General Records
-      description: Update the general record of a country for a specific year.
-      responses:
-        '200':
-          description: OK
-    delete:
-      tags: 
-        - All Records
-        - General Records
-      description: Delete the general record of a country for the specified year.
-      responses:
-        '200':
-          description: OK
+        '201':
+          description: General information succesfully created
+          content:
+            application/json:
+                schema:
+                  type: integer
+          headers:
+              Location:
+                schema:
+                  type: string
+                description: The URL of the newly-created general record
+        '400':
+          $ref: '#/components/responses/BadRequest'
+
+        '409':
+          description: Record with the same name already exists
+          headers:
+            Location:
+              schema:
+                type: string
+              description: The URL of the pre-existing record
+
+        '5XX':
+          $ref: '#/components/responses/ServerError'
   
-  /records/emission:
+  /records/{id}/{year}/general:
     parameters:
-      - name: name
+      - name: id-type
         in: query
-        required: false
-        description: Name of the country.
+        required: true
+        description: Name of the country or the ISO 3166-1 alpha-3 code of the country
         schema:
           type: string
-      - name: iso-code
+          enum: 
+            - country-name
+            - country-iso-code
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+      - name: year
+        in: path
+        required: true
+        description: Year of the creation of the record
+        schema:
+          type: string
+    get:
+      summary: Retrieve a general record
+      tags: 
+        - All Records
+        - General Records
+      description: Retrieve the record with population and GDP data of a country for a specific year
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                  $ref: "#/components/schemas/general"
+            text/csv:
+              schema:
+                  $ref: "#/components/schemas/general"
+
+        '400':
+          $ref: '#/components/responses/BadRequest'
+
+        '404':
+          $ref: "#/components/responses/NotFound"
+
+        '5XX':
+          $ref: '#/components/responses/ServerError'
+    put:
+      summary: Update a general record
+      tags:
+        - All Records
+        - General Records
+      description: Update the record with population and GDP data of a country for a specific year
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/general"
+      responses:
+        '200':
+          description: General record updated, returns the new state
+          content:
+            application/json:
+              schema:
+                  $ref: "#/components/schemas/general"
+            text/csv:
+              schema:
+                  $ref: "#/components/schemas/general"
+        '400':
+          $ref: '#/components/responses/BadRequest'
+
+        '404':
+          $ref: "#/components/responses/NotFound"
+
+        '5XX':
+          $ref: '#/components/responses/ServerError'
+    delete:
+      summary: Delete a general record
+      tags: 
+        - All Records
+        - General Records
+      description: Delete the record with population and GDP data of a country for a specific year
+      responses:
+        '204':
+          description: General info succesfully deleted
+        '400':
+          $ref: '#/components/responses/BadRequest'
+
+        '404':
+          $ref: "#/components/responses/NotFound"
+
+        '5XX':
+          $ref: '#/components/responses/ServerError'
+  
+  /records/{id}/emission:
+    parameters:
+      - name: id-type
         in: query
-        required: false
-        description: ISO 3166-1 alpha-3, three-letter code, of the country.
+        required: true
+        description: Name of the country or the ISO 3166-1 alpha-3 code of the country
+        schema:
+          type: string
+          enum: 
+            - country-name
+            - country-iso-code
+      - name: id
+        in: path
+        required: true
         schema:
           type: string
       - name: year
         in: query
         required: false
-        description: Year of the creation of the record.
+        description: Year from which to retrieve records
         schema:
           type: string
-      - name: all-since-year
-        in: query
-        required: false
-        description: Get all records since the specified year.
-        schema:
-          type: boolean
-          default: false
     get:
+      summary: Retrieve an emission record
       tags: 
         - All Records
         - Emission Records
-      description: Get emission record(s) of a country, optionally for or since a specified year.
+      description: Retrieve emission record(s) of a country, optionally since a specified year and later
       responses:
         '200':
           description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/emission"
+            text/csv:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/emission"
 
-  /records/temp-change:
+        '204':
+          $ref: "#/components/responses/NoResults"
+
+        '400':
+          $ref: '#/components/responses/BadRequest'
+
+        '5XX':
+          $ref: '#/components/responses/ServerError'
+
+  /records/{continent}/temp-change:
     parameters:
-      - name: name
-        in: query
+      - name: continent-name
+        in: path
         required: true
-        description: Name of the continent.
+        description: Name of the continent
         schema:
           type: string
       - name: year
         in: query
         required: false
-        description: Year of the creation of the record.
+        description: Year from which to retrieve records
         schema:
           type: string
-      - name: all-since-year
-        in: query
-        required: false
-        description: Get all records since the specified year.
-        schema:
-          type: boolean
-          default: false
     get:
+      summary: Retrieve a temperature change records
       tags: 
         - All Records
         - Temperature Change Records
-      description: Get temperature change record(s) of a continent, optionally for or since a specified year.
+      description: Retrieve temperature change record(s) of a continent, optionally since a specified year and later
       responses:
         '200':
           description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/temp-change"
+            text/csv:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/temp-change"
+        
+        '204':
+          $ref: "#/components/responses/NoResults"
+
+        '400':
+          $ref: '#/components/responses/BadRequest'
+
+        '5XX':
+          $ref: '#/components/responses/ServerError'
   
-  /records/energy:
+  /records/{year}/energy:
     parameters:
       - name: year
-        in: query
+        in: path
         required: true
-        description: Year of the creation of the records.
+        description: Year of the creation of the records
         schema:
           type: string
       - name: sort-per
         in: query
         required: false
-        description: Sort records of countries on descending population size.
+        description: Sort records of countries on descending population size
         schema:
           type: string
           enum:
@@ -162,7 +369,7 @@ paths:
       - name: batch-size
         in: query
         required: false
-        description: Size of records batch to be retrieved.
+        description: Size of records batch to be retrieved
         schema:
           type: integer
           enum:
@@ -174,31 +381,52 @@ paths:
       - name: batch-idx
         in: query
         required: false
-        description: Index of the batch of records.
+        description: Index of the batch of records
         schema: 
           type: integer
           default: 1
     get:
+      summary: Retrieve an energy record
       tags: 
         - All Records
         - Energy Records
-      description: Get energy records of countries for a specified year 
-                  optionally sorted per population size and split in batches.
+      description: Retrieve energy records of countries for a specified year 
+                  optionally sorted per population size and split in batches
       responses:
         '200':
           description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/energy"
+            text/csv:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/energy"
 
-  /areas/countries/:
+        '204':
+          $ref: "#/components/responses/NoResults"
+
+        '400':
+          $ref: '#/components/responses/BadRequest'
+
+        '5XX':
+          $ref: '#/components/responses/ServerError'
+
+  /records/countries:
     parameters:
       - name: n-countries
         in: query
         required: true
-        description: Number n (≥1) of countries to be retrieved.
+        description: Number n (≥1) of countries to be retrieved
         schema:
           type: integer
       - name: filter
         in: query
-        description: Sorting filter for the countries.
+        description: Sorting filter for the countries
         schema:
           type: string
           enum:
@@ -208,30 +436,54 @@ paths:
       - name: order
         in: query
         required: false
-        description: Order in which the countries are retrieved based on the filter.
+        description: Order in which the countries are retrieved based on the filter
         schema:
           type: string
           enum:
             - ascending
             - descending
           default: descending
-      - name: year
+      - name: period-type
         in: query
-        required: false
-        description: Sort countries' records for this year.
+        required: true
+        description: Time period type on which the countries will be sorted
         schema:
-          type: integer
-      - name: last-m-years
+          type: string
+          enum:
+            - specific-year
+            - last-m-years
+      - name: period-value
         in: query
-        required: false
-        description: Sort countries' records for the past m (≥1) years.
+        required: true
+        description: Time period value
         schema:
           type: integer
     get:
+      summary: Retrieve countries
       tags: 
-        - All Areas
+        - All Records
         - Countries
-      description: Retrieve a number of countries with an optional sorting filter.
+      description: Retrieve a number of countries with an optional sorting filter
       responses:
         '200':
           description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/country"
+            text/csv:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/country"
+        
+        '204':
+          $ref: "#/components/responses/NoResults"
+
+        '400':
+          $ref: '#/components/responses/BadRequest'
+
+        '5XX':
+          $ref: '#/components/responses/ServerError'
