@@ -79,12 +79,13 @@ components:
               error-message:
                 type: string
                 description: Error message detailing the problem with the request
+          example:
+            error-message: Sike
         text/csv:
           schema:
             type: object
-            example: |
-                error-message, string
             description: Error message detailing the problem with the request
+          example: Sike
 
     NotFound:
       description: Resource not found
@@ -118,6 +119,8 @@ paths:
         description: Year of the creation of the record
         schema:
           type: string
+          minimum: 1900
+          maximum: 2023
     post:
       summary: Create a general record
       tags: 
@@ -154,7 +157,22 @@ paths:
                   type: string
                 description: The URL of the newly-created general record
         '400':
-          $ref: '#/components/responses/BadRequest'
+          description: Request was not well-formed, see error details
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error-message:
+                    type: string
+                    description: Error message detailing the problem with the request
+              example:
+                error-message: The request body has an invalid entry
+            text/csv:
+              schema:
+                type: object
+                description: Error message detailing the problem with the request
+              example: The request body has an invalid entry
 
         '409':
           description: Record with the same name already exists
@@ -189,6 +207,8 @@ paths:
         description: Year of the creation of the record
         schema:
           type: string
+          minimum: 1900
+          maximum: 2023
     get:
       summary: Retrieve a general record
       tags: 
@@ -296,6 +316,8 @@ paths:
         description: Year from which to retrieve records
         schema:
           type: string
+          minimum: 1900
+          maximum: 2023
     get:
       summary: Retrieve an emission record
       tags: 
@@ -351,6 +373,8 @@ paths:
         description: Year from which to retrieve records
         schema:
           type: string
+          minimum: 1900
+          maximum: 2023
     get:
       summary: Retrieve a temperature change records
       tags: 
@@ -390,6 +414,8 @@ paths:
         description: Year of the creation of the records
         schema:
           type: string
+          minimum: 1900
+          maximum: 2023
       - name: sort-per
         in: query
         required: false
@@ -492,7 +518,12 @@ paths:
         required: true
         description: Time period value
         schema:
-          type: integer
+            type: integer
+            minimum: 1
+            maximum: 2023
+            description: |
+              If period-type is 'specific-year', period-value must be between 1900 and 2023.
+              If period-type is 'last-m-years', period-value must be between 1 and 100.
     get:
       summary: Retrieve countries
       tags: 
