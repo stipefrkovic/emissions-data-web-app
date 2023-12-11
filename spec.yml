@@ -82,10 +82,9 @@ components:
         text/csv:
           schema:
             type: object
-            properties:
-              error-message:
-                type: string
-                description: Error message detailing the problem with the request
+            example: |
+                error-message, string
+            description: Error message detailing the problem with the request
 
     NotFound:
       description: Resource not found
@@ -131,6 +130,12 @@ paths:
           application/json:
             schema:
               $ref: "#/components/schemas/general"
+          text/csv:
+            schema:
+                type: object
+            example: |
+              GDP, 0
+              population, 0
       responses:
         '201':
           description: General information succesfully created
@@ -138,6 +143,11 @@ paths:
             application/json:
                 schema:
                   type: integer
+            text/csv:
+              schema:
+                type: integer
+              example: |
+                0
           headers:
               Location:
                 schema:
@@ -194,7 +204,10 @@ paths:
                   $ref: "#/components/schemas/general"
             text/csv:
               schema:
-                  $ref: "#/components/schemas/general"
+                type: object
+              example: |
+                GDP, 0
+                population, 0
 
         '400':
           $ref: '#/components/responses/BadRequest'
@@ -216,6 +229,12 @@ paths:
           application/json:
             schema:
               $ref: "#/components/schemas/general"
+          text/csv:
+            schema:
+                type: object
+            example: |
+              GDP, 0
+              population, 0
       responses:
         '200':
           description: General record updated, returns the new state
@@ -225,7 +244,10 @@ paths:
                   $ref: "#/components/schemas/general"
             text/csv:
               schema:
-                  $ref: "#/components/schemas/general"
+                type: object
+              example: |
+                GDP, 0
+                population, 0
         '400':
           $ref: '#/components/responses/BadRequest'
 
@@ -292,8 +314,11 @@ paths:
             text/csv:
               schema:
                 type: array
-                items:
-                  $ref: "#/components/schemas/emission"
+              example: |
+                co2, 0
+                methane, 0
+                nitrous oxide, 0
+                total ghg, 0
 
         '204':
           $ref: "#/components/responses/NoResults"
@@ -312,6 +337,14 @@ paths:
         description: Name of the continent
         schema:
           type: string
+          enum: 
+            - Africa
+            - Antarctica
+            - Asia
+            - Australia
+            - Europe
+            - South America
+            - North America
       - name: year
         in: query
         required: false
@@ -336,8 +369,9 @@ paths:
             text/csv:
               schema:
                 type: array
-                items:
-                  $ref: "#/components/schemas/temp-change"
+              example: |
+                share of temperature change from, 0
+                temperature change from *, 0
         
         '204':
           $ref: "#/components/responses/NoResults"
@@ -404,8 +438,9 @@ paths:
             text/csv:
               schema:
                 type: array
-                items:
-                  $ref: "#/components/schemas/energy"
+              example: |
+                energy per capita, 0
+                GDP per capita, 0
 
         '204':
           $ref: "#/components/responses/NoResults"
@@ -476,8 +511,9 @@ paths:
             text/csv:
               schema:
                 type: array
-                items:
-                  $ref: "#/components/schemas/country"
+              example: |
+                name, string
+                share of temperature change from ghg, 0
         
         '204':
           $ref: "#/components/responses/NoResults"
