@@ -1,6 +1,6 @@
 import { Application } from "express";
 import { IRouter } from "./irouter";
-import * as asyncHandler from "express-async-handler";
+import asyncHandler from "express-async-handler";
 
 import { RecordsController } from "../controllers/records-controller"; 
 

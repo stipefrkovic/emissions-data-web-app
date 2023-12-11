@@ -1,13 +1,14 @@
-import * as express from 'express';
-import * as morgan from 'morgan';
-import * as cors from 'cors';
+import express, {Application, Express, Request, Response} from 'express';
+import morgan from "morgan";
+import cors from "cors";
 import * as bodyParser from 'body-parser';
+import { MainRouter } from './routes/main-router';
 
 class App {
-    public app: express.Application;
+    public app: Application;
 
     constructor() {
-        this.app = express()
+        this.app = express();
 
         // configure middleware
         this.configMiddleware();

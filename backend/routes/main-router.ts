@@ -1,6 +1,6 @@
 import { Application } from "express";
 import { IRouter } from "./irouter";
-import { RecordsRouter } from "./records-router.ts";
+import { RecordsRouter } from "./records-router";
 
 
 export class MainRouter implements IRouter {
