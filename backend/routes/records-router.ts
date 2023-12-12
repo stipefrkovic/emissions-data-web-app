@@ -8,6 +8,8 @@ export class RecordsRouter implements IRouter {
     protected controller : RecordsController = new RecordsController;
 
     public attach(app: Application): void {
+        app.route('/records')
+            .get(asyncHandler(this.controller.getAllRecords))
         app.route('/records/general')
             .post(asyncHandler(this.controller.createRecordAsync))
 
