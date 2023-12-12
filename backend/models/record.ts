@@ -1,11 +1,11 @@
-import { Entity, Column, PrimaryGeneratedColumn } from "typeorm"
+import { Entity, Column, PrimaryGeneratedColumn, PrimaryColumn } from "typeorm"
 
 @Entity({name: "records"})
 export class Record {
-    @PrimaryGeneratedColumn()
+    @PrimaryColumn()
     country!: string;
     
-    @Column()
+    @PrimaryColumn()
     year!: number;
 
     @Column()

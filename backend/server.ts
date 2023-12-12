@@ -9,9 +9,6 @@ import { Record } from "./models/record";
 const PORT = process.env.PORT as unknown as number || 3000;
 const HOST = process.env.HOST || "localhost";
 
-console.log(PORT);
-console.log(HOST);
-
 const database = new DataSource({
     type: "mysql",
     host: "mariadb",

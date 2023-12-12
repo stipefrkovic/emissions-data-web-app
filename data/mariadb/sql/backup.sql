@@ -23,8 +23,8 @@ DROP TABLE IF EXISTS `records`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `records` (
-  `country` varchar(50) DEFAULT NULL,
-  `year` int(11) DEFAULT NULL,
+  `country` varchar(50) NOT NULL,
+  `year` int(11) NOT NULL,
   `iso_code` varchar(50) DEFAULT NULL,
   `population` int(11) DEFAULT NULL,
   `gdp` varchar(50) DEFAULT NULL,
@@ -38,7 +38,8 @@ CREATE TABLE `records` (
   `temperature_change_from_co2` int(11) DEFAULT NULL,
   `temperature_change_from_ghg` int(11) DEFAULT NULL,
   `temperature_change_from_n2o` int(11) DEFAULT NULL,
-  `total_ghg` varchar(50) DEFAULT NULL
+  `total_ghg` varchar(50) DEFAULT NULL,
+  PRIMARY KEY (`country`,`year`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -505,4 +506,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2023-12-12 12:18:00
+-- Dump completed on 2023-12-12 13:23:13
