@@ -2,30 +2,16 @@ version: '3.8'
 services:
   mariadb:
     image: mariadb:11.1
-    environment: # Configuration of the database server as specified in their README
+    environment:
       MYSQL_ROOT_PASSWORD: ${DATABASE_ROOT_PASSWORD:?}
       MYSQL_DATABASE: ${DATABASE_NAME:?}
       MYSQL_USER: ${DATABASE_USER:?}
       MYSQL_PASSWORD: ${DATABASE_PASSWORD:?}
-    ports: # We expose the database on the port specified in the .env file
+    ports:
       - ${DATABASE_PORT:-3306}:3306
     volumes:
-      # We store the database files in ./data/db in our repository
-      - ./data/maria/db:/var/lib/mysql
-      # We mount the SQL dump files in ./data/sql to automatically seed the database
-      - "./data/maria/sql:/docker-entrypoint-initdb.d"
+      - ./data/mariadb/db:/var/lib/mysql
     restart: always
-
-  # db:
-  #   image: postgres:latest
-  #   restart: always
-  #   environment:
-  #     - POSTGRES_USER=postgres
-  #     - POSTGRES_PASSWORD=postgres
-  #   ports:
-  #     - '5432:5432'
-  #   volumes: 
-  #     - ./data/db:/var/lib/postgresql/data
 
   backend:
     image: backend

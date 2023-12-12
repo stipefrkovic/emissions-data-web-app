@@ -5,7 +5,7 @@ export class Record {
     @PrimaryGeneratedColumn()
     country!: string;
     
-    @PrimaryGeneratedColumn()
+    @Column()
     year!: number;
 
     @Column()
