@@ -80,12 +80,12 @@ components:
                 type: string
                 description: Error message detailing the problem with the request
           example:
-            error-message: Sike
+            error-message: The request body has an invalid entry.
         text/csv:
           schema:
             type: object
             description: Error message detailing the problem with the request
-          example: Sike
+          example: The request body has an invalid entry.
 
     NotFound:
       description: Resource not found
@@ -98,29 +98,6 @@ components:
 
 paths:
   /records/general:
-    parameters:
-      - name: id-type
-        in: query
-        required: true
-        description: Name of the country or the ISO 3166-1 alpha-3 code of the country
-        schema:
-          type: string
-          enum: 
-            - country-name
-            - country-iso-code
-      - name: id
-        in: path
-        required: true
-        schema:
-          type: string
-      - name: year
-        in: path
-        required: true
-        description: Year of the creation of the record
-        schema:
-          type: string
-          minimum: 1900
-          maximum: 2023
     post:
       summary: Create a general record
       tags: 
@@ -132,11 +109,26 @@ paths:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/general"
+              type: object
+              properties:
+                country:
+                  type: string
+                  description: Country name or its ISO code
+                year:
+                  type: integer
+                  description: Year of the creation of the record
+                GDP:
+                  type: integer
+                  description: GDP of the country
+                population:
+                  type: integer
+                  description: Population of the country
           text/csv:
             schema:
                 type: object
             example: |
+              country, string
+              year, 0
               GDP, 0
               population, 0
       responses:
@@ -167,12 +159,12 @@ paths:
                     type: string
                     description: Error message detailing the problem with the request
               example:
-                error-message: The request body has an invalid entry
+                error-message: The request body has an invalid entry.
             text/csv:
               schema:
                 type: object
                 description: Error message detailing the problem with the request
-              example: The request body has an invalid entry
+              example: The request body has an invalid entry.
 
         '409':
           description: Record with the same name already exists
@@ -185,30 +177,22 @@ paths:
         '5XX':
           $ref: '#/components/responses/ServerError'
   
-  /records/{id}/{year}/general:
+  /records/{country}/{year}/general:
     parameters:
-      - name: id-type
-        in: query
-        required: true
-        description: Name of the country or the ISO 3166-1 alpha-3 code of the country
-        schema:
-          type: string
-          enum: 
-            - country-name
-            - country-iso-code
-      - name: id
+      - name: country
         in: path
         required: true
+        description: Name of the country or the ISO 3166-1 alpha-3 code of the country
         schema:
           type: string
       - name: year
         in: path
         required: true
-        description: Year of the creation of the record
+        description: "Year of the creation of the records (range: 1900-1999)"
         schema:
           type: string
           minimum: 1900
-          maximum: 2023
+          maximum: 1999
     get:
       summary: Retrieve a general record
       tags: 
@@ -294,30 +278,22 @@ paths:
         '5XX':
           $ref: '#/components/responses/ServerError'
   
-  /records/{id}/emission:
+  /records/{country}/emission:
     parameters:
-      - name: id-type
-        in: query
-        required: true
-        description: Name of the country or the ISO 3166-1 alpha-3 code of the country
-        schema:
-          type: string
-          enum: 
-            - country-name
-            - country-iso-code
-      - name: id
+      - name: country
         in: path
         required: true
+        description: Name of the country or the ISO 3166-1 alpha-3 code of the country
         schema:
           type: string
       - name: year
         in: query
         required: false
-        description: Year from which to retrieve records
+        description: "Year of the creation of the records (range: 1900-1999)"
         schema:
           type: string
           minimum: 1900
-          maximum: 2023
+          maximum: 1999
     get:
       summary: Retrieve an emission record
       tags: 
@@ -353,7 +329,7 @@ paths:
 
   /records/{continent}/temp-change:
     parameters:
-      - name: continent-name
+      - name: continent
         in: path
         required: true
         description: Name of the continent
@@ -370,11 +346,11 @@ paths:
       - name: year
         in: query
         required: false
-        description: Year from which to retrieve records
+        description: "Year of the creation of the records (range: 1900-1999)"
         schema:
           type: string
           minimum: 1900
-          maximum: 2023
+          maximum: 1999
     get:
       summary: Retrieve a temperature change records
       tags: 
@@ -411,21 +387,21 @@ paths:
       - name: year
         in: path
         required: true
-        description: Year of the creation of the records
+        description: "Year of the creation of the records (range: 1900-1999)"
         schema:
           type: string
           minimum: 1900
-          maximum: 2023
-      - name: sort-per
+          maximum: 1999
+      - name: order-by
         in: query
         required: false
-        description: Sort records of countries on descending population size
+        description: Sort records of countries based on population size
         schema:
           type: string
           enum:
-            - none
-            - population-size
-          default: none
+            - descending
+            - ascending
+          default: descending
       - name: batch-size
         in: query
         required: false
@@ -438,12 +414,16 @@ paths:
             - 50
             - 100
           default: 10
-      - name: batch-idx
+      - name: batch-index
         in: query
         required: false
-        description: Index of the batch of records
+        description: Index of the batch of records (starting from 1) that 
+                     indicates which batch is returned (e.g. in batches of 
+                     size 10 which are covering values 1-100, index 2 means 
+                     that values 11-20 are returned as a batch)
         schema: 
           type: integer
+          minimum: 1
           default: 1
     get:
       summary: Retrieve an energy record
@@ -451,7 +431,7 @@ paths:
         - All Records
         - Energy Records
       description: Retrieve energy records of countries for a specified year 
-                  optionally sorted per population size and split in batches
+                  sorted per population size and split in batches
       responses:
         '200':
           description: OK
@@ -485,6 +465,7 @@ paths:
         description: Number n (≥1) of countries to be retrieved
         schema:
           type: integer
+          minimum: 1
       - name: filter
         in: query
         description: Sorting filter for the countries
@@ -520,7 +501,7 @@ paths:
         schema:
             type: integer
             minimum: 1
-            maximum: 2023
+            maximum: 1999
             description: |
               If period-type is 'specific-year', period-value must be between 1900 and 2023.
               If period-type is 'last-m-years', period-value must be between 1 and 100.
