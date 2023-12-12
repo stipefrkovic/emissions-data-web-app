@@ -1,0 +1,2 @@
+obtain CONTAINER_ID with: docker container ls
+dump database with: docker exec CONTAINER_ID /usr/bin/mariadb-dump -u mariadb --password=mariadb emissions > backup.sql
