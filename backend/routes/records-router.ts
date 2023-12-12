@@ -10,7 +10,7 @@ export class RecordsRouter implements IRouter {
     public attach(app: Application): void {
         app.route('/records')
             .get(asyncHandler(this.controller.getAllRecords))
-        app.route('/records/general')
+        /*app.route('/records/general')
             .post(asyncHandler(this.controller.createRecordAsync))
 
         app.route('/records/:id/:year/general')
@@ -28,6 +28,6 @@ export class RecordsRouter implements IRouter {
             .get(asyncHandler(this.controller.getEnergyInYearAsync))
 
         app.route('/records/countries')
-            .get(asyncHandler(this.controller.getCountriesAsync))
+            .get(asyncHandler(this.controller.getCountriesAsync))*/
     }
 }

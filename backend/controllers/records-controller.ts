@@ -5,15 +5,15 @@ import { validate } from "class-validator";
 import Container from "typedi";
 import { Paging, Filter, Order } from "./helper";
 import { Record } from "../models/record";
-import { Record as ApiRecord } from "../api-models/record";
+/*import { Record as ApiRecord } from "../api-models/record";
 import { General } from "../api-models/general";
 import { Emission } from "../api-models/emission";
 import { Energy } from "../api-models/energy";
 import { TempChange } from "../api-models/temp-change";
-import { Country } from "../api-models/country";
+import { Country } from "../api-models/country";*/
 
 export class RecordsController {
-    
+
     public async getAllRecords(req: Request, res: Response): Promise <void> {
         const recordRepository = Container.get<DataSource>("database").getRepository(Record);
         const allRecords = await recordRepository.find({take: 3});
@@ -23,7 +23,7 @@ export class RecordsController {
         return;
     }
 
-    public async getRecordAsync(req: Request<{ id: string, year: string }>, res: Response): Promise <void> {
+    /*public async getRecordAsync(req: Request<{ id: string, year: string }>, res: Response): Promise <void> {
         let record = await Container.get<DataSource>("database").getRepository(Record).findOneBy({
             id: Raw(c => `${c} = :id`, { id: req.params.id }),
             year: Raw(c => `${c} = :year`, { year: req.params.year })
@@ -190,5 +190,5 @@ export class RecordsController {
         let records = await query.getMany();
 
         res.json(records.map(Country.fromDatabase));
-    }
+    }*/
 }
