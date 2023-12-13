@@ -25,13 +25,13 @@ export class Record {
             year: record.year,
             iso_code: record.iso_code,
             population: record.population,
-            gdp: record.energy_per_gdp, //TODO missing in model
+            gdp: record.gdp,
             co2: record.co2,
             energyPerCapita: record.energy_per_capita,
             energyPerGdp: record.energy_per_gdp,
             methane: record.methane,
             nitrousOxide: record.nitrous_oxide,
-            totalGhg: record.share_of_temperature_change_from_ghg, //TODO missing in model
+            totalGhg: record.total_ghg,
             shareOfTempChangeFromGhg: record.temperature_change_from_ghg,
             tempChangeFromCO2: record.temperature_change_from_co2,
             tempChangeFromN2: record.temperature_change_from_n2o,

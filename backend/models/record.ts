@@ -12,6 +12,12 @@ export class Record {
     iso_code?: string;
 
     @Column()
+    gdp?: number;
+
+    @Column()
+    total_ghg?: number;
+
+    @Column()
     population?: number;
 
     @Column()
