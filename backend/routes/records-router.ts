@@ -14,6 +14,9 @@ export class RecordsRouter implements IRouter {
         app.route('/records/:id/:year/general')
             .get(asyncHandler(this.controller.getRecordAsync))
 
+        app.route('/records/:id/emission')
+            .get(asyncHandler(this.controller.getEmissionAsync))
+            
         /*app.route('/records/general')
             .post(asyncHandler(this.controller.createRecordAsync))
 
@@ -22,8 +25,6 @@ export class RecordsRouter implements IRouter {
             .put(asyncHandler(this.controller.updateRecordAsync))
             .delete(asyncHandler(this.controller.deleteRecordAsync))
 
-        app.route('/records/:id/emission')
-            .get(asyncHandler(this.controller.getEmissionAsync))
 
         app.route('/records/:continent/temp-change')
             .get(asyncHandler(this.controller.getTempChangeAsync))

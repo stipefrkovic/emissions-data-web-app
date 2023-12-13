@@ -38,6 +38,26 @@ export class RecordsController {
         res.json(General.fromDatabase(record));
         return;
     }
+    
+    public async getEmissionAsync(req: Request<{ id: string }>, res: Response): Promise <void> {
+        const filter = plainToClass(Filter, req.query, { enableImplicitConversion: true });
+
+        let query = Container.get<DataSource>("database").getRepository(Record).createQueryBuilder("record");
+        query = filter.apply(query);
+
+        if((/^[A-Z]{3}$/).test(req.params.id)){
+            query.andWhere("record.iso_code = :iso", {
+                iso: req.params.id,
+            });
+        } else {
+            query.andWhere("record.country = :country", {
+                    country: req.params.id,
+            });
+        }
+
+        let records = await query.getMany();
+        res.json(records.map(Emission.fromDatabase));
+    }
 
     /*public async createRecordAsync(req: Request, res: Response): Promise <void> {
         const apiRecord = plainToInstance(ApiRecord, req.body, { enableImplicitConversion: true });
@@ -104,23 +124,6 @@ export class RecordsController {
         return;
     }
 
-    public async getEmissionAsync(req: Request<{ id: string }>, res: Response): Promise <void> {
-        const apiRecord = plainToInstance(ApiRecord, req.body, { enableImplicitConversion: true,});
-        const filter = plainToClass(Filter, req.query, { enableImplicitConversion: true });
-
-        let query = Container.get<DataSource>("database").getRepository(Record).createQueryBuilder("record");
-        query = filter.apply(query);
-
-        let records = await Container.get<DataSource>("database") //TODO: needs some double checking when functional
-            .getRepository(Record)
-            .createQueryBuilder("record")
-            .where("record.id IN (:...id)",{
-                id: apiRecord.id?.map((a) => a.id),
-            })
-            .getMany();
-
-        res.json(records.map(Emission.fromDatabase));
-    }
 
     public async getTempChangeAsync(req: Request<{ continent: string}>, res: Response): Promise <void> {
         const apiRecord = plainToInstance(ApiRecord, req.body, { enableImplicitConversion: true,});

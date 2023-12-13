@@ -43,12 +43,10 @@ export class Order implements IQueryHelper<Record> {
 }
 
 export class Filter implements IQueryHelper<Record> {
-  id?: string;
   year?: number;
 
   public apply(query : SelectQueryBuilder<Record>) : SelectQueryBuilder<Record> {
-      if(this.id) query = query.andWhere("record.id = :id", { id: this.id });
-      if(this.year) query = query.andWhere("record.year = :year", { year: this.year });
+      if(this.year) query = query.andWhere("record.year >= :year", { year: this.year });
       return query;
   }
 }
