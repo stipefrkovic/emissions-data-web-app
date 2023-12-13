@@ -1,13 +1,13 @@
-import { Energy as DbEnergy } from "models/energy";
+import { Record as DbRecord } from "../models/record";
 
 export class Energy {
-    energyPerCapita: number;
-    gdpPerCapita: number;
+    energyPerCapita?: number;
+    energyPerGdp?: number;
 
-    public static fromDatabase(energy : DbEnergy) : Energy {
+    public static fromDatabase(energy : DbRecord) : Energy {
         return {
-            energyPerCapita: energy.energyPerCapita,
-            gdpPerCapita: energy.gdpPerCapita
+            energyPerCapita: energy.energy_per_capita,
+            energyPerGdp: energy.energy_per_gdp
         };
     }
 }

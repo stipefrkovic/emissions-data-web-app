@@ -1,14 +1,14 @@
-import { General as DbGeneral } from "models/general";
+import { Record as DbRecord } from "../models/record";
 
 export class General {
-    id: number;
-    gdp: number;
-    population: number;
+    id!: string;
+    gdp?: number;
+    population?: number;
 
-    public static fromDatabase(general : DbGeneral) : General {
+    public static fromDatabase(general : DbRecord) : General {
         return {
-            id: general.id,
-            gdp: general.gdp,
+            id: general.country,
+            gdp: general.energy_per_gdp, //TODO missing in model
             population: general.population
         };
     }

@@ -1,13 +1,13 @@
-import { Country as DbCountry } from "models/country";
+import { Record as DbRecord } from "../models/record";
 
 export class Country {
-    name: string;
-    shareOfTempChangeFromGhg: number;
+    name!: string;
+    shareOfTempChangeFromGhg?: number;
 
-    public static fromDatabase(country : DbCountry) : Country {
+    public static fromDatabase(country : DbRecord) : Country {
         return {
-            name: country.name,
-            shareOfTempChangeFromGhg: country.shareOfTempChangeFromGhg
+            name: country.country,
+            shareOfTempChangeFromGhg: country.share_of_temperature_change_from_ghg
         };
     }
 }
