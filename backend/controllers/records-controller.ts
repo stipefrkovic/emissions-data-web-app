@@ -5,12 +5,12 @@ import { validate } from "class-validator";
 import Container from "typedi";
 import { Paging, Filter, Order } from "./helper";
 import { Record } from "../models/record";
-/*import { Record as ApiRecord } from "../api-models/record";
+import { Record as ApiRecord } from "../api-models/record";
 import { General } from "../api-models/general";
 import { Emission } from "../api-models/emission";
 import { Energy } from "../api-models/energy";
-import { TempChange } from "../api-models/temp-change";
-import { Country } from "../api-models/country";*/
+import { TempChange } from "../api-models/tempChange";
+import { Country } from "../api-models/country";
 
 export class RecordsController {
 
@@ -23,10 +23,10 @@ export class RecordsController {
         return;
     }
 
-    /*public async getRecordAsync(req: Request<{ id: string, year: string }>, res: Response): Promise <void> {
+    public async getRecordAsync(req: Request<{ id: string, year: string }>, res: Response): Promise <void> {
         let record = await Container.get<DataSource>("database").getRepository(Record).findOneBy({
-            id: Raw(c => `${c} = :id`, { id: req.params.id }),
-            year: Raw(c => `${c} = :year`, { year: req.params.year })
+            year: Raw(c => `${c} = :year`, { year: req.params.year }),
+            country: Raw(c => `${c} = :country`, { country: req.params.id })
         });
 
         if(!record) {
@@ -39,7 +39,7 @@ export class RecordsController {
         return;
     }
 
-    public async createRecordAsync(req: Request, res: Response): Promise <void> {
+    /*public async createRecordAsync(req: Request, res: Response): Promise <void> {
         const apiRecord = plainToInstance(ApiRecord, req.body, { enableImplicitConversion: true });
 
         const validationResult = await validate(apiRecord, { validationError: { target: false }});

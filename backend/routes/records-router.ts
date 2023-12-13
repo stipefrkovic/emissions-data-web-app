@@ -10,6 +10,10 @@ export class RecordsRouter implements IRouter {
     public attach(app: Application): void {
         app.route('/records')
             .get(asyncHandler(this.controller.getAllRecords))
+
+        app.route('/records/:id/:year/general')
+            .get(asyncHandler(this.controller.getRecordAsync))
+
         /*app.route('/records/general')
             .post(asyncHandler(this.controller.createRecordAsync))
 
