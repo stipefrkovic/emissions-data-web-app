@@ -67,6 +67,23 @@ export class RecordsController {
         res.json(records.map(Emission.fromDatabase));
     }
 
+    public async getTempChangeAsync(req: Request<{ continent: string}>, res: Response): Promise <void> {
+        const filter = plainToClass(Filter, req.query, { enableImplicitConversion: true });
+
+        let query = Container.get<DataSource>("database").getRepository(Record).createQueryBuilder("record");
+        query = filter.apply(query);
+
+        if(req.params.continent){
+            query.andWhere("record.country = :continent", {
+                continent: req.params.continent,
+            });
+        }
+
+        let records = await query.getMany();
+
+        res.json(records.map(TempChange.fromDatabase));
+    }
+
     /*public async createRecordAsync(req: Request, res: Response): Promise <void> {
         const apiRecord = plainToInstance(ApiRecord, req.body, { enableImplicitConversion: true });
 
@@ -133,23 +150,6 @@ export class RecordsController {
     }
 
 
-    public async getTempChangeAsync(req: Request<{ continent: string}>, res: Response): Promise <void> {
-        const apiRecord = plainToInstance(ApiRecord, req.body, { enableImplicitConversion: true,});
-        const filter = plainToClass(Filter, req.query, { enableImplicitConversion: true });
-
-        let query = Container.get<DataSource>("database").getRepository(Record).createQueryBuilder("record");
-        query = filter.apply(query);
-
-        let records = await Container.get<DataSource>("database") //TODO: needs some double checking when functional
-            .getRepository(Record)
-            .createQueryBuilder("record")
-            .where("record.name IN (:...name)",{
-                name: apiRecord.name?.map((a) => a.name),
-            })
-            .getMany();
-
-        res.json(records.map(TempChange.fromDatabase));
-    }
 
     public async getEnergyInYearAsync(req: Request<{ year: string}>, res: Response): Promise <void> {
         const apiRecord = plainToInstance(ApiRecord, req.body, { enableImplicitConversion: true,});
