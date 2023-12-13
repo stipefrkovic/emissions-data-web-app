@@ -10,7 +10,7 @@ export class General {
         return {
             id: general.country,
             year: general.year,
-            gdp: general.energy_per_gdp, //TODO missing in model
+            gdp: general.gdp,
             population: general.population
         };
     }

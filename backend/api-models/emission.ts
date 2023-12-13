@@ -15,7 +15,7 @@ export class Emission {
             co2: emission.co2,
             methane: emission.methane,
             nitrousOxide: emission.nitrous_oxide,
-            totalGhg: emission.share_of_temperature_change_from_ghg
+            totalGhg: emission.total_ghg
         };
     }
 }
