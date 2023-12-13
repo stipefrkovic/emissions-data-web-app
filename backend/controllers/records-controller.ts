@@ -16,18 +16,26 @@ export class RecordsController {
 
     public async getAllRecords(req: Request, res: Response): Promise <void> {
         const recordRepository = Container.get<DataSource>("database").getRepository(Record);
-        const allRecords = await recordRepository.find({take: 3});
+        const allRecords = await recordRepository.find({take: 400});
         console.log(allRecords);
         res.status(200);
-        res.json({error: "no error lol"})
+        res.json(allRecords.map(General.fromDatabase));
         return;
     }
 
     public async getRecordAsync(req: Request<{ id: string, year: string }>, res: Response): Promise <void> {
-        let record = await Container.get<DataSource>("database").getRepository(Record).findOneBy({
-            year: Raw(c => `${c} = :year`, { year: req.params.year }),
-            country: Raw(c => `${c} = :country`, { country: req.params.id })
-        });
+        let record
+        if((/^[A-Z]{3}$/).test(req.params.id)){
+            record = await Container.get<DataSource>("database").getRepository(Record).findOneBy({
+                year: Raw(c => `${c} = :year`, { year: req.params.year }),
+                iso_code: Raw(c => `${c} = :iso`, { iso: req.params.id })
+            });
+        } else {
+            record = await Container.get<DataSource>("database").getRepository(Record).findOneBy({
+                year: Raw(c => `${c} = :year`, { year: req.params.year }),
+                country: Raw(c => `${c} = :country`, { country: req.params.id })
+            });
+        }
 
         if(!record) {
             res.status(404);
