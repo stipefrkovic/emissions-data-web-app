@@ -84,6 +84,33 @@ export class RecordsController {
         res.json(records.map(TempChange.fromDatabase));
     }
 
+    public async deleteRecordAsync(req: Request<{ id: string, year: string }>, res: Response): Promise <void> {
+        const recordRepository = Container.get<DataSource>("database").getRepository(Record);
+        let record
+        if((/^[A-Z]{3}$/).test(req.params.id)){
+            record = await recordRepository.findOneBy({
+                year: Raw(c => `${c} = :year`, { year: req.params.year }),
+                iso_code: Raw(c => `${c} = :iso`, { iso: req.params.id })
+            });
+        } else {
+            record = await recordRepository.findOneBy({
+                year: Raw(c => `${c} = :year`, { year: req.params.year }),
+                country: Raw(c => `${c} = :country`, { country: req.params.id })
+            });
+        }
+
+        if(!record) {
+            res.status(404);
+            res.json();
+        } else {
+            await recordRepository.delete([req.params.id, req.params.year]);
+            res.json();
+        }
+
+
+        return;
+    }
+
     /*public async createRecordAsync(req: Request, res: Response): Promise <void> {
         const apiRecord = plainToInstance(ApiRecord, req.body, { enableImplicitConversion: true });
 
@@ -131,23 +158,6 @@ export class RecordsController {
         return;
     }
 
-    public async deleteRecordAsync(req: Request<{ id: string, year: string }>, res: Response): Promise <void> {
-        const recordsRepository = Container.get<DataSource>("database").getRepository(Record);
-        let record = await recordsRepository.findOneBy({
-            id: Raw(c => `${c} = :id`, { id: req.params.id }),
-            year: Raw(c => `${c} = :year`, { year: req.params.year })
-        });
-        
-        if(!record) {
-            res.status(404);
-            res.json();
-        } else {
-            await recordsRepository.delete([req.params.id, req.params.year]); //TODO: double check if this works
-            res.json();
-        }
-
-        return;
-    }
 
 
 

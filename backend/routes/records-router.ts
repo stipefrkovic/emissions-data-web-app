@@ -13,6 +13,7 @@ export class RecordsRouter implements IRouter {
 
         app.route('/records/:id/:year/general')
             .get(asyncHandler(this.controller.getRecordAsync))
+            .delete(asyncHandler(this.controller.deleteRecordAsync))
 
         app.route('/records/:id/emission')
             .get(asyncHandler(this.controller.getEmissionAsync))
