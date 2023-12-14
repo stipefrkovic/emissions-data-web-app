@@ -10,6 +10,6 @@ All at 23:59 Amsterdam time on the listed days
 
 ### Technology Stack
 
-- Database: PostgreSQL
+- Database: MariaDB (Updated!)
 - Backend: TypeScript + Express.js + Node.js
 - Frontend: TypeScript + undecided framework

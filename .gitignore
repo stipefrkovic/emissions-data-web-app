@@ -1,2 +1,3 @@
 node_modules
 data/mariadb/db
+.DS_store
