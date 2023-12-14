@@ -17,15 +17,6 @@ import { isContinent } from "../models/continents";
 
 export class RecordsController {
 
-    public async getAllRecords(req: Request, res: Response): Promise <void> {
-        const recordRepository = Container.get<DataSource>("database").getRepository(Record);
-        const allRecords = await recordRepository.find({take: 400});
-        console.log(allRecords);
-        res.status(200);
-        res.json(allRecords.map(General.fromDatabase));
-        return;
-    }
-
     public async getRecordAsync(req: Request<{ id: string, year: string }>, res: Response): Promise <void> {
         let record
         if((/^[A-Z]{3}$/).test(req.params.id)){
@@ -231,61 +222,62 @@ export class RecordsController {
     }
 
     public async createRecordAsync(req: Request, res: Response): Promise <void> {
-        // const apiRecord = plainToInstance(ApiRecord, req.body, { enableImplicitConversion: true });
+        const apiRecord = plainToInstance(ApiRecord, req.body, { enableImplicitConversion: true });
 
-        // const validationResult = await validate(apiRecord, { validationError: { target: false }});
-        // if(validationResult.length > 0) {
-        //     res.status(400);
-        //     res.json({ error: "Record validation error", details: validationResult });
-        //     return;
-        // }
+        const validationResult = await validate(apiRecord, { validationError: { target: false }});
+        if(validationResult.length > 0) {
+            res.status(400);
+            res.json({ error: "Record validation error", details: validationResult });
+            return;
+        }
 
-        // let record : Record = {
-        //     country: apiRecord.country,
-        //     year: apiRecord.year,
-        //     iso_code: apiRecord.iso_code,
-        //     population: apiRecord.population,
-        //     gdp: apiRecord.gdp ?? 0,
-        //     co2: apiRecord.co2 ?? 0,
-        //     energy_per_capita: apiRecord.energyPerCapita ?? 0,
-        //     energy_per_gdp: apiRecord.energyPerGdp ?? 0,
-        //     methane: apiRecord.methane ?? 0,
-        //     nitrous_oxide: apiRecord.nitrousOxide ?? 0,
-        //     total_ghg: apiRecord.totalGhg ?? 0,
-        //     share_of_temperature_change_from_ghg: apiRecord.shareOfTempChangeFromGhg ?? 0,
-        //     temperature_change_from_co2: apiRecord.tempChangeFromCO2 ?? 0,
-        //     temperature_change_from_n2o: apiRecord.tempChangeFromN2 ?? 0,
-        //     temperature_change_from_ch4: apiRecord.tempChangeFromCH4 ?? 0
-        // };
+        let record : Record = {
+            country: apiRecord.country,
+            year: apiRecord.year,
+            iso_code: apiRecord.iso_code,
+            population: apiRecord.population,
+            gdp: apiRecord.gdp ?? 0,
+            co2: apiRecord.co2 ?? 0,
+            energy_per_capita: apiRecord.energyPerCapita ?? 0,
+            energy_per_gdp: apiRecord.energyPerGdp ?? 0,
+            methane: apiRecord.methane ?? 0,
+            nitrous_oxide: apiRecord.nitrousOxide ?? 0,
+            total_ghg: apiRecord.totalGhg ?? 0,
+            share_of_temperature_change_from_ghg: apiRecord.shareOfTempChangeFromGhg ?? 0,
+            temperature_change_from_ch4: apiRecord.tempChangeFromCH4 ?? 0,
+            temperature_change_from_co2: apiRecord.tempChangeFromCO2 ?? 0,
+            temperature_change_from_ghg: apiRecord.tempChangeFromGHG ?? 0,
+            temperature_change_from_n2o: apiRecord.tempChangeFromN2O ?? 0,
+        };
 
-        // let query = Container.get<DataSource>("database").getRepository(Record).createQueryBuilder("record");
+        let query = Container.get<DataSource>("database").getRepository(Record).createQueryBuilder("record");
 
-        // let existingCount;
-        // if((/^[A-Z]{3}$/).test(req.params.id)){
-        //     existingCount = await query.andWhere({
-        //         year: Raw(c => `${c} = :year`, { year: req.params.year }),
-        //         iso_code: Raw(c => `${c} = :iso`, { iso: req.params.id })
-        //     }).getCount();
-        // } else {
-        //     existingCount = await query.andWhere({
-        //         year: Raw(c => `${c} = :year`, { year: req.params.year }),
-        //         country: Raw(c => `${c} = :country`, { country: req.params.id })
-        //     }).getCount();
-        // }
+        let existingCount;
+        if((/^[A-Z]{3}$/).test(req.params.id)){
+            existingCount = await query.andWhere({
+                year: Raw(c => `${c} = :year`, { year: req.params.year }),
+                iso_code: Raw(c => `${c} = :iso`, { iso: req.params.id })
+            }).getCount();
+        } else {
+            existingCount = await query.andWhere({
+                year: Raw(c => `${c} = :year`, { year: req.params.year }),
+                country: Raw(c => `${c} = :country`, { country: req.params.id })
+            }).getCount();
+        }
         
 
-        // if(existingCount > 0) {
-        //     res.status(409);
-        //     res.json({ error: "Record with the same name already exists" });
-        //     return;
-        // }
+        if(existingCount > 0) {
+            res.status(409);
+            res.json({ error: "Record with the same name already exists" });
+            return;
+        }
 
-        // const recordsRepository = Container.get<DataSource>("database").getRepository(Record);
-        // let dbEntry = recordsRepository.create(record);
-        // await recordsRepository.save(dbEntry);
+        const recordsRepository = Container.get<DataSource>("database").getRepository(Record);
+        let dbEntry = recordsRepository.create(record);
+        await recordsRepository.save(dbEntry);
 
-        // res.json(dbEntry);
-        // return;
+        res.json(dbEntry);
+        return;
     }
 
     public async getEnergyRecordsAsync(req: Request<{ year: string}, {}, ApiRecord>, res: Response): Promise <void> {
@@ -354,6 +346,8 @@ export class RecordsController {
         let query = Container.get<DataSource>("database").getRepository(Record).createQueryBuilder("record");
         query = order.apply(query);
         query = filter.apply(query);
+
+        query.andWhere("record.iso_code != ''");
 
         let records = await query.getMany();
         let mappedRecords = records.map(Country.fromDatabase);

@@ -13,10 +13,10 @@ export class Record {
     nitrousOxide?: number;
     totalGhg?: number;
     shareOfTempChangeFromGhg?: number;
-    tempChangeFromGhg?: number;
-    tempChangeFromCO2?: number;
-    tempChangeFromN2?: number;
     tempChangeFromCH4?: number;
+    tempChangeFromCO2?: number;
+    tempChangeFromGHG?: number;
+    tempChangeFromN2O?: number;
 
 
     public static fromDatabase(record : DbRecord) : Record {
@@ -33,10 +33,10 @@ export class Record {
             nitrousOxide: record.nitrous_oxide,
             totalGhg: record.total_ghg,
             shareOfTempChangeFromGhg: record.share_of_temperature_change_from_ghg,
-            tempChangeFromGhg: record.temperature_change_from_ghg,
+            tempChangeFromCH4: record.temperature_change_from_ch4,
             tempChangeFromCO2: record.temperature_change_from_co2,
-            tempChangeFromN2: record.temperature_change_from_n2o,
-            tempChangeFromCH4: record.temperature_change_from_ch4
+            tempChangeFromGHG: record.temperature_change_from_ghg,
+            tempChangeFromN2O: record.temperature_change_from_n2o,
         };
     }
 }
