@@ -45,11 +45,21 @@ export class Order implements IQueryHelper<Record> {
 
 export class Filter implements IQueryHelper<Record> {
   year?: number;
+  ncountries?: number;
+  periodType?: string;
+  periodValue?: number;
 
   public apply(query : SelectQueryBuilder<Record>) : SelectQueryBuilder<Record> {
       if(this.year) query = query.andWhere("record.year >= :year", { year: this.year });
+      if(this.periodValue && this.periodType=="specific-year"){
+        query = query.andWhere("record.year = :year", { year: this.periodValue });
+      } else if(this.periodValue){
+        query = query.andWhere("record.year >= :year", { year: 2000-this.periodValue });
+      }
+      if(this.ncountries) query = query.limit(this.ncountries);
       return query;
   }
+
 }
 
 // may throw error, call in try-catch block
