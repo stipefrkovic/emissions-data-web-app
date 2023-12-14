@@ -252,4 +252,18 @@ export class RecordsController {
         res.json(dbEntry);
         return;
     }
+
+    public async getCountriesAsync(req: Request, res: Response): Promise <void> {
+        const filter = plainToClass(Filter, req.query, { enableImplicitConversion: true });
+        const order = plainToClass(Order, req.query, { enableImplicitConversion: true });
+
+        let query = Container.get<DataSource>("database").getRepository(Record).createQueryBuilder("record");
+        query = order.apply(query);
+        query = filter.apply(query);
+
+        let records = await query.getMany();
+
+        res.json(records.map(Country.fromDatabase));
+    }
+
 }
