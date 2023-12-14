@@ -195,60 +195,119 @@ export class RecordsController {
     }
 
     public async createRecordAsync(req: Request, res: Response): Promise <void> {
-        const apiRecord = plainToInstance(ApiRecord, req.body, { enableImplicitConversion: true });
+        // const apiRecord = plainToInstance(ApiRecord, req.body, { enableImplicitConversion: true });
 
-        const validationResult = await validate(apiRecord, { validationError: { target: false }});
-        if(validationResult.length > 0) {
-            res.status(400);
-            res.json({ error: "Record validation error", details: validationResult });
-            return;
-        }
+        // const validationResult = await validate(apiRecord, { validationError: { target: false }});
+        // if(validationResult.length > 0) {
+        //     res.status(400);
+        //     res.json({ error: "Record validation error", details: validationResult });
+        //     return;
+        // }
 
-        let record : Record = {
-            country: apiRecord.country,
-            year: apiRecord.year,
-            iso_code: apiRecord.iso_code,
-            population: apiRecord.population,
-            gdp: apiRecord.gdp ?? 0,
-            co2: apiRecord.co2 ?? 0,
-            energy_per_capita: apiRecord.energyPerCapita ?? 0,
-            energy_per_gdp: apiRecord.energyPerGdp ?? 0,
-            methane: apiRecord.methane ?? 0,
-            nitrous_oxide: apiRecord.nitrousOxide ?? 0,
-            total_ghg: apiRecord.totalGhg ?? 0,
-            share_of_temperature_change_from_ghg: apiRecord.shareOfTempChangeFromGhg ?? 0,
-            temperature_change_from_co2: apiRecord.tempChangeFromCO2 ?? 0,
-            temperature_change_from_n2o: apiRecord.tempChangeFromN2 ?? 0,
-            temperature_change_from_ch4: apiRecord.tempChangeFromCH4 ?? 0
-        };
+        // let record : Record = {
+        //     country: apiRecord.country,
+        //     year: apiRecord.year,
+        //     iso_code: apiRecord.iso_code,
+        //     population: apiRecord.population,
+        //     gdp: apiRecord.gdp ?? 0,
+        //     co2: apiRecord.co2 ?? 0,
+        //     energy_per_capita: apiRecord.energyPerCapita ?? 0,
+        //     energy_per_gdp: apiRecord.energyPerGdp ?? 0,
+        //     methane: apiRecord.methane ?? 0,
+        //     nitrous_oxide: apiRecord.nitrousOxide ?? 0,
+        //     total_ghg: apiRecord.totalGhg ?? 0,
+        //     share_of_temperature_change_from_ghg: apiRecord.shareOfTempChangeFromGhg ?? 0,
+        //     temperature_change_from_co2: apiRecord.tempChangeFromCO2 ?? 0,
+        //     temperature_change_from_n2o: apiRecord.tempChangeFromN2 ?? 0,
+        //     temperature_change_from_ch4: apiRecord.tempChangeFromCH4 ?? 0
+        // };
 
-        let query = Container.get<DataSource>("database").getRepository(Record).createQueryBuilder("record");
+        // let query = Container.get<DataSource>("database").getRepository(Record).createQueryBuilder("record");
 
-        let existingCount;
-        if((/^[A-Z]{3}$/).test(req.params.id)){
-            existingCount = await query.andWhere({
-                year: Raw(c => `${c} = :year`, { year: req.params.year }),
-                iso_code: Raw(c => `${c} = :iso`, { iso: req.params.id })
-            }).getCount();
-        } else {
-            existingCount = await query.andWhere({
-                year: Raw(c => `${c} = :year`, { year: req.params.year }),
-                country: Raw(c => `${c} = :country`, { country: req.params.id })
-            }).getCount();
-        }
+        // let existingCount;
+        // if((/^[A-Z]{3}$/).test(req.params.id)){
+        //     existingCount = await query.andWhere({
+        //         year: Raw(c => `${c} = :year`, { year: req.params.year }),
+        //         iso_code: Raw(c => `${c} = :iso`, { iso: req.params.id })
+        //     }).getCount();
+        // } else {
+        //     existingCount = await query.andWhere({
+        //         year: Raw(c => `${c} = :year`, { year: req.params.year }),
+        //         country: Raw(c => `${c} = :country`, { country: req.params.id })
+        //     }).getCount();
+        // }
         
 
-        if(existingCount > 0) {
-            res.status(409);
-            res.json({ error: "Record with the same name already exists" });
+        // if(existingCount > 0) {
+        //     res.status(409);
+        //     res.json({ error: "Record with the same name already exists" });
+        //     return;
+        // }
+
+        // const recordsRepository = Container.get<DataSource>("database").getRepository(Record);
+        // let dbEntry = recordsRepository.create(record);
+        // await recordsRepository.save(dbEntry);
+
+        // res.json(dbEntry);
+        // return;
+    }
+
+    public async getEnergyRecordsAsync(req: Request<{ year: string}, {}, ApiRecord>, res: Response): Promise <void> {
+        let query = Container.get<DataSource>("database").getRepository(Record).createQueryBuilder("record");
+
+        if (req.params.year){
+            query.andWhere("record.year = :year", {
+                year: req.params.year,
+            });
+        } else {
+            res.status(400);
+            res.json({
+                "error-message": "The request body has an invalid entry."
+            });
             return;
         }
 
-        const recordsRepository = Container.get<DataSource>("database").getRepository(Record);
-        let dbEntry = recordsRepository.create(record);
-        await recordsRepository.save(dbEntry);
+        const sortOrder = req.query['order-by'] == "descending" ? "DESC" : "ASC";
+        query.orderBy('record.population', sortOrder);
 
-        res.json(dbEntry);
-        return;
+        const batchSize = req.query['batch-size'] as unknown as number;
+        const batchIndex = req.query['batch-index'] as unknown as number;
+        const skipCount = (batchIndex - 1) * batchSize;
+        query.skip(skipCount);
+        query.take(batchSize);
+
+        query.andWhere("record.iso_code != ''");
+
+        let records = await query.getMany();
+
+        if(!records) {
+            res.status(204);
+            res.send("List empty; no results");
+            return;
+        }
+
+        let mappedRecords = records.map(Energy.fromDatabase);
+
+        let acceptHeader = req.headers['accept'];
+        if (acceptHeader && acceptHeader.includes('text/csv')) {
+            // csv response
+            try {
+                res.status(200)
+                   .setHeader('Content-Type', 'text/csv')
+                   .send(jsonToCSV(mappedRecords))
+                   ;
+            } catch (error) {
+                console.log(error);
+                res.status(500)
+                   .send('Server error; no results, try again later')
+                   ;
+            }
+            
+        } else {
+            // json response
+            res.status(200)
+               .json(mappedRecords)
+               ;
+        }
     }
 }
