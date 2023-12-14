@@ -39,7 +39,7 @@ export class RecordsController {
 
         if(!record) {
             res.status(404);
-            res.json("");
+            res.json({error: "Resource not found"});
             return;
         }
         
@@ -64,7 +64,13 @@ export class RecordsController {
         }
 
         let records = await query.getMany();
-        res.json(records.map(Emission.fromDatabase));
+
+        if(records.length==0){
+            res.status(204);
+            res.json();
+        } else {
+            res.json(records.map(Emission.fromDatabase));
+        }
     }
 
     public async getTempChangeAsync(req: Request<{ continent: string}>, res: Response): Promise <void> {
@@ -80,8 +86,12 @@ export class RecordsController {
         }
 
         let records = await query.getMany();
-
-        res.json(records.map(TempChange.fromDatabase));
+        if(records.length==0){
+            res.status(204);
+            res.json();
+        } else {
+            res.json(records.map(TempChange.fromDatabase));
+        }
     }
 
     public async deleteRecordAsync(req: Request<{ id: string, year: string }>, res: Response): Promise <void> {
@@ -101,7 +111,7 @@ export class RecordsController {
 
         if(!record) {
             res.status(404);
-            res.json();
+            res.json({error: "Resource not found"});
         } else {
             await recordRepository.delete([req.params.id, req.params.year]);
             res.json();
@@ -136,7 +146,7 @@ export class RecordsController {
 
         if(!record) {
             res.status(404);
-            res.json();
+            res.json({error: "Resource not found"});
             return;
         }
 
@@ -195,7 +205,7 @@ export class RecordsController {
 
         if(existingCount > 0) {
             res.status(409);
-            res.json({ error: "Record already exists" });
+            res.json({ error: "Record with the same name already exists" });
             return;
         }
 
