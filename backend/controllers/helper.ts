@@ -39,7 +39,7 @@ export class Order implements IQueryHelper<Record> {
 
   public apply(query : SelectQueryBuilder<Record>) : SelectQueryBuilder<Record> {
       if(!this["order-by"] || !this["order"]) return query;
-      return query.orderBy(this["order-by"], this["order"] === "desc" ? "DESC" : "ASC");
+      return query.orderBy(this["order-by"], this["order"] === "descending" ? "DESC" : "ASC");
   }
 }
 
