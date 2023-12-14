@@ -22,8 +22,13 @@ export class RecordsRouter implements IRouter {
         app.route('/records/:continent/temp-change')
             .get(asyncHandler(this.controller.getTempChangeAsync))
 
+        app.route('/records/:year/energy')
+            .get(asyncHandler(this.controller.getEnergyRecordsAsync))
+        
         app.route('/records/countries')
             .get(asyncHandler(this.controller.getCountriesAsync))
 
     }
+
+    // TODO 404 error
 }
