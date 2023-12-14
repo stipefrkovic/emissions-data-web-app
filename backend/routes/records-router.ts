@@ -14,25 +14,12 @@ export class RecordsRouter implements IRouter {
         app.route('/records/:id/:year/general')
             .get(asyncHandler(this.controller.getRecordAsync))
             .delete(asyncHandler(this.controller.deleteRecordAsync))
+            .put(asyncHandler(this.controller.updateRecordAsync))
 
         app.route('/records/:id/emission')
             .get(asyncHandler(this.controller.getEmissionAsync))
             
         app.route('/records/:continent/temp-change')
             .get(asyncHandler(this.controller.getTempChangeAsync))
-            
-        /*app.route('/records/general')
-            .post(asyncHandler(this.controller.createRecordAsync))
-
-        app.route('/records/:id/:year/general')
-            .get(asyncHandler(this.controller.getRecordAsync))
-            .put(asyncHandler(this.controller.updateRecordAsync))
-            .delete(asyncHandler(this.controller.deleteRecordAsync))
-
-        app.route('/records/:year/energy')
-            .get(asyncHandler(this.controller.getEnergyInYearAsync))
-
-        app.route('/records/countries')
-            .get(asyncHandler(this.controller.getCountriesAsync))*/
     }
 }

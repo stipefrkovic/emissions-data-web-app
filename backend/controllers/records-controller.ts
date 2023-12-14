@@ -42,7 +42,7 @@ export class RecordsController {
 
         if(!record) {
             res.status(404);
-            res.json("");
+            res.json({error: "Resource not found"});
             return;
         }
         
@@ -67,7 +67,13 @@ export class RecordsController {
         }
 
         let records = await query.getMany();
-        res.json(records.map(Emission.fromDatabase));
+
+        if(records.length==0){
+            res.status(204);
+            res.json();
+        } else {
+            res.json(records.map(Emission.fromDatabase));
+        }
     }
 
     public async getTempChangeAsync(req: Request<{ continent: string}>, res: Response): Promise <void> {
@@ -141,7 +147,7 @@ export class RecordsController {
 
         if(!record) {
             res.status(404);
-            res.json();
+            res.json({error: "Resource not found"});
         } else {
             await recordRepository.delete([req.params.id, req.params.year]);
             res.json();
@@ -150,7 +156,45 @@ export class RecordsController {
         return;
     }
 
-    /*public async createRecordAsync(req: Request, res: Response): Promise <void> {
+    public async updateRecordAsync(req: Request<{ id: string, year: string }, {}, ApiRecord>, res: Response): Promise <void> {
+        const apiRecord = plainToClass(ApiRecord, req.body, { enableImplicitConversion: true });
+        const validationResult = await validate(ApiRecord, { validationError: { target: false }});
+        if(validationResult.length > 0) {
+            res.status(400);
+            res.json({ error: "Record validation error", details: validationResult });
+            return;
+        }
+        
+        let record
+        const recordRepository = Container.get<DataSource>("database").getRepository(Record);
+        if((/^[A-Z]{3}$/).test(req.params.id)){
+            record = await recordRepository.findOneBy({
+                year: Raw(c => `${c} = :year`, { year: req.params.year }),
+                iso_code: Raw(c => `${c} = :iso`, { iso: req.params.id })
+            });
+        } else {
+            record = await recordRepository.findOneBy({
+                year: Raw(c => `${c} = :year`, { year: req.params.year }),
+                country: Raw(c => `${c} = :country`, { country: req.params.id })
+            });
+        }
+
+        if(!record) {
+            res.status(404);
+            res.json({error: "Resource not found"});
+            return;
+        }
+
+        record.gdp = apiRecord.gdp ?? 0;
+        record.population = apiRecord.population ?? 0;
+    
+
+        await recordRepository.save(record);
+        res.json(ApiRecord.fromDatabase(record));
+        return;
+    }
+
+    public async createRecordAsync(req: Request, res: Response): Promise <void> {
         const apiRecord = plainToInstance(ApiRecord, req.body, { enableImplicitConversion: true });
 
         const validationResult = await validate(apiRecord, { validationError: { target: false }});
@@ -160,95 +204,51 @@ export class RecordsController {
             return;
         }
 
-        let record : Record = { //TODO: see exactly what we want to post
-            name: apiRecord.name,
+        let record : Record = {
+            country: apiRecord.country,
             year: apiRecord.year,
-            GDP: apiRecord.GDP,
-            population: apiRecord.population
+            iso_code: apiRecord.iso_code,
+            population: apiRecord.population,
+            gdp: apiRecord.gdp ?? 0,
+            co2: apiRecord.co2 ?? 0,
+            energy_per_capita: apiRecord.energyPerCapita ?? 0,
+            energy_per_gdp: apiRecord.energyPerGdp ?? 0,
+            methane: apiRecord.methane ?? 0,
+            nitrous_oxide: apiRecord.nitrousOxide ?? 0,
+            total_ghg: apiRecord.totalGhg ?? 0,
+            share_of_temperature_change_from_ghg: apiRecord.shareOfTempChangeFromGhg ?? 0,
+            temperature_change_from_co2: apiRecord.tempChangeFromCO2 ?? 0,
+            temperature_change_from_n2o: apiRecord.tempChangeFromN2 ?? 0,
+            temperature_change_from_ch4: apiRecord.tempChangeFromCH4 ?? 0
         };
 
-        const recordsRepository = Container.get<DataSource>("database").getRepository(Record);
+        let query = Container.get<DataSource>("database").getRepository(Record).createQueryBuilder("record");
 
-        const existingCount = await recordsRepository
-            .createQueryBuilder("record")
-            .where("record.name = :name", { name: record.name }) //TODO: add name and year in one line
-            .getCount();
+        let existingCount;
+        if((/^[A-Z]{3}$/).test(req.params.id)){
+            existingCount = await query.andWhere({
+                year: Raw(c => `${c} = :year`, { year: req.params.year }),
+                iso_code: Raw(c => `${c} = :iso`, { iso: req.params.id })
+            }).getCount();
+        } else {
+            existingCount = await query.andWhere({
+                year: Raw(c => `${c} = :year`, { year: req.params.year }),
+                country: Raw(c => `${c} = :country`, { country: req.params.id })
+            }).getCount();
+        }
+        
 
         if(existingCount > 0) {
             res.status(409);
-            res.json({ error: "Record already exists" });
+            res.json({ error: "Record with the same name already exists" });
             return;
         }
 
+        const recordsRepository = Container.get<DataSource>("database").getRepository(Record);
         let dbEntry = recordsRepository.create(record);
         await recordsRepository.save(dbEntry);
 
-        res.json(dbEntry); //Not sure what this one could be
-
+        res.json(dbEntry);
         return;
     }
-
-    public async updateRecordAsync(req: Request<{ id: string, year: string }>, res: Response): Promise <void> {
-        const recordRepository = Container.get<DataSource>("database").getRepository(Record);
-        const allRecords = await recordRepository.find({take: 3});
-        console.log(allRecords);
-        res.status(200);
-        res.json({error: "no error lol"})
-        return;
-    }
-
-
-
-
-    public async getEnergyInYearAsync(req: Request<{ year: string}>, res: Response): Promise <void> {
-        const apiRecord = plainToInstance(ApiRecord, req.body, { enableImplicitConversion: true,});
-
-        const filter = plainToClass(Filter, req.query, { enableImplicitConversion: true });
-        const order = plainToClass(Order, req.query, { enableImplicitConversion: true });
-        const paging = plainToClassFromExist(new Paging<Record>(), req.query, { enableImplicitConversion: true });
-
-        let validationResult = await validate(paging, { validationError: { target: false }});
-        if(validationResult.length > 0) {
-            res.status(400);
-            res.json({ error: "Invalid paging settings", details: validationResult });
-            return;
-        }
-
-        let query = Container.get<DataSource>("database").getRepository(Record).createQueryBuilder("record");
-        query = filter.apply(query);
-        query = order.apply(query);
-        query = paging.apply(query);
-
-        let records = await Container.get<DataSource>("database") //TODO: needs some double checking when functional
-            .getRepository(Record)
-            .createQueryBuilder("record")
-            .where("record.year IN (:...year)",{
-                name: apiRecord.year?.map((a) => a.year),
-            })
-            .getMany();
-
-        res.json(records.map(Energy.fromDatabase));
-    }
-
-    public async getCountriesAsync(req: Request, res: Response): Promise <void> {
-        const filter = plainToClass(Filter, req.query, { enableImplicitConversion: true });
-        const order = plainToClass(Order, req.query, { enableImplicitConversion: true });
-        const paging = plainToClassFromExist(new Paging<Record>(), req.query, { enableImplicitConversion: true });
-
-        let validationResult = await validate(paging, { validationError: { target: false }});
-        if(validationResult.length > 0) {
-            res.status(400);
-            res.json({ error: "Invalid paging settings", details: validationResult });
-            return;
-        }
-
-        let query = Container.get<DataSource>("database").getRepository(Record).createQueryBuilder("record");
-        query = filter.apply(query);
-        query = order.apply(query);
-        query = paging.apply(query);
-
-        let records = await query.getMany();
-
-        res.json(records.map(Country.fromDatabase));
-    }*/
 }
