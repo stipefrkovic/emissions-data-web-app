@@ -2,52 +2,51 @@ import { Entity, Column, PrimaryGeneratedColumn, PrimaryColumn } from "typeorm"
 
 @Entity({name: "records"})
 export class Record {
-    @PrimaryColumn()
+    @PrimaryColumn({ type: 'varchar'})
     country!: string;
     
-    @PrimaryColumn()
+    @PrimaryColumn({ type: 'int'})
     year!: number;
 
-    @Column()
+    @Column({ type: 'int'})
     iso_code?: string;
 
-    @Column()
+    @Column({ type: 'int'})
     gdp?: number;
 
-    @Column()
-    total_ghg?: number;
-
-    @Column()
+    @Column({ type: 'double' })
     population?: number;
 
-    @Column()
+    @Column({ type: 'double' })
     co2?: number;
 
-    @Column()
+    @Column({ type: 'double' })
     energy_per_capita?: number;
 
-    @Column()
+    @Column({ type: 'double' })
     energy_per_gdp?: number;
 
-    @Column()
+    @Column({ type: 'double' })
     methane?: number;
 
-    @Column()
+    @Column({ type: 'double' })
     nitrous_oxide?: number;
 
-    @Column()
-    share_of_temperature_change_from_ghg?: number;
+    @Column({ type: 'double' })
+    share_of_temperature_change_from_ghg!: number;
 
-    @Column()
-    temperature_change_from_ch4?: number;
+    @Column({ type: 'double' })
+    temperature_change_from_ch4!: number;
 
-    @Column()
-    temperature_change_from_co2?: number;
+    @Column({ type: 'double' })
+    temperature_change_from_co2!: number;
 
-    @Column()
-    temperature_change_from_ghg?: number;
+    @Column({ type: 'double' })
+    temperature_change_from_ghg!: number;
 
-    @Column()
-    temperature_change_from_n2o?: number;  
+    @Column({ type: 'double' })
+    temperature_change_from_n2o!: number;  
 
+    @Column({ type: 'double' })
+    total_ghg?: number;
 }

@@ -29,8 +29,6 @@ export class RecordsRouter implements IRouter {
             .put(asyncHandler(this.controller.updateRecordAsync))
             .delete(asyncHandler(this.controller.deleteRecordAsync))
 
-
-
         app.route('/records/:year/energy')
             .get(asyncHandler(this.controller.getEnergyInYearAsync))
 

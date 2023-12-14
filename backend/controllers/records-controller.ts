@@ -3,7 +3,7 @@ import { DataSource, Raw } from "typeorm";
 import { plainToClass, plainToClassFromExist, plainToInstance } from "class-transformer";
 import { validate } from "class-validator";
 import Container from "typedi";
-import { Paging, Filter, Order } from "./helper";
+import { Paging, Filter, Order, jsonToCSV } from "./helper";
 import { Record } from "../models/record";
 import { Record as ApiRecord } from "../api-models/record";
 import { General } from "../api-models/general";
@@ -11,6 +11,9 @@ import { Emission } from "../api-models/emission";
 import { Energy } from "../api-models/energy";
 import { TempChange } from "../api-models/tempChange";
 import { Country } from "../api-models/country";
+import { isContinent } from "../models/continents";
+
+// TODO verify json and csv for ALL responses
 
 export class RecordsController {
 
@@ -68,20 +71,57 @@ export class RecordsController {
     }
 
     public async getTempChangeAsync(req: Request<{ continent: string}>, res: Response): Promise <void> {
+        // TODO verify australia/ocenia in all places
         const filter = plainToClass(Filter, req.query, { enableImplicitConversion: true });
 
         let query = Container.get<DataSource>("database").getRepository(Record).createQueryBuilder("record");
         query = filter.apply(query);
 
-        if(req.params.continent){
+        if (req.params.continent && isContinent(req.params.continent)){
             query.andWhere("record.country = :continent", {
                 continent: req.params.continent,
             });
+        } else {
+            res.status(400);
+            res.json({
+                "error-message": "The request body has an invalid entry."
+            });
+            return;
         }
 
         let records = await query.getMany();
 
-        res.json(records.map(TempChange.fromDatabase));
+        console.log(records);
+
+        if(!records) {
+            res.status(204);
+            res.send("List empty; no results");
+            return;
+        }
+
+        let mappedRecords = records.map(TempChange.fromDatabase);
+
+        let acceptHeader = req.headers['accept'];
+        if (acceptHeader && acceptHeader.includes('text/csv')) {
+            // csv response
+            try {
+                res.status(200)
+                   .setHeader('Content-Type', 'text/csv')
+                   .send(jsonToCSV(mappedRecords))
+                   ;
+            } catch (error) {
+                console.log(error);
+                res.status(500)
+                   .send('Server error; no results, try again later')
+                   ;
+            }
+            
+        } else {
+            // json response
+            res.status(200)
+               .json(mappedRecords)
+               ;
+        }
     }
 
     public async deleteRecordAsync(req: Request<{ id: string, year: string }>, res: Response): Promise <void> {
@@ -106,7 +146,6 @@ export class RecordsController {
             await recordRepository.delete([req.params.id, req.params.year]);
             res.json();
         }
-
 
         return;
     }

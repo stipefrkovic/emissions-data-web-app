@@ -1,6 +1,7 @@
 import { ObjectLiteral, SelectQueryBuilder } from "typeorm";
 import { Min, Max, IsDefined } from "class-validator";
-import { Record} from "../models/record"
+import { Record} from "../models/record";
+import Papa from "papaparse";
 
 /**
  * Interface that can be implemented by classes to allow different kinds of queries.
@@ -49,4 +50,10 @@ export class Filter implements IQueryHelper<Record> {
       if(this.year) query = query.andWhere("record.year >= :year", { year: this.year });
       return query;
   }
+}
+
+// may throw error, call in try-catch block
+export function jsonToCSV(data: any): string {
+  const csv = Papa.unparse(data);
+  return csv;
 }
