@@ -459,22 +459,21 @@ paths:
 
   /records/countries:
     parameters:
-      - name: n-countries
+      - name: ncountries
         in: query
         required: true
         description: Number n (≥1) of countries to be retrieved
         schema:
           type: integer
           minimum: 1
-      - name: filter
+      - name: order-by
         in: query
         description: Sorting filter for the countries
         schema:
           type: string
           enum:
-            - none
-            - climate-change-contribution-share
-          default: none
+            - share_of_temperature_change_from_ghg
+          default: share_of_temperature_change_from_ghg
       - name: order
         in: query
         required: false
@@ -485,7 +484,7 @@ paths:
             - ascending
             - descending
           default: descending
-      - name: period-type
+      - name: periodType
         in: query
         required: true
         description: Time period type on which the countries will be sorted
@@ -494,7 +493,7 @@ paths:
           enum:
             - specific-year
             - last-m-years
-      - name: period-value
+      - name: periodValue
         in: query
         required: true
         description: Time period value

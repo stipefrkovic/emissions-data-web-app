@@ -45,6 +45,24 @@ export class RecordsController {
             res.json({error: "Resource not found"});
             return;
         }
+
+        let acceptHeader = req.headers['accept'];
+        if (acceptHeader && acceptHeader.includes('text/csv')) {
+            try {
+                res.status(200)
+                res.setHeader('Content-Type', 'text/csv')
+                res.send(jsonToCSV(record));
+            } catch (error) {
+                console.log(error);
+                res.status(500);
+                res.send('Server error; no results, try again later');
+            }
+            
+        } else {
+            res.status(200);
+            res.json(record);
+        }
+
         
         res.json(General.fromDatabase(record));
         return;
@@ -70,10 +88,28 @@ export class RecordsController {
 
         if(records.length==0){
             res.status(204);
-            res.json();
-        } else {
-            res.json(records.map(Emission.fromDatabase));
+            res.json("List empty; no results");
+            return;
         }
+
+        let mappedRecords = records.map(Emission.fromDatabase);
+
+        let acceptHeader = req.headers['accept'];
+        if (acceptHeader && acceptHeader.includes('text/csv')) {
+            try {
+                res.status(200)
+                res.setHeader('Content-Type', 'text/csv')
+                res.send(jsonToCSV(mappedRecords));
+            } catch (error) {
+                console.log(error);
+                res.status(500)
+                res.send('Server error; no results, try again later');
+            }
+        } else {
+            res.status(200);
+            res.json(mappedRecords);
+        }
+
     }
 
     public async getTempChangeAsync(req: Request<{ continent: string}>, res: Response): Promise <void> {
@@ -99,7 +135,7 @@ export class RecordsController {
 
         console.log(records);
 
-        if(!records) {
+        if(records.length==0) {
             res.status(204);
             res.send("List empty; no results");
             return;
@@ -308,6 +344,35 @@ export class RecordsController {
             res.status(200)
                .json(mappedRecords)
                ;
+        }
+    }
+
+    public async getCountriesAsync(req: Request, res: Response): Promise <void> {
+        const filter = plainToClass(Filter, req.query, { enableImplicitConversion: true });
+        const order = plainToClass(Order, req.query, { enableImplicitConversion: true });
+
+        let query = Container.get<DataSource>("database").getRepository(Record).createQueryBuilder("record");
+        query = order.apply(query);
+        query = filter.apply(query);
+
+        let records = await query.getMany();
+        let mappedRecords = records.map(Country.fromDatabase);
+
+        let acceptHeader = req.headers['accept'];
+        if (acceptHeader && acceptHeader.includes('text/csv')) {
+            try {
+                res.status(200);
+                res.setHeader('Content-Type', 'text/csv');
+                res.send(jsonToCSV(mappedRecords));
+            } catch (error) {
+                console.log(error);
+                res.status(500);
+                res.send('Server error; no results, try again later');
+            }
+            
+        } else {
+            res.status(200);
+            res.json(mappedRecords);
         }
     }
 }
