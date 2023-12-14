@@ -219,7 +219,8 @@ export class RecordsController {
             share_of_temperature_change_from_ghg: apiRecord.shareOfTempChangeFromGhg ?? 0,
             temperature_change_from_co2: apiRecord.tempChangeFromCO2 ?? 0,
             temperature_change_from_n2o: apiRecord.tempChangeFromN2 ?? 0,
-            temperature_change_from_ch4: apiRecord.tempChangeFromCH4 ?? 0
+            temperature_change_from_ch4: apiRecord.tempChangeFromCH4 ?? 0,
+            temperature_change_from_ghg: apiRecord.tempChangeFromGhg ?? 0,
         };
 
         let query = Container.get<DataSource>("database").getRepository(Record).createQueryBuilder("record");

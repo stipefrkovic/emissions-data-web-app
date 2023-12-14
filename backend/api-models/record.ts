@@ -13,9 +13,9 @@ export class Record {
     nitrousOxide?: number;
     totalGhg?: number;
     shareOfTempChangeFromGhg?: number;
+    tempChangeFromGhg?: number;
     tempChangeFromCO2?: number;
     tempChangeFromN2?: number;
-    tempChangeFrom?: number;
     tempChangeFromCH4?: number;
 
 
@@ -32,7 +32,8 @@ export class Record {
             methane: record.methane,
             nitrousOxide: record.nitrous_oxide,
             totalGhg: record.total_ghg,
-            shareOfTempChangeFromGhg: record.temperature_change_from_ghg,
+            shareOfTempChangeFromGhg: record.share_of_temperature_change_from_ghg,
+            tempChangeFromGhg: record.temperature_change_from_ghg,
             tempChangeFromCO2: record.temperature_change_from_co2,
             tempChangeFromN2: record.temperature_change_from_n2o,
             tempChangeFromCH4: record.temperature_change_from_ch4
