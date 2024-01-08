@@ -7,16 +7,16 @@ export class Record {
     population?: number;
     gdp?: number;
     co2?: number;
-    energyPerCapita?: number;
-    energyPerGdp?: number;
+    energy_per_capita?: number;
+    energy_per_gdp?: number;
     methane?: number;
-    nitrousOxide?: number;
-    totalGhg?: number;
-    shareOfTempChangeFromGhg?: number;
-    tempChangeFromCH4?: number;
-    tempChangeFromCO2?: number;
-    tempChangeFromGHG?: number;
-    tempChangeFromN2O?: number;
+    nitrous_oxide?: number;
+    total_ghg?: number;
+    share_of_temperature_change_from_ghg?: number;
+    temperature_change_from_ch4?: number;
+    temperature_change_from_co2?: number;
+    temperature_change_from_ghg?: number;
+    temperature_change_from_n2o?: number;
 
 
     public static fromDatabase(record : DbRecord) : Record {
@@ -27,16 +27,16 @@ export class Record {
             population: record.population,
             gdp: record.gdp,
             co2: record.co2,
-            energyPerCapita: record.energy_per_capita,
-            energyPerGdp: record.energy_per_gdp,
+            energy_per_capita: record.energy_per_capita,
+            energy_per_gdp: record.energy_per_gdp,
             methane: record.methane,
-            nitrousOxide: record.nitrous_oxide,
-            totalGhg: record.total_ghg,
-            shareOfTempChangeFromGhg: record.share_of_temperature_change_from_ghg,
-            tempChangeFromCH4: record.temperature_change_from_ch4,
-            tempChangeFromCO2: record.temperature_change_from_co2,
-            tempChangeFromGHG: record.temperature_change_from_ghg,
-            tempChangeFromN2O: record.temperature_change_from_n2o,
+            nitrous_oxide: record.nitrous_oxide,
+            total_ghg: record.total_ghg,
+            share_of_temperature_change_from_ghg: record.share_of_temperature_change_from_ghg,
+            temperature_change_from_ch4: record.temperature_change_from_ch4,
+            temperature_change_from_co2: record.temperature_change_from_co2,
+            temperature_change_from_ghg: record.temperature_change_from_ghg,
+            temperature_change_from_n2o: record.temperature_change_from_n2o,
         };
     }
 }

@@ -1,16 +1,16 @@
 import { Record as DbRecord } from "../models/record";
 
 export class General {
-    id!: string;
+    country!: string;
     year!: number;
-    gdp?: number;
+    GDP?: number;
     population?: number;
 
     public static fromDatabase(general : DbRecord) : General {
         return {
-            id: general.country,
+            country: general.country,
             year: general.year,
-            gdp: general.gdp,
+            GDP: general.gdp,
             population: general.population
         };
     }

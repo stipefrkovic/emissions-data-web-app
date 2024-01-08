@@ -10,13 +10,14 @@ servers:
   - url: http://localhost:3000
     description: ExpressJS backend
 
+# fix params in some methods 
 
 components:
   schemas:
     general:
       type: object
       properties:
-        GDP:
+        gdp:
           type: integer
           description: GDP of the country
         population:
@@ -117,7 +118,7 @@ paths:
                 year:
                   type: integer
                   description: Year of the creation of the record
-                GDP:
+                gdp:
                   type: integer
                   description: GDP of the country
                 population:
@@ -129,20 +130,11 @@ paths:
             example: |
               country, string
               year, 0
-              GDP, 0
+              gdp, 0
               population, 0
       responses:
         '201':
           description: General information succesfully created
-          content:
-            application/json:
-                schema:
-                  type: integer
-            text/csv:
-              schema:
-                type: integer
-              example: |
-                0
           headers:
               Location:
                 schema:
@@ -210,7 +202,7 @@ paths:
               schema:
                 type: object
               example: |
-                GDP, 0
+                gdp, 0
                 population, 0
 
         '400':
@@ -237,7 +229,7 @@ paths:
             schema:
                 type: object
             example: |
-              GDP, 0
+              gdp, 0
               population, 0
       responses:
         '200':
@@ -250,7 +242,7 @@ paths:
               schema:
                 type: object
               example: |
-                GDP, 0
+                gdp, 0
                 population, 0
         '400':
           $ref: '#/components/responses/BadRequest'
@@ -392,15 +384,15 @@ paths:
           type: string
           minimum: 1900
           maximum: 1999
-      - name: order-by
+      - name: order-dir
         in: query
         required: false
         description: Sort records of countries based on population size
         schema:
           type: string
           enum:
-            - descending
-            - ascending
+            - ASC
+            - DESC
           default: descending
       - name: batch-size
         in: query
@@ -474,17 +466,17 @@ paths:
           enum:
             - share_of_temperature_change_from_ghg
           default: share_of_temperature_change_from_ghg
-      - name: order
+      - name: order-dir
         in: query
         required: false
         description: Order in which the countries are retrieved based on the filter
         schema:
           type: string
           enum:
-            - ascending
-            - descending
+            - ASC
+            - DESC
           default: descending
-      - name: periodType
+      - name: period-type
         in: query
         required: true
         description: Time period type on which the countries will be sorted
@@ -493,7 +485,7 @@ paths:
           enum:
             - specific-year
             - last-m-years
-      - name: periodValue
+      - name: period-value
         in: query
         required: true
         description: Time period value

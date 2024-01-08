@@ -1,21 +1,21 @@
 import { Record as DbRecord } from "../models/record";
 
 export class Emission {
-    id!: string;
+    country!: string;
     year!: number;
     co2?: number;
     methane?: number;
-    nitrousOxide?: number;
-    totalGhg?: number;
+    nitrous_oxide?: number;
+    total_ghg?: number;
 
     public static fromDatabase(emission : DbRecord) : Emission {
         return {
-            id: emission.country,
+            country: emission.country,
             year: emission.year,
             co2: emission.co2,
             methane: emission.methane,
-            nitrousOxide: emission.nitrous_oxide,
-            totalGhg: emission.total_ghg
+            nitrous_oxide: emission.nitrous_oxide,
+            total_ghg: emission.total_ghg
         };
     }
 }

@@ -33,19 +33,19 @@ export class Record {
     nitrous_oxide?: number;
 
     @Column({ type: 'double' })
-    share_of_temperature_change_from_ghg!: number;
+    share_of_temperature_change_from_ghg?: number;
 
     @Column({ type: 'double' })
-    temperature_change_from_ch4!: number;
+    temperature_change_from_ch4?: number;
 
     @Column({ type: 'double' })
-    temperature_change_from_co2!: number;
+    temperature_change_from_co2?: number;
 
     @Column({ type: 'double' })
-    temperature_change_from_ghg!: number;
+    temperature_change_from_ghg?: number;
 
     @Column({ type: 'double' })
-    temperature_change_from_n2o!: number;  
+    temperature_change_from_n2o?: number;  
 
     @Column({ type: 'double' })
     total_ghg?: number;
