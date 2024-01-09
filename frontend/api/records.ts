@@ -1,8 +1,9 @@
 import apiCall from "./call";
-import GeneralRecord from "../models/generalRecord.js";
-import EmissionRecord from "../models/emissionRecord.js";
-import TempChangeRecord from "../models/tempChangeRecord.js";
-import CountryRecord from "../models/countryRecord.js";
+import GeneralRecord from "../models/general";
+import EmissionRecord from "../models/emission";
+import EnergyRecord from "../models/energy";
+import TempChangeRecord from "../models/temp-change";
+import CountryRecord from "../models/country";
 
 export default {
     async postGeneralRecord(
@@ -90,7 +91,7 @@ export default {
         });
         if (!apiResponse.ok) throw new Error(await apiResponse.text());
 
-        return TempChangeRecord.fromJson(await apiResponse.json());
+        return EnergyRecord.fromJson(await apiResponse.json());
     },
     async getCountryRecord(
         ncountries: number,
