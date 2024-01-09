@@ -1,16 +1,12 @@
 export default class Country {
+    name!: string;
+    shareOfTempChangeFromGhg?: number;
 
-    /** @type {string} */
-    name;
-
-    /** @type {number} */
-    share_of_temperature_change_from_ghg;
-
-    static fromJson(json){
+    static fromJson(json: Record<string, any>){
         let country = new Country();
-        
+
         country.name = json.name;
-        country.share_of_temperature_change_from_ghg = json.share_of_temperature_change_from_ghg;
+        country.shareOfTempChangeFromGhg = json.shareOfTempChangeFromGhg;
 
         return country;
     }
