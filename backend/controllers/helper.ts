@@ -1,5 +1,5 @@
 import { ObjectLiteral, SelectQueryBuilder } from "typeorm";
-import { Min, Max, IsDefined, ValidationError } from "class-validator";
+import { Min, Max, IsDefined, ValidationError, IsInt } from "class-validator";
 import { Record} from "../models/record";
 import Papa from "papaparse";
 import { Request, Response } from "express";
@@ -35,21 +35,26 @@ export class Paging<T extends ObjectLiteral> implements IQueryHelper<T> {
   }
 }
 
+// TODO check error if order-by is not defined
 export class Order implements IQueryHelper<Record> {
   "order-by"?: string;
   "order-dir"?: string;
 
   public apply(query : SelectQueryBuilder<Record>) : SelectQueryBuilder<Record> {
-      if (!this["order-by"] || !this["order-dir"]) return query;
+      if (!this["order-by"] || !this["order-dir"]) {
+        return query;
+      }
       return query.orderBy(this["order-by"], this["order-dir"] === "DESC" ? "DESC" : "ASC");
   }
 }
 
 export class Filter implements IQueryHelper<Record> {
-  "year"?: number;
-  "ncountries"?: number;
-  "period-type"?: string;
-  "period-value"?: number;
+  @Min(1900)
+  @Max(1999)
+  "year": number;
+  "ncountries": number;
+  "period-type": string;
+  "period-value": number;
 
   public apply(query : SelectQueryBuilder<Record>) : SelectQueryBuilder<Record> {
       if (this["year"]) query = query.andWhere("record.year >= :year", { year: this.year });
@@ -65,14 +70,13 @@ export class Filter implements IQueryHelper<Record> {
 }
 
 export class CountrySelector implements IQueryHelper<Record> {
-  "country"!: string;
+  @IsDefined()
+  "country": string;
 
   apply(query: SelectQueryBuilder<Record>): SelectQueryBuilder<Record> {
     if (isISOCode(this["country"])) {
       query.andWhere("record.iso_code = :iso_code", {iso_code: this["country"]});
     } else {
-      console.log("country:")
-      console.log(this["country"]);
       query.andWhere("record.country = :country", {country: this["country"]});
     }
     return query;
@@ -80,7 +84,8 @@ export class CountrySelector implements IQueryHelper<Record> {
 }
 
 export class YearSelector implements IQueryHelper<Record> {
-  "year"!: number; 
+  @IsDefined()
+  "year": number; 
   apply(query: SelectQueryBuilder<Record>): SelectQueryBuilder<Record> {
     query.andWhere("record.year = :year", {year: this["year"]});
     return query;
@@ -111,12 +116,17 @@ export function isISOCode(id: string): boolean {
 
 export function noResource(result: any, res: Response): boolean {
   if (!result) {
-    console.log(result);
     res.status(404);
     res.json({error: "Resource not found"});
     return true;
   }
   return false;
+}
+
+export function noResourceError(res: Response) {
+  res.status(404);
+  res.json({error: "Resource not found"});
+  return true;
 }
 
 export function emptyList(list: any, res: Response): boolean {
@@ -150,21 +160,17 @@ export function resourceConvertor(result: any, req: Request, res: Response) {
         res.send('Server error; no results, try again later');
       }
       return;
-    } else if (acceptHeader !== 'application/json') {
-      res.status(400);
-      res.json({
-        "error-message": "The request body has an invalid entry."
-      });
-      return;
     }
   }
+  console.log(result);
   res.json(result);
 }
 
 export function invalidValidation(validation: ValidationError[], res: Response): boolean {
   if (validation.length > 0) {
     res.status(400);
-    res.json({ error: "Record validation error", details: validation });
+    res.json({ error: "Record validation error"});
+    console.error(validation)
     return true;
   }
   return false;

@@ -2,7 +2,7 @@ import { Record as DbRecord } from "../models/record";
 
 export class TempChange {
     continent!: string;
-    year!: number;
+    year!: string;
     share_of_temperature_change_from_ghg?: number;
     temperature_change_from_co2?: number;
     temperature_change_from_n2o?: number;
@@ -12,7 +12,7 @@ export class TempChange {
     public static fromDatabase(tempChange : DbRecord) : TempChange {
         return {
             continent: tempChange.country,
-            year: tempChange.year,
+            year: tempChange.year.toString(),
             share_of_temperature_change_from_ghg: tempChange.share_of_temperature_change_from_ghg,
             temperature_change_from_co2: tempChange.temperature_change_from_co2,
             temperature_change_from_n2o: tempChange.temperature_change_from_n2o,

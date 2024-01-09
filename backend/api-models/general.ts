@@ -1,15 +1,34 @@
+import { IsInt, IsNotEmpty, IsNumber, IsNumberString, IsString, isInt, isNotEmpty, isNumberString } from "class-validator";
 import { Record as DbRecord } from "../models/record";
 
-export class General {
+export class GeneralFull {
+    @IsString() @IsNotEmpty()
     country!: string;
-    year!: number;
+    @IsNumberString() @IsNotEmpty()
+    year!: string;
+    @IsInt() @IsNotEmpty()
     GDP?: number;
+    @IsInt() @IsNotEmpty()
+    population?: number;
+
+    public static fromDatabase(general : DbRecord) : GeneralFull {
+        return {
+            country: general.country,
+            year: general.year.toString(),
+            GDP: general.gdp,
+            population: general.population
+        };
+    }
+}
+
+export class General {
+    @IsInt() @IsNotEmpty()
+    GDP?: number;
+    @IsInt() @IsNotEmpty()
     population?: number;
 
     public static fromDatabase(general : DbRecord) : General {
         return {
-            country: general.country,
-            year: general.year,
             GDP: general.gdp,
             population: general.population
         };

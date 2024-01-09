@@ -8,7 +8,7 @@ export class Record {
     @PrimaryColumn({ type: 'int'})
     year!: number;
 
-    @Column({ type: 'int'})
+    @PrimaryColumn({ type: 'varchar'})
     iso_code?: string;
 
     @Column({ type: 'int'})

@@ -11,7 +11,7 @@ services:
       - ${DATABASE_PORT:-3306}:3306
     volumes:
       - ./data/mariadb/db:/var/lib/mysql
-      - "./data/mariadb/sql:/docker-entrypoint-initdb.d"
+      # - "./data/mariadb/sql:/docker-entrypoint-initdb.d"
     restart: always
 
   backend:
