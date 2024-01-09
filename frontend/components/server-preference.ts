@@ -1,4 +1,4 @@
-import serverPreference from "../storage/server-preference.js";
+import serverPreference from "../storage/server-preference.ts";
 
 // This is a custom element to offer the user the choice between
 // the different back-end available to this application.
