@@ -47,13 +47,13 @@ export default class RecordDeleter extends HTMLElement {
     }
 
     async search() {
-        let country = this.#countrySearch.value;
+        let countryName = this.#countrySearch.value;
         let year = this.#yearSearch.value;
 
         /** @type {} */
         let countryResult;
         try {
-            countryResult = await records.deleteArtistSongs(country, year);
+            countryResult = await records.deleteArtistSongs(countryName, year);
         } catch (e) {
             alert(e);
             return;
