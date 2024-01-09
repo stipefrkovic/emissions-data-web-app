@@ -17,6 +17,8 @@ export default class ServerPreference extends HTMLElement {
         // Always call the parent constructor!
         super();
 
+        console.log("What is happenoing?")
+
         const template: HTMLElement | null = document.getElementById("server-preference");
         if (template instanceof HTMLMetaElement) {
             const templateContent = template.content;

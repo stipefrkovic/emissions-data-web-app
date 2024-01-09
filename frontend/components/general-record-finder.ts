@@ -67,8 +67,6 @@ export default class RecordFinder extends HTMLElement {
         // Set up listeners to start search operation after every form
         // action.
         this.#retrieve.addEventListener("click", async () => {
-            this.#currentOffset = 0; // when we have a fresh search query, we
-                                     // always want to start at the first page
             await this.search();
         });
     }
@@ -79,10 +77,10 @@ export default class RecordFinder extends HTMLElement {
         let country = this.#countrySearch.value;
         let year = this.#yearSearch.value;
 
-        /** @type {ApiMovieSummary[]} */
+        /** @type {ApiRecordSummary[]} */
         let countryResult;
         try {
-            countryResult = await records.getGeneralRecord(country, year, 10, this.#currentOffset);
+            countryResult = await records.getGeneralRecord(country, year);
         } catch (e) {
             alert(e);
             return;
