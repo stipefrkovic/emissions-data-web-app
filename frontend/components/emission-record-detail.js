@@ -1,5 +1,5 @@
-import records from "../api/records.js";
-import General from "../models/general.js";
+//import records from "../api/records.js";
+//import General from "../models/general.js";
 
 /**
  * A custom element for a detailed emission record view.

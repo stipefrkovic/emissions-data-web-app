@@ -1,5 +1,5 @@
-import records from "../api/records.js";
-import EmissionSummary from "./emission-record-summary.js";
+//import records from "../api/records.js";
+//import EmissionSummary from "./emission-record-summary.js";
 // ApiGeneralSummary maybe needed
 // GeneralSummary maybe needed
 
@@ -126,4 +126,4 @@ export default class EmissionRecordFinder extends HTMLElement {
 };
 
 // Define the MovieFinder class as a custom element
-window.customElements.define('general-record-finder', EmissionRecordFinder);
+window.customElements.define('emission-record-finder', EmissionRecordFinder);
