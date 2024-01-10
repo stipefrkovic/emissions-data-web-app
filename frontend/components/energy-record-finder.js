@@ -1,9 +1,32 @@
-/**
- * A custom element representing an energy record finder.
- * It contains a small form where the user can enter a song name and year, as well as limiting the results.
- * Summary information of the songs specified by this name will be fetched and displayed.
- */
-export default class EnergyRecordFinder extends HTMLElement {
+import records from "../api/records.js";
+import EnergySummary from "./energy-record-summary.js";
+
+// This is a custom Event to represent a movie being selected,
+// carrying a movieId field with it to represent which movie is
+// being selected. This is used in the MovieFinder element, to
+// inform the rest of the application that the user selected a movie.
+export class EnergyRecordSelectedEvent extends Event {
+    /** @type {number} */
+    energyId;
+
+    /**
+     * @param {number} energyId 
+     */
+    constructor(energyId) {
+        // We call the parent constructor with a string representing
+        // the name of this event. This is what we listen to.
+        super("energy-record-selected");
+
+        this.energyId = energyId;
+    }
+}
+
+// This is a custom element representing a movie finder as a whole.
+// It contains a small form where the user can enter a title and year
+// to search for, and will show all matching results with pagination.
+// The user can pick any of the results, after which the element will
+// emit a "movie-selected" event as defined above.
+export default class EnergyFinder extends HTMLElement {
     /** @type {HTMLInputElement} */ #yearSearch;
     /** @type {HTMLSelectElement} */ #orderBySearch;
     /** @type {HTMLSelectElement} */ #batchesSearch;
@@ -13,44 +36,33 @@ export default class EnergyRecordFinder extends HTMLElement {
     /** @type {HTMLButtonElement} */ #navPrev;
 
     /** @type {number} */ #batches = 10;
+    /** @type {number} */ #limit = 100;
     /** @type {number} */ #ending = 1;
     /** @type {number} */ #endingOffset = 0;
     /** @type {number} */ #currentOffset = 0;
     /** @type {boolean} */ #hasResults = false;
 
-    /**
-     * Constructs an instance of this class.
-     * It initializes the fields by calling the corresponding html elements.
-     */
     constructor() {
         // Always call the parent constructor!
         super();
 
         // We start by finding the template and taking its contents.
-        const template: HTMLElement | null = document.getElementById("energy-record-finder");
-        if (template instanceof HTMLMetaElement) {
-            const templateContent = template.content;
+        const template = document.getElementById("energy-record-finder");
+        const templateContent = template.content;
 
-            // Prepare shadow DOM and fill it with the template contents
-            this.attachShadow({ mode: "open" });
-            if (this.shadowRoot != null) {
-                this.shadowRoot.appendChild((templateContent as any).cloneNode(true));
+        // Prepare shadow DOM and fill it with the template contents
+        this.attachShadow({ mode: "open" });
+        this.shadowRoot.appendChild(templateContent.cloneNode(true));
 
-                // Find elements inside the templates and cache them for
-                // future reference.
-                this.#yearSearch = this.shadowRoot.getElementById("year");
-                this.#orderBySearch = this.shadowRoot.getElementById("order-by");
-                this.#batchesSearch = this.shadowRoot.getElementById("batches");
-                this.#find = this.shadowRoot.getElementById("find");
-                this.#results = this.shadowRoot.getElementById("energy-records");
-                this.#navNext = this.shadowRoot.getElementById("page-next");
-                this.#navPrev = this.shadowRoot.getElementById("page-prev");
-            } else {
-                alert("Shadow DOM ain't working (null error)!");
-            }
-        } else {
-            alert("Template is not working (null).");
-        }
+        // Find elements inside the templates and cache them for
+        // future reference.
+        this.#yearSearch = this.shadowRoot.getElementById("year");
+        this.#orderBySearch = this.shadowRoot.getElementById("order-by");
+        this.#batchesSearch = this.shadowRoot.getElementById("batches-search");
+        this.#find = this.shadowRoot.getElementById("find");
+        this.#results = this.shadowRoot.getElementById("records");
+        this.#navNext = this.shadowRoot.getElementById("page-next");
+        this.#navPrev = this.shadowRoot.getElementById("page-prev");
 
         this.updateView();
 
@@ -61,10 +73,11 @@ export default class EnergyRecordFinder extends HTMLElement {
             /** @type {ApiSongSummary[]} */
             let energyResult;
             try {
-                energyResult = await records.getEnergyRecords(
+                energyResult = await records.getEnergyRecord(
                     this.#yearSearch.value,
-                    0,
-                    this.#orderBySearch.value
+                    this.#orderBySearch.value,
+                    this.#batchesSearch,
+                    1
                 );
             } catch (e) {
                 alert(e);
@@ -72,15 +85,17 @@ export default class EnergyRecordFinder extends HTMLElement {
             }
 
             let numOfRecords = energyResult.length;
+            this.#limit = numOfRecords;
             this.#currentOffset = 0;
-            //this.#endingOffset = Math.floor(limit / this.#batches) * this.#batches;
+            this.#ending = this.#limit % this.#batches;
+            this.#endingOffset = Math.floor(this.#limit / this.#batches) * this.#batches;
 
             await this.search();
         });
 
         this.#navNext.addEventListener("click", async () => {
-            this.#currentOffset =
-                parseInt(this.#batches, 10) + parseInt(this.#currentOffset, 10);
+            // maybe do parseInt
+            this.#currentOffset = this.#batches + this.#currentOffset;
             await this.search();
         });
 
@@ -102,6 +117,7 @@ export default class EnergyRecordFinder extends HTMLElement {
         this.#navPrev.disabled = !this.#hasResults || this.#currentOffset === 0;
     }
 
+    // TODO: not sure whether this works
     async search() {
         let year = this.#yearSearch.value;
         let orderby =
@@ -113,13 +129,13 @@ export default class EnergyRecordFinder extends HTMLElement {
             limit = this.#batches;
         }
 
-        /** @type {} */
         let energyResult;
         try {
-            energyResult = await records.getEnergyRecords(
+            energyResult = await records.getEnergyRecord(
                 year,
-                this.#currentOffset,
-                orderby
+                orderby,
+                this.#batchesSearch,
+                this.#currentOffset
             );
         } catch (e) {
             alert(e);
@@ -130,17 +146,22 @@ export default class EnergyRecordFinder extends HTMLElement {
         this.#hasResults = false;
 
         for (let energy of energyResult) {
-            let energyView = new RecordSummary();
-            energyView.energyId = energy.id;
+            let energyView = new EnergySummary();
+            energyView.energyRecordYear = energy.year;
 
-            let nameSpan = document.createElement("span");
-            nameSpan.slot = "name";
-            nameSpan.innerText = energy.name;
+            let energyPerCapitaSpan = document.createElement("span");
+            energyPerCapitaSpan.slot = "energy-per-capita";
+            energyPerCapitaSpan.innerText = energy.energyPerCapita;
 
-            energyView.appendChild(nameSpan);
+            let gdpPerCapita = document.createElement("span");
+            gdpPerCapita.slot = "gdp-per-capita";
+            gdpPerCapita.innerText = energy.gdpPerCapita;
+
+            energyView.appendChild(energyPerCapitaSpan);
+            energyView.appendChild(gdpPerCapita);
 
             energyView.addEventListener("click", () => {
-                this.dispatchEvent(new EnergyRecordSelectedEvent(energyView.songId));
+                this.dispatchEvent(new EnergyRecordSelectedEvent(energyView.energyRecordYear));
             });
 
             this.#results.appendChild(energyView);
@@ -149,6 +170,7 @@ export default class EnergyRecordFinder extends HTMLElement {
 
         this.updateView();
     }
-}
+};
 
-window.customElements.define("energy-record-finder", EnergyRecordFinder);
+// Define the MovieFinder class as a custom element
+window.customElements.define('energy-record-finder', EnergyFinder);
