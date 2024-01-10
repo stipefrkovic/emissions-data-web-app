@@ -1,6 +1,7 @@
-import records from "../api/movies.js";
-import ApiMovieSummary from "../models/energy.ts";
-import MovieSummary from "./movie-summary.js";
+//import records from "../api/records.js";
+import TempChangeSummary from "./temp-change-record-summary.js";
+// ApiTempChangeSummary maybe needed
+// TempChangeSummary maybe needed
 
 // This is a custom Event to represent a movie being selected,
 // carrying a movieId field with it to represent which movie is
@@ -38,27 +39,20 @@ export default class TempChangeRecordFinder extends HTMLElement {
         super();
 
         // We start by finding the template and taking its contents.
-        const template: HTMLElement | null = document.getElementById("temp-change-record-finder");
-        if (template instanceof HTMLMetaElement) {
-            const templateContent = template.content;
+        const template = document.getElementById("temp-change-record-finder");
+        const templateContent = template.content;
 
-            // Prepare shadow DOM and fill it with the template contents
-            this.attachShadow({ mode: "open" });
-            if (this.shadowRoot != null) {
-                this.shadowRoot.appendChild((templateContent as any).cloneNode(true));
+        // Prepare shadow DOM and fill it with the template contents
+        this.attachShadow({ mode: "open" });
+        this.shadowRoot.appendChild(templateContent.cloneNode(true));
 
-                // Find elements inside the templates and cache them for
-                // future reference.
-                this.#continentSearch = this.shadowRoot.getElementById("country");
-                this.#yearSearch = this.shadowRoot.getElementById("year");
-                this.#retrieve = this.shadowRoot.getElementById("retrieve");
-                this.#result = this.shadowRoot.getElementById("emission-records");
-            } else {
-                alert("Shadow DOM ain't working (null error)!");
-            }
-        } else {
-            alert("Template is not working (null).");
-        }
+        // Find elements inside the templates and cache them for
+        // future reference.
+        this.#continentSearch = this.shadowRoot.getElementById("country");
+        this.#yearSearch = this.shadowRoot.getElementById("year");
+        this.#retrieve = this.shadowRoot.getElementById("retrieve-temp-change");
+        this.#result = this.shadowRoot.getElementById("emission-records");
+
 
         // Set up listeners to start search operation after every form
         // action.
@@ -76,7 +70,7 @@ export default class TempChangeRecordFinder extends HTMLElement {
         /** @type {ApiRecordSummary[]} */
         let continentResult;
         try {
-            continentResult = await records.getGeneralRecord(continentName, year);
+            continentResult = await records.getTempChangeRecord(continentName, year);
         } catch (e) {
             alert(e);
             return;
@@ -91,8 +85,9 @@ export default class TempChangeRecordFinder extends HTMLElement {
         // template.
         for (let continent of continentResult) {
             // Create a new summary instance and set its ID (for later reference)
-            let tempChangeRecordView = new MovieSummary();
-            tempChangeRecordView.continentId = continent.id;
+            let tempChangeRecordView = new TempChangeSummary();
+            tempChangeRecordView.tempChangeRecordId = continent.id;
+            tempChangeRecordView.tempChangeRecordYear = continent.year;
 
             // Connect slots: this is done by creating two spans (can be arbitrary elements)
             // with the "slot" attribute set to match the slot name. We then put these two
@@ -128,7 +123,7 @@ export default class TempChangeRecordFinder extends HTMLElement {
             // Add an event listener: we want to trigger a "movie-selected" event when
             // the user clicks a specific movie.
             tempChangeRecordView.addEventListener("click", () => {
-                this.dispatchEvent(new TempChangeRecordSelectedEvent(tempChangeRecordView.continentId));
+                this.dispatchEvent(new TempChangeRecordSelectedEvent(tempChangeRecordView.id));
             });
 
             this.#result.appendChild(tempChangeRecordView);

@@ -1,11 +1,12 @@
-import records from "../api/movies.js";
-import ApiMovieSummary from "../models/energy.ts";
-import MovieSummary from "./movie-summary.js";
+//import records from "../api/records.js";
+//import EmissionSummary from "./emission-record-summary.js";
+// ApiGeneralSummary maybe needed
+// GeneralSummary maybe needed
 
-// This is a custom Event to represent a movie being selected,
-// carrying a movieId field with it to represent which movie is
-// being selected. This is used in the MovieFinder element, to
-// inform the rest of the application that the user selected a movie.
+// This is a custom Event to represent a record being selected,
+// carrying a countryId field with it to represent which record is
+// being selected. This is used in the record finder element, to
+// inform the rest of the application that the user selected a record.
 export class EmissionRecordSelectedEvent extends Event {
     /** @type {number} */
     countryId;
@@ -22,11 +23,11 @@ export class EmissionRecordSelectedEvent extends Event {
     }
 }
 
-// This is a custom element representing a movie finder as a whole.
+// This is a custom element representing a emission record finder as a whole.
 // It contains a small form where the user can enter a title and year
 // to search for, and will show all matching results with pagination.
 // The user can pick any of the results, after which the element will
-// emit a "movie-selected" event as defined above.
+// emit a "record-selected" event as defined above.
 export default class EmissionRecordFinder extends HTMLElement {
     /** @type {HTMLInputElement} */ #countrySearch;
     /** @type {HTMLInputElement} */ #yearSearch;
@@ -38,27 +39,19 @@ export default class EmissionRecordFinder extends HTMLElement {
         super();
 
         // We start by finding the template and taking its contents.
-        const template: HTMLElement | null = document.getElementById("emission-record-finder");
-        if (template instanceof HTMLMetaElement) {
-            const templateContent = template.content;
+        const template = document.getElementById("emission-record-finder");
+        const templateContent = template.content;
 
-            // Prepare shadow DOM and fill it with the template contents
-            this.attachShadow({ mode: "open" });
-            if (this.shadowRoot != null) {
-                this.shadowRoot.appendChild((templateContent as any).cloneNode(true));
+        // Prepare shadow DOM and fill it with the template contents
+        this.attachShadow({ mode: "open" });
+        this.shadowRoot.appendChild(templateContent.cloneNode(true));
 
-                // Find elements inside the templates and cache them for
-                // future reference.
-                this.#countrySearch = this.shadowRoot.getElementById("country");
-                this.#yearSearch = this.shadowRoot.getElementById("year");
-                this.#retrieve = this.shadowRoot.getElementById("retrieve");
-                this.#result = this.shadowRoot.getElementById("emission-records");
-            } else {
-                alert("Shadow DOM ain't working (null error)!");
-            }
-        } else {
-            alert("Template is not working (null).");
-        }
+        // Find elements inside the templates and cache them for
+        // future reference.
+        this.#countrySearch = this.shadowRoot.getElementById("country");
+        this.#yearSearch = this.shadowRoot.getElementById("year");
+        this.#retrieve = this.shadowRoot.getElementById("retrieve-emission");
+        this.#result = this.shadowRoot.getElementById("emission-records");
 
         // Set up listeners to start search operation after every form
         // action.
@@ -76,7 +69,7 @@ export default class EmissionRecordFinder extends HTMLElement {
         /** @type {ApiRecordSummary[]} */
         let countryResult;
         try {
-            countryResult = await records.getGeneralRecord(countryName, year);
+            countryResult = await records.getEmissionRecord(countryName, year);
         } catch (e) {
             alert(e);
             return;
@@ -91,8 +84,9 @@ export default class EmissionRecordFinder extends HTMLElement {
         // template.
         for (let country of countryResult) {
             // Create a new summary instance and set its ID (for later reference)
-            let emissionRecordView = new MovieSummary();
-            emissionRecordView.countryId = country.id;
+            let emissionRecordView = new EmissionSummary();
+            emissionRecordView.emissionRecordId = country.id;
+            emissionRecordView.emissionRecordYear = country.year;
 
             // Connect slots: this is done by creating two spans (can be arbitrary elements)
             // with the "slot" attribute set to match the slot name. We then put these two
@@ -123,7 +117,7 @@ export default class EmissionRecordFinder extends HTMLElement {
             // Add an event listener: we want to trigger a "movie-selected" event when
             // the user clicks a specific movie.
             emissionRecordView.addEventListener("click", () => {
-                this.dispatchEvent(new EmissionRecordSelectedEvent(emissionRecordView.countryId));
+                this.dispatchEvent(new EmissionRecordSelectedEvent(emissionRecordView.emissionRecordId));
             });
 
             this.#result.appendChild(emissionRecordView);
@@ -132,4 +126,4 @@ export default class EmissionRecordFinder extends HTMLElement {
 };
 
 // Define the MovieFinder class as a custom element
-window.customElements.define('general-record-finder', EmissionRecordFinder);
+window.customElements.define('emission-record-finder', EmissionRecordFinder);

@@ -11,7 +11,7 @@ FROM nginx
 # of the environment variable at runtime. This variable will then be set by
 # Docker compose
 ENV NGINX_ENVSUBST_OUTPUT_DIR /usr/share/nginx/html/storage
-COPY ./storage/server-options.js /etc/nginx/templates/server-options.js.template
+COPY ./storage/server-options.ts /etc/nginx/templates/server-options.ts.template
 
 # Copy the remaining files
 COPY . /usr/share/nginx/html

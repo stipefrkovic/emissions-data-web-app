@@ -5,7 +5,7 @@
  * @param data
  * @returns a promise
  */
-export default async function apiCall(url: string, method:string = "GET",  data: Record<string, any> | null = null): Promise<Response>  {
+export default async function apiCall(url, method = "GET",  data = null)  {
     // We obtain the server preference from the state storage (implemented using
     // local storage APIs in this case)
     const server = "http://localhost:3000";
@@ -15,7 +15,7 @@ export default async function apiCall(url: string, method:string = "GET",  data:
   
     // Set options
     /** @type {RequestInit} */
-    const requestConfig: RequestInit & { body?: string } = {
+    const requestConfig = {
         method: method,
         headers: {
             //TODO option menu csv

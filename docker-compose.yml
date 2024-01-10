@@ -1,5 +1,12 @@
 version: '3.8'
 services:
+  frontend:
+    image: frontend
+    build: ./frontend
+    ports:
+        - ${FRONTEND_PORT:?}:80
+    environment:
+        - BACKENDS
   mariadb:
     image: mariadb:11.1
     environment:

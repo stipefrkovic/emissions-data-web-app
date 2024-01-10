@@ -22,9 +22,7 @@
 
                 <ul class="nav col-12 col-lg-auto me-lg-auto mb-2 mb-md-0 ms-4">
                     <li><a href="." class="nav-link px-2 text-secondary">General Records</a></li>
-                    <li><a target="_blank" href="hello.html" class="nav-link px-2 text-white">Emission Records</a></li>
-                    <li><a target="_blank" href="hello/again.html"
-                            class="nav-link px-2 text-white">Temperature Change Records</a></li>
+                    <li><a target="_blank" href="hello.html" class="nav-link px-2 text-white">Countries</a></li>
                 </ul>
             </div>
         </div>
@@ -45,9 +43,15 @@
             </div>
         </div>
 
-        <general-record-finder id="gen-record-finder"></general-record-finder>
-
-        <movie-detail id="detail" movie-id=""></movie-detail>
+        <general-record-finder id="genRecordFinder"></general-record-finder>
+        <general-record-deleter id="genRecordDeleter"></general-record-deleter>
+        <general-record-updater id="genRecordUpdater"></general-record-updater>
+        <general-record-poster id="genRecordPoster"></general-record-poster>
+        <general-record-detail id="generalRecordDetail" general-record-id="" general-record-year=""></general-record-detail>
+        <emission-record-finder id="emissionRecord"></emission-record-finder>
+        <emission-record-detail id="emissionRecordDetail" emission-record-id="" emission-record-year=""></emission-record-detail>
+        <temp-change-record-finder id="tempChangeRecord"></temp-change-record-finder>
+        <temp-change-record-detail id="tempChangeDetail" temp-change-record-id="" temp-change-record-year=""></temp-change-record-detail>
     </div>
 
     <!-- Templates here -->
@@ -69,7 +73,7 @@
                 <input type="text" class="form-control" id="country" placeholder="Country (name or ISO code)" />
             </div>
             <div class="col-12 col-md-5">
-                <input type="number" class="form-control" id="year" placeholder="Year (1900-1999)" />
+                <input type="number" class="form-control" id="year" placeholder="Year (1900-1999)" min="1900" max="1999" />
             </div>
             <div class="col-12 col-md-2 d-grid">
                 <button class="btn btn-primary" id="retrieve">Retrieve!</button>
@@ -80,12 +84,32 @@
             <!-- To be filled by the component -->
         </div>
 
-        <nav class="mt-4">
-            <ul class="pagination justify-content-center">
-                <li class="page-item"><button class="page-link" id="page-prev">Previous</li>
-                <li class="page-item"><button class="page-link" id="page-next">Next</li>
-            </ul>
-        </nav>
+        <style>
+            :host {
+                display: block;
+            }
+        </style>
+    </template>
+
+    <template id="general-record-deleter">
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" rel="stylesheet"
+            integrity="sha384-rbsA2VBKQhggwzxH7pPCaAqO46MgnOM80zW1RWuH61DGLwZJEdK2Kadq2F9CUG65" crossorigin="anonymous">
+
+        <div class="row mt-2">
+            <div class="col-12 col-md-5">
+                <input type="text" class="form-control" id="country" placeholder="Country (name or ISO code)" />
+            </div>
+            <div class="col-12 col-md-5">
+                <input type="number" class="form-control" id="year" placeholder="Year (1900-1999)" min="1900" max="1999" />
+            </div>
+            <div class="col-12 col-md-2 d-grid">
+                <button class="btn btn-primary" id="delete">Delete!</button>
+            </div>
+        </div>
+
+        <div id="records">
+            <!-- To be filled by the component -->
+        </div>
 
         <style>
             :host {
@@ -94,12 +118,78 @@
         </style>
     </template>
 
-    <template id="movie-summary">
+    <template id="general-record-updater">
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" rel="stylesheet"
+            integrity="sha384-rbsA2VBKQhggwzxH7pPCaAqO46MgnOM80zW1RWuH61DGLwZJEdK2Kadq2F9CUG65" crossorigin="anonymous">
+
+        <div class="row mt-2">
+            <div class="col-12 col-md-5">
+                <input type="text" class="form-control" id="country" placeholder="Country (name or ISO code)" />
+            </div>
+            <div class="col-12 col-md-5">
+                <input type="number" class="form-control" id="year" placeholder="Year (1900-1999)" min="1900" max="1999" />
+            </div>
+            <div class="col-12 col-md-5">
+                <input type="number" class="form-control" id="gdp" placeholder="GDP" />
+            </div>
+            <div class="col-12 col-md-5">
+                <input type="number" class="form-control" id="population" placeholder="Population" />
+            </div>
+            <div class="col-12 col-md-2 d-grid">
+                <button class="btn btn-primary" id="update">Update!</button>
+            </div>
+        </div>
+
+        <div id="records">
+            <!-- To be filled by the component -->
+        </div>
+
+        <style>
+            :host {
+                display: block;
+            }
+        </style>
+    </template>
+
+    <template id="general-record-poster">
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" rel="stylesheet"
+            integrity="sha384-rbsA2VBKQhggwzxH7pPCaAqO46MgnOM80zW1RWuH61DGLwZJEdK2Kadq2F9CUG65" crossorigin="anonymous">
+
+        <div class="row mt-2">
+            <div class="col-12 col-md-5">
+                <input type="text" class="form-control" id="country" placeholder="Country (name or ISO code)" />
+            </div>
+            <div class="col-12 col-md-5">
+                <input type="number" class="form-control" id="year" placeholder="Year (1900-1999)" min="1900" max="1999" />
+            </div>
+            <div class="col-12 col-md-5">
+                <input type="number" class="form-control" id="gdp" placeholder="GDP" />
+            </div>
+            <div class="col-12 col-md-5">
+                <input type="number" class="form-control" id="population" placeholder="Population" />
+            </div>
+            <div class="col-12 col-md-2 d-grid">
+                <button class="btn btn-primary" id="post">Post!</button>
+            </div>
+        </div>
+
+        <div id="records">
+            <!-- To be filled by the component -->
+        </div>
+
+        <style>
+            :host {
+                display: block;
+            }
+        </style>
+    </template>
+
+    <template id="general-record-summary">
         <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" rel="stylesheet"
             integrity="sha384-rbsA2VBKQhggwzxH7pPCaAqO46MgnOM80zW1RWuH61DGLwZJEdK2Kadq2F9CUG65" crossorigin="anonymous">
         <div class="bg-light p-3 mt-2 rounded">
             <h5 class="mb-0">
-                <slot name="title"></slot> (<slot name="year"></slot>) <slot name="rating"></slot>
+                <slot name="country"></slot> <slot name="year"></slot> <slot name="population"></slot>
             </h5>
         </div>
 
@@ -110,38 +200,206 @@
         </style>
     </template>
 
-    <template id="movie-detail">
+    <template id="general-record-detail">
         <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" rel="stylesheet"
             integrity="sha384-rbsA2VBKQhggwzxH7pPCaAqO46MgnOM80zW1RWuH61DGLwZJEdK2Kadq2F9CUG65" crossorigin="anonymous">
 
-        <div class="bg-light p-5 rounded mt-4" id="movie-details">
+        <div class="bg-light p-5 rounded mt-4" id="general-record-details">
             <div class="row">
-                <h5><span id="title"></span> <span class="ms-2 badge" id="rating"></span></h5>
+                <h5><span id="country"></span> <span class="ms-2 badge" id="year"></span></h5>
                 <div class="col-12 col-md-6">
                     <p id="desc"></p>
-                    <p>Released in <strong id="year"></strong></p>
-                    <p>Languages: <strong id="langs"></strong></p>
-                </div>
-                <div class="col-12 col-md-6">
-                    <h6>Actors</h6>
-                    <p id="actors"></p>
+                    <p>GDP: <strong id="gdp"></strong></p>
+                    <p>Population: <strong id="population"></strong></p>
                 </div>
             </div>
-            <a class="btn btn-primary" id="url" target="_blank">View Movie</a>
+            <a class="btn btn-primary" id="url" target="_blank">View</a>
+        </div>
+    </template>
+
+
+
+    <template id="emission-record-finder">
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" rel="stylesheet"
+            integrity="sha384-rbsA2VBKQhggwzxH7pPCaAqO46MgnOM80zW1RWuH61DGLwZJEdK2Kadq2F9CUG65" crossorigin="anonymous">
+
+        <div class="row mt-2">
+            <div class="col-12 col-md-5">
+                <input type="text" class="form-control" id="country" placeholder="Country (name or ISO code)" />
+            </div>
+            <div class="col-12 col-md-5">
+                <input type="number" class="form-control" id="year" placeholder="Year (1900-1999)" min="1900" max="1999" />
+            </div>
+            <div class="col-12 col-md-2 d-grid">
+                <button class="btn btn-primary" id="retrieve-emission">Retrieve!</button>
+            </div>
+        </div>
+
+        <div id="records">
+            <!-- To be filled by the component -->
+        </div>
+
+        <style>
+            :host {
+                display: block;
+            }
+        </style>
+    </template>
+
+    <template id="emission-record-summary">
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" rel="stylesheet"
+            integrity="sha384-rbsA2VBKQhggwzxH7pPCaAqO46MgnOM80zW1RWuH61DGLwZJEdK2Kadq2F9CUG65" crossorigin="anonymous">
+        <div class="bg-light p-3 mt-2 rounded">
+            <h5 class="mb-0">
+                <slot name="co2"></slot> 
+                <slot name="methane"></slot>
+                <slot name="nitrous-oxide"></slot>
+                <slot name="total-ghg"></slot>
+            </h5>
+        </div>
+
+        <style>
+            :host {
+                cursor: pointer;
+            }
+        </style>
+    </template>
+
+    <template id="emission-record-detail">
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" rel="stylesheet"
+            integrity="sha384-rbsA2VBKQhggwzxH7pPCaAqO46MgnOM80zW1RWuH61DGLwZJEdK2Kadq2F9CUG65" crossorigin="anonymous">
+
+        <div class="bg-light p-5 rounded mt-4" id="emission-record-details">
+            <div class="row">
+                <h5><span id="country"></span> <span class="ms-2 badge" id="year"></span></h5>
+                <div class="col-12 col-md-6">
+                    <p id="desc"></p>
+                    <p>CO2: <strong id="co2"></strong></p>
+                    <p>Methane: <strong id="methane"></strong></p>
+                    <p>Nitrous oxide: <strong id="nitrous-oxide"></strong></p>
+                    <p>Total GHG: <strong id="total-ghg"></strong></p>
+                </div>
+            </div>
+            <a class="btn btn-primary" id="url" target="_blank">View</a>
+        </div>
+    </template>
+
+    <template id="temp-change-record-finder">
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" rel="stylesheet"
+            integrity="sha384-rbsA2VBKQhggwzxH7pPCaAqO46MgnOM80zW1RWuH61DGLwZJEdK2Kadq2F9CUG65" crossorigin="anonymous">
+
+        <div class="row mt-2">
+            <div class="col-12 col-md-5">
+                <input type="text" class="form-control" id="country" placeholder="Country (name or ISO code)" />
+            </div>
+            <div class="col-12 col-md-5">
+                <input type="number" class="form-control" id="year" placeholder="Year (1900-1999)" min="1900" max="1999" />
+            </div>
+            <div class="col-12 col-md-2 d-grid">
+                <button class="btn btn-primary" id="retrieve-temp-change">Retrieve!</button>
+            </div>
+        </div>
+
+        <div id="records">
+            <!-- To be filled by the component -->
+        </div>
+
+        <style>
+            :host {
+                display: block;
+            }
+        </style>
+    </template>
+
+    <template id="temp-change-record-summary">
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" rel="stylesheet"
+            integrity="sha384-rbsA2VBKQhggwzxH7pPCaAqO46MgnOM80zW1RWuH61DGLwZJEdK2Kadq2F9CUG65" crossorigin="anonymous">
+        <div class="bg-light p-3 mt-2 rounded">
+            <h5 class="mb-0">
+                <slot name="share-temp-change"></slot> 
+                <slot name="temp-change-co2"></slot>
+                <slot name="temp-change-n2o"></slot>
+                <slot name="temp-change-ghg"></slot>
+                <slot name="temp-change-ch4"></slot>
+            </h5>
+        </div>
+
+        <style>
+            :host {
+                cursor: pointer;
+            }
+        </style>
+    </template>
+
+    <template id="temp-change-record-detail">
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" rel="stylesheet"
+            integrity="sha384-rbsA2VBKQhggwzxH7pPCaAqO46MgnOM80zW1RWuH61DGLwZJEdK2Kadq2F9CUG65" crossorigin="anonymous">
+
+        <div class="bg-light p-5 rounded mt-4" id="temp-change-record-details">
+            <div class="row">
+                <h5><span id="country"></span> <span class="ms-2 badge" id="year"></span></h5>
+                <div class="col-12 col-md-6">
+                    <p id="desc"></p>
+                    <p>Share of temperature change from: <strong id="share-temp-change"></strong></p>
+                    <p>Temperature change from CO2: <strong id="temp-change-co2"></strong></p>
+                    <p>Temperature change from N2O: <strong id="temp-change-n2o"></strong></p>
+                    <p>Temperature change from GHG: <strong id="temp-change-ghg"></strong></p>
+                    <p>Temperature change from CH4: <strong id="temp-change-ch4"></strong></p>
+                </div>
+            </div>
+            <a class="btn btn-primary" id="url" target="_blank">View</a>
         </div>
     </template>
     <!-- End templates -->
 
-    <script type="module" src="main.js"></script>
     <script>
         // This allows us to 'connect' the finder and detail element without
         // either of them being "aware of" the other. We listen for the special
-        // movie-selected event omitted by the finder, and when it is triggered
-        // we update the selected movie for the detail list.
-        document.getElementById("finder").addEventListener("movie-selected", ev => {
-            document.getElementById("detail").movieId = ev.movieId;
+        // record-selected event omitted by the finder, and when it is triggered
+        // we update the selected record for the detail list.
+        document
+        .getElementById("genRecordFinder")
+        .addEventListener("general-record-selected", (ev) => {
+        document.getElementById("detail").generalRecordId = ev.generalRecordId;
         });
-    </script>
+        document
+          .getElementById("genRecordDeleter")
+          .addEventListener("general-record-selected", (ev) => {
+            document.getElementById("detail").generalRecordId = ev.generalRecordId;
+          });
+        document
+        .getElementById("genRecordUpdater")
+        .addEventListener("general-record-selected", (ev) => {
+        document.getElementById("detail").generalRecordId = ev.generalRecordId;
+        });
+        document
+        .getElementById("genRecordPoster")
+        .addEventListener("general-record-selected", (ev) => {
+        document.getElementById("detail").generalRecordId = ev.generalRecordId;
+        });
+        document
+        .getElementById("emissionRecord")
+        .addEventListener("emission-record-selected", (ev) => {
+        document.getElementById("detail").generalRecordId = ev.generalRecordId;
+        });
+        document
+        .getElementById("tempChangeRecord")
+        .addEventListener("temp-change-record-selected", (ev) => {
+        document.getElementById("detail").generalRecordId = ev.generalRecordId;
+        });
+      </script>
+      <script type="module" src="./components/general-record-finder.js"></script>
+      <script type="module" src="./components/general-record-deleter.js"></script>
+      <script type="module" src="./components/general-record-updater.js"></script>
+      <script type="module" src="./components/general-record-poster.js"></script>
+      <script type="module" src="./components/general-record-summary.js"></script>
+      <script type="module" src="./components/general-record-detail.js"></script>
+      <script type="module" src="./components/emission-record-finder.js"></script>
+      <script type="module" src="./components/emission-record-summary.js"></script>
+      <script type="module" src="./components/emission-record-detail.js"></script>
+      <script type="module" src="./components/temp-change-record-finder.js"></script>
+      <script type="module" src="./components/temp-change-record-summary.js"></script>
+      <script type="module" src="./components/temp-change-record-detail.js"></script>
 </body>
 
 </html>
