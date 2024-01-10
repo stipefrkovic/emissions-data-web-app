@@ -99,6 +99,9 @@ components:
     temp-change:
       type: object
       properties:
+        year:
+          type: integer
+          description: Year of the creation of the record
         share_of_temperature_change_from_ghg:
           type: number
           description: Temperature change of the country
@@ -395,6 +398,7 @@ paths:
               schema:
                 type: array
               example: |
+                year, 0
                 co2, 0
                 methane, 0
                 nitrous oxide, 0
@@ -452,6 +456,7 @@ paths:
               schema:
                 type: array
               example: |
+                year, 0
                 share_of_temperature_change_from_ghg, 0
                 temperature_change_from_ch4, 0
                 temperature_change_from_co2, 0

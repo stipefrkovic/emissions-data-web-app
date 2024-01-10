@@ -3,12 +3,12 @@ import { DataSource, Raw, getConnection } from "typeorm";
 import { plainToClass, plainToClassFromExist, plainToInstance } from "class-transformer";
 import { validate } from "class-validator";
 import Container from "typedi";
-import { Paging, HigherYearFilter, jsonToCSV, CountrySelector, YearSelector, resourceConvertor, alreadyExists, EmissionCountrySelector } from "./helper";
+import { Paging, jsonToCSV, YearSelector, resourceConvertor, alreadyExists, EmissionCountrySelector, TemperatureYearFilter, ContinentSelector, EmissionYearFilter, GeneralCountrySelector } from "./helper";
 import { Record as ApiRecord } from "../api-models/record";
 import { ApiFullGeneralRecord, ApiGeneralRecord } from "../api-models/general";
 import { ApiEmissionRecord } from "../api-models/emission";
 import { Energy } from "../api-models/energy";
-import { TempChange } from "../api-models/tempChange";
+import { ApiTemperatureRecord } from "../api-models/temperature";
 import { Country } from "../api-models/country";
 import { Country as ModelCountry} from "../models/country"
 import { isContinent } from "../models/continent";
@@ -33,7 +33,7 @@ export class RecordsController {
 
         let generaldRecordQuery = Container.get<DataSource>("database").getRepository(GeneralRecord).createQueryBuilder("general_record");
         
-        const countrySelector = plainToClass(CountrySelector, req.body, { enableImplicitConversion: true });
+        const countrySelector = plainToClass(GeneralCountrySelector, req.body, { enableImplicitConversion: true });
         if (badValidation(await validate(countrySelector, { validationError: { target: true }}), res, next)) return;
 
         const yearSelector = plainToClass(YearSelector, req.body, { enableImplicitConversion: true});
@@ -63,7 +63,7 @@ export class RecordsController {
     public async getGeneralRecordAsync(req: Request<{ country: string, year: string }>, res: Response, next: NextFunction): Promise <void> {
         let generaldRecordQuery = Container.get<DataSource>("database").getRepository(GeneralRecord).createQueryBuilder("general_record");
         
-        const countrySelector = plainToClass(CountrySelector, req.params, { enableImplicitConversion: true });
+        const countrySelector = plainToClass(GeneralCountrySelector, req.params, { enableImplicitConversion: true });
         if (badValidation(await validate(countrySelector, { validationError: { target: true }}), res, next)) return;
 
         const yearSelector = plainToClass(YearSelector, req.params, { enableImplicitConversion: true});
@@ -86,7 +86,7 @@ export class RecordsController {
     public async updateGeneralRecordAsync(req: Request<{ country: string, year: string }, {}, ApiRecord>, res: Response, next: NextFunction): Promise <void> {                
         let generaldRecordQuery = Container.get<DataSource>("database").getRepository(GeneralRecord).createQueryBuilder("general_record");
         
-        const countrySelector = plainToClass(CountrySelector, req.params, { enableImplicitConversion: true });
+        const countrySelector = plainToClass(GeneralCountrySelector, req.params, { enableImplicitConversion: true });
         if (badValidation(await validate(countrySelector, { validationError: { target: true }}), res, next)) return;
 
         const yearSelector = plainToClass(YearSelector, req.params, { enableImplicitConversion: true});
@@ -115,7 +115,7 @@ export class RecordsController {
     public async deleteGeneralRecordAsync(req: Request<{ country: string, year: string }>, res: Response, next: NextFunction): Promise <void> {
         let generaldRecordQuery = Container.get<DataSource>("database").getRepository(GeneralRecord).createQueryBuilder("general_record");
         
-        const countrySelector = plainToClass(CountrySelector, req.params, { enableImplicitConversion: true });
+        const countrySelector = plainToClass(GeneralCountrySelector, req.params, { enableImplicitConversion: true });
         if (badValidation(await validate(countrySelector, { validationError: { target: true }}), res, next)) return;
 
         const yearSelector = plainToClass(YearSelector, req.params, { enableImplicitConversion: true});
@@ -135,51 +135,49 @@ export class RecordsController {
         return;
     }
     
-    public async getEmissionAsync(req: Request<{ country: string }>, res: Response, next: NextFunction): Promise <void> {
+    public async getEmissionRecordAsync(req: Request<{ country: string }>, res: Response, next: NextFunction): Promise <void> {
         let emissionRecordQuery = Container.get<DataSource>("database").getRepository(EmissionRecord).createQueryBuilder("emission_record");
         
-        const higherYearFilter = plainToClass(HigherYearFilter, req.query, { enableImplicitConversion: true });
-        if (badValidation(await validate(higherYearFilter, { validationError: { target: true }}), res, next)) return;
+        const emissionYearFilter = plainToClass(EmissionYearFilter, req.query, { enableImplicitConversion: true });
+        if (badValidation(await validate(emissionYearFilter, { validationError: { target: true }}), res, next)) return;
         
         const emissionCountrySelector = plainToClass(EmissionCountrySelector, req.params, {enableImplicitConversion: true});
         if (badValidation(await validate(emissionCountrySelector, { validationError: { target: true }}), res, next)) return;
 
-        emissionRecordQuery = higherYearFilter.apply(emissionRecordQuery);
+        emissionRecordQuery = emissionYearFilter.apply(emissionRecordQuery);
         emissionRecordQuery = emissionCountrySelector.apply(emissionRecordQuery);
 
-        let records = await emissionRecordQuery.getMany();
+        let emissionRecords = await emissionRecordQuery.getMany();
 
-        if (emptyList(records, res)) return;
+        if (emptyList(emissionRecords, res)) return;
 
-        let apiEmissionRecords = records.map(ApiEmissionRecord.fromDatabase);
+        let apiEmissionRecords = emissionRecords.map(ApiEmissionRecord.fromDatabase);
 
         res.status(200);
         resourceConvertor(apiEmissionRecords, req, res);
     }
 
-    // public async getTempChangeAsync(req: Request<{ continent: string}>, res: Response): Promise <void> {
-    //     let query = Container.get<DataSource>("database").getRepository(Record).createQueryBuilder("record");
+    public async getTemperatureRecordAsync(req: Request<{ continent: string}>, res: Response, next: NextFunction): Promise <void> {
+        let temperatureRecordQuery = Container.get<DataSource>("database").getRepository(TemperatureRecord).createQueryBuilder("temperature_record");
         
-    //     const filter = plainToClass(Filter, req.query, { enableImplicitConversion: true });
-    //     const continentSelector = plainToClass(ContinentSelector, req.params, { enableImplicitConversion: true });
+        const temperatureHigherYearFilter = plainToClass(TemperatureYearFilter, req.query, { enableImplicitConversion: true });
+        if (badValidation(await validate(temperatureHigherYearFilter, { validationError: { target: true }}), res, next)) return;
+        
+        const continentSelector = plainToClass(ContinentSelector, req.params, {enableImplicitConversion: true});
+        if (badValidation(await validate(continentSelector, { validationError: { target: true }}), res, next)) return;
 
-    //     query = filter.apply(query);
-    //     try {
-    //         query = continentSelector.apply(query);
-    //     } catch (error) {
-    //         res.status(400).json({ error: error});
-    //         return;
-    //     }
+        temperatureRecordQuery = temperatureHigherYearFilter.apply(temperatureRecordQuery);
+        temperatureRecordQuery = continentSelector.apply(temperatureRecordQuery);
 
-    //     let records = await query.getMany();
+        let temperatureRecords = await temperatureRecordQuery.getMany();
 
-    //     if (emptyList(records, res)) return;
+        if (emptyList(temperatureRecords, res)) return;
 
-    //     let mappedRecords = records.map(TempChange.fromDatabase);
+        let apiTemperatureRecords = temperatureRecords.map(ApiTemperatureRecord.fromDatabase);
 
-    //     res.status(200);
-    //     resourceConvertor(mappedRecords, req, res);
-    // }
+        res.status(200);
+        resourceConvertor(apiTemperatureRecords, req, res);
+    }
 
     // public async getEnergyRecordsAsync(req: Request<{ year: string}, {}, ApiRecord>, res: Response): Promise <void> {
     //     let query = Container.get<DataSource>("database").getRepository(Record).createQueryBuilder("record");

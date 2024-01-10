@@ -1,5 +1,5 @@
 import { DataSource, ObjectLiteral, SelectQueryBuilder } from "typeorm";
-import { Min, Max, IsDefined, ValidationError, IsInt, ValidateIf, IsISO31661Alpha3, IsIn, IsString } from "class-validator";
+import { Min, Max, IsDefined, ValidationError, IsInt, ValidateIf, IsISO31661Alpha3, IsIn, IsString, IsOptional } from "class-validator";
 // import { Record} from "../models/record";
 import Papa from "papaparse";
 import { Request, Response } from "express";
@@ -53,71 +53,156 @@ export class Paging<T extends ObjectLiteral> implements IQueryHelper<T> {
 //   }
 // }
 
-export class HigherYearFilter implements IQueryHelper<EmissionRecord> {
+export class YearFilter<T extends ObjectLiteral> {
+  @IsOptional()
   @IsInt()
   @Min(1900)
   @Max(1999)
-  "year": number;
-  // "ncountries": number;
-  // "period-type": string;
-  // "period-value": number;
+  year?: number;
 
-  public apply(query : SelectQueryBuilder<EmissionRecord>) : SelectQueryBuilder<EmissionRecord> {
-      if (this["year"]) query.andWhere("emission_record.year >= :year", { year: this.year });
-      // if (this["period-value"] && this["period-type"] == "specific-year"){
-      //   query = query.andWhere("record.year = :year", { year: this["period-value"] });
-      // } else if(this["period-value"]){
-      //   query = query.andWhere("record.year >= :year", { year: 2000-this["period-value"] });
-      // }
-      // if(this.ncountries) query = query.limit(this.ncountries);
-      return query;
+  constructor(private alias: string) {}
+
+  apply(query: SelectQueryBuilder<T>): SelectQueryBuilder<T> {
+    if (this.year) query.andWhere(`${this.alias}.year >= :year`, { year: this.year });
+    return query;
   }
 }
 
-// TODO may be a better way? add try everywhere
-export class EmissionCountrySelector implements IQueryHelper<EmissionRecord> {
+export class TemperatureYearFilter extends YearFilter<TemperatureRecord> {
+  constructor() {
+    super('temperature_record');
+  }
+}
+
+export class EmissionYearFilter extends YearFilter<EmissionRecord> {
+  constructor() {
+    super('emission_record');
+  }
+}
+
+// export class HigherYearFilter implements IQueryHelper<EmissionRecord> {
+//   @IsOptional()
+//   @IsInt()
+//   @Min(1900)
+//   @Max(1999)
+//   year?: number;
+//   // "ncountries": number;
+//   // "period-type": string;
+//   // "period-value": number;
+
+//   public apply(query : SelectQueryBuilder<EmissionRecord>) : SelectQueryBuilder<EmissionRecord> {
+//       if (this["year"]) query.andWhere("emission_record.year >= :year", { year: this.year });
+//       // if (this["period-value"] && this["period-type"] == "specific-year"){
+//       //   query = query.andWhere("record.year = :year", { year: this["period-value"] });
+//       // } else if(this["period-value"]){
+//       //   query = query.andWhere("record.year >= :year", { year: 2000-this["period-value"] });
+//       // }
+//       // if(this.ncountries) query = query.limit(this.ncountries);
+//       return query;
+//   }
+// }
+
+// export class TemperatureHigherYearFilter implements IQueryHelper<TemperatureRecord> {
+//   @IsOptional()
+//   @IsInt()
+//   @Min(1900)
+//   @Max(1999)
+//   year?: number;
+//   // "ncountries": number;
+//   // "period-type": string;
+//   // "period-value": number;
+
+//   public apply(query : SelectQueryBuilder<TemperatureRecord>) : SelectQueryBuilder<TemperatureRecord> {
+//       if (this["year"]) query.andWhere("temperature_record.year >= :year", { year: this.year });
+//       // if (this["period-value"] && this["period-type"] == "specific-year"){
+//       //   query = query.andWhere("record.year = :year", { year: this["period-value"] });
+//       // } else if(this["period-value"]){
+//       //   query = query.andWhere("record.year >= :year", { year: 2000-this["period-value"] });
+//       // }
+//       // if(this.ncountries) query = query.limit(this.ncountries);
+//       return query;
+//   }
+// }
+
+export class CountrySelector <T extends ObjectLiteral> {
   @IsDefined()
   @IsString()
   "country": string;
 
-  apply(query: SelectQueryBuilder<EmissionRecord>): SelectQueryBuilder<EmissionRecord> {
-    if (isISOCode(this["country"])) {
+  constructor(private alias: string) {}
+
+  apply(query: SelectQueryBuilder<T>): SelectQueryBuilder<T> {
+    if (isISOCode(this.country)) {
       const subQuery = Container.get<DataSource>("database").getRepository(Country).createQueryBuilder()
         .select('c.country')
         .from('country', 'c')
         .where('c.iso_code = :iso_code', { iso_code: this.country})
         ;
-      query.andWhere(`emission_record.country IN (${subQuery.getQuery()})`);
+      query.andWhere(`${this.alias}.country IN (${subQuery.getQuery()})`);
       query.setParameters(subQuery.getParameters());
     } else {
-      query.andWhere("emission_record.country = :country", {country: this["country"]});
+      query.andWhere(`${this.alias}.country = :country`, {country: this.country});
     }
     return query;
   }
 }
+
+export class EmissionCountrySelector extends CountrySelector<EmissionRecord> {
+  constructor() {
+    super('emission_record');
+  }
+}
+
+export class GeneralCountrySelector extends CountrySelector<GeneralRecord> {
+  constructor() {
+    super('general_record');
+  }
+}
+
+// TODO may be a better way? add try everywhere
+// export class EmissionCountrySelector implements IQueryHelper<EmissionRecord> {
+//   @IsDefined()
+//   @IsString()
+//   "country": string;
+
+//   apply(query: SelectQueryBuilder<EmissionRecord>): SelectQueryBuilder<EmissionRecord> {
+//     if (isISOCode(this["country"])) {
+//       const subQuery = Container.get<DataSource>("database").getRepository(Country).createQueryBuilder()
+//         .select('c.country')
+//         .from('country', 'c')
+//         .where('c.iso_code = :iso_code', { iso_code: this.country})
+//         ;
+//       query.andWhere(`emission_record.country IN (${subQuery.getQuery()})`);
+//       query.setParameters(subQuery.getParameters());
+//     } else {
+//       query.andWhere("emission_record.country = :country", {country: this["country"]});
+//     }
+//     return query;
+//   }
+// }
 
 
 // TODO may be a better way? add try everywhere
-export class CountrySelector implements IQueryHelper<GeneralRecord> {
-  @IsDefined()
-  @IsString()
-  "country": string;
+// export class CountrySelector implements IQueryHelper<GeneralRecord> {
+//   @IsDefined()
+//   @IsString()
+//   "country": string;
 
-  apply(query: SelectQueryBuilder<GeneralRecord>): SelectQueryBuilder<GeneralRecord> {
-    if (isISOCode(this["country"])) {
-      const subQuery = Container.get<DataSource>("database").getRepository(Country).createQueryBuilder()
-        .select('c.country')
-        .from('country', 'c')
-        .where('c.iso_code = :iso_code', { iso_code: this.country})
-        ;
-      query.andWhere(`general_record.country IN (${subQuery.getQuery()})`);
-      query.setParameters(subQuery.getParameters());
-    } else {
-      query.andWhere("general_record.country = :country", {country: this["country"]});
-    }
-    return query;
-  }
-}
+//   apply(query: SelectQueryBuilder<GeneralRecord>): SelectQueryBuilder<GeneralRecord> {
+//     if (isISOCode(this["country"])) {
+//       const subQuery = Container.get<DataSource>("database").getRepository(Country).createQueryBuilder()
+//         .select('c.country')
+//         .from('country', 'c')
+//         .where('c.iso_code = :iso_code', { iso_code: this.country})
+//         ;
+//       query.andWhere(`general_record.country IN (${subQuery.getQuery()})`);
+//       query.setParameters(subQuery.getParameters());
+//     } else {
+//       query.andWhere("general_record.country = :country", {country: this["country"]});
+//     }
+//     return query;
+//   }
+// }
 
 export class YearSelector implements IQueryHelper<GeneralRecord> {
   @IsDefined()
@@ -126,22 +211,20 @@ export class YearSelector implements IQueryHelper<GeneralRecord> {
   @Max(1999)
   "year": number; 
   apply(query: SelectQueryBuilder<GeneralRecord>): SelectQueryBuilder<GeneralRecord> {
-    query.andWhere("general_record.year = :year", {year: this["year"]});
+    query.andWhere("general_record.year = :year", {year: this.year});
     return query;
   }
 }
 
-// export class ContinentSelector implements IQueryHelper<TemperatureRecord> {
-//   "country"!: string;
-//   apply(query: SelectQueryBuilder<TemperatureRecord>): SelectQueryBuilder<TemperatureRecord> {
-//     if (isContinent(this["country"])) {
-//       query.andWhere("record.country = :continent", {continent: this["country"]});
-//       return query;
-//     } else {
-//       throw new Error("The request body has an invalid entry.");
-//     }
-//   }
-// }
+export class ContinentSelector implements IQueryHelper<TemperatureRecord> {
+  @IsDefined()
+  @IsString()
+  continent!: string;
+  apply(query: SelectQueryBuilder<TemperatureRecord>): SelectQueryBuilder<TemperatureRecord> {
+    query.andWhere("temperature_record.continent = :continent", {continent: this.continent});
+    return query;
+  }
+}
 
 // may throw error, call in try-catch block
 export function jsonToCSV(data: any): string {
