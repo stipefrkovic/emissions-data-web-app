@@ -1,3 +1,8 @@
+import records from "../api/records.ts";
+// ApiGeneralSummary maybe needed
+// GeneralSummary maybe needed
+import GeneralSelectedEvent from "./general-record-selected-event.ts";
+
 /**
  * A custom element representing a general record poster.
  * It contains a small form where the user can enter a 
@@ -5,12 +10,12 @@
  * Summary information of the general record will be posted and displayed.
  */
 export default class RecordPoster extends HTMLElement {
-  /** @type {HTMLInputElement} */ #country;
-  /** @type {HTMLInputElement} */ #year;
-  /** @type {HTMLInputElement} */ #gdp;
-  /** @type {HTMLInputElement} */ #population;
-  /** @type {HTMLButtonElement} */ #create;
-  /** @type {HTMLDivElement} */ #result;
+    /** @type {HTMLInputElement} */ #country;
+    /** @type {HTMLInputElement} */ #year;
+    /** @type {HTMLInputElement} */ #gdp;
+    /** @type {HTMLInputElement} */ #population;
+    /** @type {HTMLButtonElement} */ #create;
+    /** @type {HTMLDivElement} */ #result;
 
     /**
      * Constructs an instance of this class.
@@ -50,7 +55,7 @@ export default class RecordPoster extends HTMLElement {
         });
     }
 
-   
+
     async search() {
         let countryName = this.#country.value;
         let year = this.#year.value;
@@ -60,7 +65,7 @@ export default class RecordPoster extends HTMLElement {
         /** @type {} */
         let countryResult;
         try {
-            countryResult = await records.postRecord(countryName, year, gdp, population);
+            countryResult = await records.putGeneralRecord(countryName, year, gdp, population);
         } catch (e) {
             alert(e);
             return;
@@ -79,7 +84,7 @@ export default class RecordPoster extends HTMLElement {
             recordView.appendChild(countrySpan);
 
             recordView.addEventListener("click", () => {
-                this.dispatchEvent(new RecordSelectedEvent(recordView.songId));
+                this.dispatchEvent(new GeneralSelectedEvent(recordView.songId));
             });
 
             this.#result.appendChild(recordView);

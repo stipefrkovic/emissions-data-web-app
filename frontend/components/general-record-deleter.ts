@@ -1,5 +1,7 @@
-
-
+import records from "../api/records.ts";
+// ApiGeneralSummary maybe needed
+// GeneralSummary maybe needed
+import GeneralSelectedEvent from "./general-record-selected-event.ts";
 /**
  * A custom element representing a general record deleter.
  * It contains a small form where the user can enter a country id.
@@ -53,7 +55,7 @@ export default class RecordDeleter extends HTMLElement {
         /** @type {} */
         let countryResult;
         try {
-            countryResult = await records.deleteArtistSongs(countryName, year);
+            countryResult = await records.deleteGeneralRecord(countryName, year);
         } catch (e) {
             alert(e);
             return;
@@ -74,7 +76,7 @@ export default class RecordDeleter extends HTMLElement {
             recordView.appendChild(countrySpan);
 
             recordView.addEventListener("click", () => {
-                this.dispatchEvent(new RecordSelectedEvent(recordView.countryId));
+                this.dispatchEvent(new GeneralSelectedEvent(recordView.countryId));
             });
 
             this.#result.appendChild(recordView);

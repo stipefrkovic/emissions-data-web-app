@@ -1,6 +1,7 @@
-import records from "../api/movies.js";
-import ApiMovieSummary from "../models/energy.ts";
-import MovieSummary from "./movie-summary.js";
+import records from "../api/records.ts";
+// ApiGeneralSummary maybe needed
+// GeneralSummary maybe needed
+import GeneralSelectedEvent from "./general-record-selected-event.ts";
 
 // This is a custom Event to represent a movie being selected,
 // carrying a movieId field with it to represent which movie is

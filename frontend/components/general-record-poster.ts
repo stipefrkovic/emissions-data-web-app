@@ -1,4 +1,7 @@
-
+import records from "../api/records.ts";
+// ApiGeneralSummary maybe needed
+// GeneralSummary maybe needed
+import GeneralSelectedEvent from "./general-record-selected-event.ts";
 
 /**
  * A custom element representing a general record poster.
@@ -62,7 +65,7 @@ export default class RecordUpdater extends HTMLElement {
         /** @type {} */
         let countryResult;
         try {
-            countryResult = await records.putRecord(countryName, year, gdp, population);
+            countryResult = await records.postGeneralRecord(countryName, year, gdp, population);
         } catch (e) {
             alert(e);
             return;
@@ -81,7 +84,7 @@ export default class RecordUpdater extends HTMLElement {
             recordView.appendChild(countrySpan);
 
             recordView.addEventListener("click", () => {
-                this.dispatchEvent(new RecordSelectedEvent(recordView.songId));
+                this.dispatchEvent(new GeneralSelectedEvent(recordView.songId));
             });
 
             this.#result.appendChild(recordView);

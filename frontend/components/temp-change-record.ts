@@ -1,6 +1,6 @@
-import records from "../api/movies.js";
-import ApiMovieSummary from "../models/energy.ts";
-import MovieSummary from "./movie-summary.js";
+import records from "../api/records.ts";
+// ApiTempChangeSummary maybe needed
+// TempChangeSummary maybe needed
 
 // This is a custom Event to represent a movie being selected,
 // carrying a movieId field with it to represent which movie is
@@ -76,7 +76,7 @@ export default class TempChangeRecordFinder extends HTMLElement {
         /** @type {ApiRecordSummary[]} */
         let continentResult;
         try {
-            continentResult = await records.getGeneralRecord(continentName, year);
+            continentResult = await records.getTempChangeRecord(continentName, year);
         } catch (e) {
             alert(e);
             return;

@@ -1,6 +1,6 @@
-import records from "../api/movies.js";
-import ApiMovieSummary from "../models/energy.ts";
-import MovieSummary from "./movie-summary.js";
+import records from "../api/records.ts";
+// ApiGeneralSummary maybe needed
+// GeneralSummary maybe needed
 
 // This is a custom Event to represent a movie being selected,
 // carrying a movieId field with it to represent which movie is
@@ -76,7 +76,7 @@ export default class EmissionRecordFinder extends HTMLElement {
         /** @type {ApiRecordSummary[]} */
         let countryResult;
         try {
-            countryResult = await records.getGeneralRecord(countryName, year);
+            countryResult = await records.getEmissionRecord(countryName, year);
         } catch (e) {
             alert(e);
             return;
