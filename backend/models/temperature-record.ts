@@ -3,7 +3,7 @@ import { Column, Entity, PrimaryColumn } from "typeorm";
 @Entity()
 export class TemperatureRecord {
     @PrimaryColumn({ type: 'varchar'})
-    continent!: string;
+    country!: string;
 
     @PrimaryColumn({ type: 'int'})
     year!: number;

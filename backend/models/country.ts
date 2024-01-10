@@ -11,3 +11,7 @@ export class Country {
     @Column({ type: 'varchar'})
     iso_code!: string;
 }
+
+export function isISOCode(id: string): boolean {
+  return (/^[A-Z]{3}$/).test(id);
+}

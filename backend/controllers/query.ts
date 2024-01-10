@@ -1,14 +1,13 @@
 import { DataSource, ObjectLiteral, SelectQueryBuilder } from "typeorm";
-import { Min, Max, IsDefined, ValidationError, IsInt, ValidateIf, IsISO31661Alpha3, IsIn, IsString, IsOptional } from "class-validator";
-// import { Record} from "../models/record";
-import { isContinent } from "../models/continent";
+import { Min, Max, IsDefined, IsInt, IsIn, IsString, IsOptional } from "class-validator";
+import { continents } from "../models/continent";
 import { GeneralRecord } from "../models/general-record";
 import Container from "typedi";
 import { Country } from "../models/country";
 import { TemperatureRecord } from "../models/temperature-record";
 import { EmissionRecord } from "../models/emission-record";
 import { EnergyRecord } from "../models/energy-record";
-import { isISOCode } from "./helper";
+import { isISOCode } from "../models/country";
 
 /**
  * Interface that can be implemented by classes to allow different kinds of queries.
@@ -261,13 +260,36 @@ export class EnergyYearSelector extends YearSelector<EnergyRecord> {
   }
 } 
 
-
 export class ContinentSelector implements IQueryHelper<TemperatureRecord> {
   @IsDefined()
   @IsString()
+  @IsIn(continents)
   continent!: string;
+  
   apply(query: SelectQueryBuilder<TemperatureRecord>): SelectQueryBuilder<TemperatureRecord> {
-    query.andWhere("temperature_record.continent = :continent", {continent: this.continent});
+    query.andWhere("temperature_record.country = :continent", {continent: this.continent});
+    return query;
+  }
+}
+
+export class PeriodSelector implements IQueryHelper<TemperatureRecord> {
+  @IsDefined()
+  @IsInt()
+  "period-value"!: number; 
+  
+  @IsDefined()
+  @IsString()
+  @IsIn(['specific-year', 'last-m-years'])
+  "period-type"!: string; 
+
+  apply(query: SelectQueryBuilder<TemperatureRecord>): SelectQueryBuilder<TemperatureRecord> {
+    if (this["period-type"] === 'specific-year') {
+      query.andWhere(`temperature_record.year = :year`, {year: this["period-value"]});
+
+    }
+    if (this["period-type"] === 'last-m-years') {
+      query.andWhere(`temperature_record.year > ${1999 - this["period-value"]}`);
+    }
     return query;
   }
 }

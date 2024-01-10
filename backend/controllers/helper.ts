@@ -25,7 +25,4 @@ export function resourceConvertor(result: any, req: Request, res: Response) {
   res.json(result);
 }
 
-export function isISOCode(id: string): boolean {
-  return (/^[A-Z]{3}$/).test(id);
-}
 

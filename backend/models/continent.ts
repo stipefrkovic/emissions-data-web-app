@@ -6,7 +6,7 @@ export class Continent {
     continent!: string;
 }
 
-let continents: string[] = [
+export let continents: string[] = [
     'Africa',
     'Antarctica',
     'Asia',

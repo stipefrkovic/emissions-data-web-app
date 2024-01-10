@@ -1,5 +1,4 @@
 import { IsNotEmpty, IsNumber, IsString } from "class-validator";
-import { Record as DbRecord } from "../models/record";
 import { EnergyRecord } from "../models/energy-record";
 
 export class ApiEnergyRecord {

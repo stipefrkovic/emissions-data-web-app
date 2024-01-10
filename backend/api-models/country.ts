@@ -1,13 +1,15 @@
-import { Record as DbRecord } from "../models/record";
+import { IsNotEmpty, IsNumber, IsString } from "class-validator";
 
-export class Country {
+export class ApiCountry {
+    @IsString() @IsNotEmpty()
     country!: string;
+    @IsNumber()
     share_of_temperature_change_from_ghg?: number;
 
-    public static fromDatabase(country : DbRecord) : Country {
+    public static fromDatabase(country : any) : ApiCountry {
         return {
             country: country.country,
-            share_of_temperature_change_from_ghg: country.share_of_temperature_change_from_ghg
+            share_of_temperature_change_from_ghg: country.total_temperature_change
         };
     }
 }

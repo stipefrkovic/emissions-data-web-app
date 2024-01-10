@@ -1,5 +1,4 @@
-import { IsInt, IsNotEmpty, IsNumber, IsString, Max, Min } from "class-validator";
-import { Record as DbRecord } from "../models/record";
+import { IsInt, IsNotEmpty, IsNumber, Max, Min } from "class-validator";
 import { EmissionRecord } from "../models/emission-record";
 
 export class ApiEmissionRecord {

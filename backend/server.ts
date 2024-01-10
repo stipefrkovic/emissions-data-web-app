@@ -4,7 +4,6 @@ import { config as dotenvConfig } from "dotenv";
 import Container from "typedi";
 
 import app from "./app";
-import { Record } from "./models/record";
 import { GeneralRecord } from "./models/general-record";
 import { EmissionRecord } from "./models/emission-record";
 import { TemperatureRecord } from "./models/temperature-record";
@@ -23,7 +22,7 @@ const database = new DataSource({
     password: "mariadb",
     database: "emissions",
     entities: [
-        Record, GeneralRecord, EmissionRecord, EnergyRecord, Country, TemperatureRecord, Continent
+         GeneralRecord, EmissionRecord, EnergyRecord, Country, TemperatureRecord, Continent
     ],
     synchronize: true,
     logging: false

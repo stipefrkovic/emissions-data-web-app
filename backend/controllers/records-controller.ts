@@ -1,19 +1,17 @@
 import { NextFunction, Request, Response } from "express";
-import { DataSource, Raw, getConnection } from "typeorm";
-import { plainToClass, plainToClassFromExist, plainToInstance } from "class-transformer";
+import { DataSource } from "typeorm";
+import { plainToClass } from "class-transformer";
 import { validate } from "class-validator";
 import Container from "typedi";
-import { Paging, YearSelector, EmissionCountrySelector, TemperatureYearFilter, ContinentSelector, EmissionYearFilter, GeneralCountrySelector, EnergyPopulationOrder, GeneralYearSelector, EnergyYearSelector, Batcher } from "./query";
+import { EmissionCountrySelector, TemperatureYearFilter, ContinentSelector, EmissionYearFilter, GeneralCountrySelector, EnergyPopulationOrder, GeneralYearSelector, EnergyYearSelector, Batcher, PeriodSelector } from "./query";
 import { resourceConvertor } from "./helper";
-import { jsonToCSV } from "./helper";
 import { alreadyExists } from "../error";
-import { Record as ApiRecord } from "../api-models/record";
 import { ApiFullGeneralRecord, ApiGeneralRecord } from "../api-models/general";
 import { ApiEmissionRecord } from "../api-models/emission";
 import { ApiEnergyRecord } from "../api-models/energy";
 import { ApiTemperatureRecord } from "../api-models/temperature";
-import { Country } from "../api-models/country";
-import { Country as ModelCountry} from "../models/country"
+import { ApiCountry } from "../api-models/country";
+import { Country as ModelCountry } from "../models/country";
 import { isContinent } from "../models/continent";
 import { GeneralRecord } from "../models/general-record";
 import { EmissionRecord } from "../models/emission-record";
@@ -86,7 +84,7 @@ export class RecordsController {
         return;
     }
 
-    public async updateGeneralRecordAsync(req: Request<{ country: string, year: string }, {}, ApiRecord>, res: Response, next: NextFunction): Promise <void> {                
+    public async updateGeneralRecordAsync(req: Request<{ country: string, year: string }>, res: Response, next: NextFunction): Promise <void> {                
         let generaldRecordQuery = Container.get<DataSource>("database").getRepository(GeneralRecord).createQueryBuilder("general_record");
         
         const countrySelector = plainToClass(GeneralCountrySelector, req.params, { enableImplicitConversion: true });
@@ -181,7 +179,7 @@ export class RecordsController {
         resourceConvertor(apiTemperatureRecords, req, res);
     }
 
-    public async getEnergyRecordsAsync(req: Request<{ year: string}, {}, ApiRecord>, res: Response, next: NextFunction): Promise <void> {
+    public async getEnergyRecordsAsync(req: Request<{ year: string}>, res: Response, next: NextFunction): Promise <void> {
         let energyRecordQuery = Container.get<DataSource>("database").getRepository(EnergyRecord).createQueryBuilder("energy_record");
 
         const energyYearSelector = plainToClass(EnergyYearSelector, req.params, { enableImplicitConversion: true });
@@ -206,29 +204,32 @@ export class RecordsController {
         resourceConvertor(apiEnergyRecords, req, res);
     }
 
-    // public async getCountriesAsync(req: Request, res: Response): Promise <void> {
-    //     let query = Container.get<DataSource>("database").getRepository(Record).createQueryBuilder("record");
+    public async getCountriesAsync(req: Request, res: Response, next: NextFunction): Promise <void> {
+        let temperatureRecordQuery = Container.get<DataSource>("database").getRepository(TemperatureRecord).createQueryBuilder("temperature_record");
         
-    //     const filter = plainToClass(Filter, req.query, { enableImplicitConversion: true });
-    //     const order = plainToClass(Order, req.query, { enableImplicitConversion: true });
+        const periodSelector = plainToClass(PeriodSelector, req.query, { enableImplicitConversion: true });
+        if (badValidation(await validate(periodSelector, { validationError: { target: true }}), res, next)) return;
 
-    //     query = order.apply(query);
-    //     query = filter.apply(query);
+        temperatureRecordQuery = periodSelector.apply(temperatureRecordQuery);
+        let order_dir : 'DESC' | 'ASC' = req.query['order-dir'] === 'DESC' ? 'DESC' : 'ASC';
+        temperatureRecordQuery
+            .orderBy(`total_temperature_change`, order_dir)
+            .select('temperature_record.country AS country, SUM(temperature_record.share_of_temperature_change_from_ghg) AS total_temperature_change')
+            .addSelect('(SELECT c.country FROM country c WHERE c.country = temperature_record.country)', 'actual_country')
+            .groupBy('temperature_record.country')
+        let countries = await temperatureRecordQuery.getRawMany();
+        countries = countries.filter(x => (x.actual_country != null));
 
-    //     // query.andWhere("record.iso_code != ''");
+        if (emptyList(countries, req, res)) return;
 
-    //     let records = await query.getMany();
+        let apiCountries = countries.map(ApiCountry.fromDatabase);
 
-    //     if (emptyList(records, res)) return;
-
-    //     let mappedRecords = records.map(Country.fromDatabase);
-
-    //     res.status(200);
-    //     resourceConvertor(mappedRecords, req, res);
-    // }
+        res.status(200);
+        resourceConvertor(apiCountries, req, res);
+    }
 
     public async createRecordsAsync(req: Request, res: Response): Promise <void> {
-        if (req.body.iso_code) {
+        if (req.body.iso_code && req.body.iso_code != '') {
             let generalRecord : GeneralRecord = {
                 country: req.body.country,
                 year: req.body.year,
@@ -267,7 +268,7 @@ export class RecordsController {
         } 
         if (isContinent(req.body.country)) {
             let temperatureRecord : TemperatureRecord = {
-                continent: req.body.country,
+                country: req.body.country,
                 year: req.body.year,
                 share_of_temperature_change_from_ghg: req.body.share_of_temperature_change_from_ghg == '' ? null : req.body.share_of_temperature_change_from_ghg ?? null,
                 temperature_change_from_ch4: req.body.temperature_change_from_ch4 == '' ? null : req.body.temperature_change_from_ch4 ?? null,

@@ -66113,14 +66113,14 @@ DROP TABLE IF EXISTS `temperature_record`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `temperature_record` (
-  `continent` varchar(255) NOT NULL,
+  `country` varchar(255) NOT NULL,
   `year` int(11) NOT NULL,
   `share_of_temperature_change_from_ghg` double DEFAULT NULL,
   `temperature_change_from_ch4` double DEFAULT NULL,
   `temperature_change_from_co2` double DEFAULT NULL,
   `temperature_change_from_ghg` double DEFAULT NULL,
   `temperature_change_from_n2o` double DEFAULT NULL,
-  PRIMARY KEY (`continent`,`year`)
+  PRIMARY KEY (`country`,`year`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -66843,4 +66843,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2024-01-10 11:42:15
+-- Dump completed on 2024-01-10 21:33:12

@@ -1,6 +1,5 @@
-import { IsISO31661Alpha3, IsInt, IsNotEmpty, IsNumber, IsNumberString, IsString, Max, Min, isInt, isNotEmpty, isNumberString } from "class-validator";
+import { IsISO31661Alpha3, IsInt, IsNotEmpty, IsString, Max, Min } from "class-validator";
 import { GeneralRecord } from "../models/general-record";
-import { Country } from "../models/country";
 
 export class ApiFullGeneralRecord {
     @IsString() @IsNotEmpty()

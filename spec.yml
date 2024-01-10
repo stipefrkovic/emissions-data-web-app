@@ -131,7 +131,7 @@ components:
     country:
       type: object
       properties:
-        name:
+        country:
           type: string
           description: name of the country
         share_of_temperature_change_from_ghg:
@@ -217,14 +217,6 @@ paths:
                 population:
                   type: integer
                   description: Population of the country
-          text/csv:
-            schema:
-                type: object
-            example: |
-              country, string
-              year, 0
-              gdp, 0
-              population, 0
       responses:
         '201':
           description: General information succesfully created
@@ -318,12 +310,6 @@ paths:
           application/json:
             schema:
               $ref: "#/components/schemas/general"
-          text/csv:
-            schema:
-                type: object
-            example: |
-              gdp, 0
-              population, 0
       responses:
         '200':
           description: General record updated, returns the new state
@@ -612,7 +598,7 @@ paths:
               schema:
                 type: array
               example: |
-                name, string
+                country, string
                 share_of_temperature_change_from_ghg, 0
         
         '204':
