@@ -1,15 +1,22 @@
 export default class TempChange{
-    /** @type {number} */
-    share_of_temperature_change_from;
+    continent!: string;
+    year!: number;
+    shareOfTempChangeFromGhg!: number;
+    tempChangeFromCO2!: number;
+    tempChangeFromN2O!: number;
+    tempChangeFromGHG!: number;
+    tempChangeFromCH4!: number;
 
-    /** @type {number} */
-    temperature_change_from_;
-
-    static fromJson(json){
+    static fromJson(json: Record<string, any>){
         let tempChange = new TempChange();
 
-        tempChange.share_of_temperature_change_from = json.share_of_temperature_change_from;
-        tempChange.temperature_change_from_ = json.temperature_change_from_;
+        tempChange.continent = json.continent;
+        tempChange.year = json.year;
+        tempChange.shareOfTempChangeFromGhg = json.shareOfTempChangeFromGhg;
+        tempChange.tempChangeFromCO2 = json.tempChangeFromCO2;
+        tempChange.tempChangeFromN2O = json.tempChangeFromN2O;
+        tempChange.tempChangeFromGHG = json.tempChangeFromGHG;
+        tempChange.tempChangeFromCH4 = json.tempChangeFromCH4;
 
         return tempChange;
     }

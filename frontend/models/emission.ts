@@ -1,23 +1,20 @@
 export default class Emission{
-    /** @type {number} */
-    co2;
+    id!: string;
+    year!: number;
+    co2?: number;
+    methane?: number;
+    nitrousOxide?: number;
+    totalGhg?: number;
 
-    /** @type {number} */
-    methane;
-
-    /** @type {number} */
-    nitrous_oxide;
-
-    /** @type {number} */
-    total_ghg;
-
-    static fromJson(json){
+    static fromJson(json: Record<string, any>){
         let emission = new Emission();
 
+        emission.id = json.id;
+        emission.year = json.year;
         emission.co2 = json.co2;
         emission.methane = json.methane;
-        emission.nitrous_oxide = json.nitrous_oxide;
-        emission.total_ghg = json.total_ghg;
+        emission.nitrousOxide = json.nitrousOxide;
+        emission.totalGhg = json.totalGhg;
 
         return emission;
     }
