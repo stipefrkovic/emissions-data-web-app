@@ -1,6 +1,6 @@
 import records from "../api/records.ts";
 // ApiGeneralSummary maybe needed
-// GeneralSummary maybe needed
+import GeneralSummary from "./general-record-summary.ts";
 import GeneralSelectedEvent from "./general-record-selected-event.ts";
 
 // This is a custom element representing a movie finder as a whole.
@@ -8,7 +8,7 @@ import GeneralSelectedEvent from "./general-record-selected-event.ts";
 // to search for, and will show all matching results with pagination.
 // The user can pick any of the results, after which the element will
 // emit a "movie-selected" event as defined above.
-export default class RecordFinder extends HTMLElement {
+export default class GeneralFinder extends HTMLElement {
     /** @type {HTMLInputElement} */ #countrySearch;
     /** @type {HTMLInputElement} */ #yearSearch;
     /** @type {HTMLButtonElement} */ #retrieve;
@@ -72,8 +72,9 @@ export default class RecordFinder extends HTMLElement {
         // template.
         for (let country of countryResult) {
             // Create a new summary instance and set its ID (for later reference)
-            let recordView = new MovieSummary();
-            recordView.countryId = country.id;
+            let recordView = new GeneralSummary();
+            recordView.generalRecordId = country.id;
+            recordView.generalRecordYear = country.year;
 
             // Connect slots: this is done by creating two spans (can be arbitrary elements)
             // with the "slot" attribute set to match the slot name. We then put these two
@@ -94,7 +95,7 @@ export default class RecordFinder extends HTMLElement {
             // Add an event listener: we want to trigger a "movie-selected" event when
             // the user clicks a specific movie.
             recordView.addEventListener("click", () => {
-                this.dispatchEvent(new GeneralSelectedEvent(recordView.countryId));
+                this.dispatchEvent(new GeneralSelectedEvent(recordView.generalRecordId));
             });
 
             this.#result.appendChild(recordView);
@@ -103,4 +104,4 @@ export default class RecordFinder extends HTMLElement {
 };
 
 // Define the MovieFinder class as a custom element
-window.customElements.define('general-record-finder', RecordFinder);
+window.customElements.define('general-record-finder', GeneralFinder);

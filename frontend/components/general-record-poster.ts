@@ -1,6 +1,6 @@
 import records from "../api/records.ts";
 // ApiGeneralSummary maybe needed
-// GeneralSummary maybe needed
+import GeneralSummary from "./general-record-summary.ts";
 import GeneralSelectedEvent from "./general-record-selected-event.ts";
 
 /**
@@ -9,7 +9,7 @@ import GeneralSelectedEvent from "./general-record-selected-event.ts";
  * country name, year, GDP and population.
  * Summary information of the general record will be posted and displayed.
  */
-export default class RecordPoster extends HTMLElement {
+export default class GeneralPoster extends HTMLElement {
     /** @type {HTMLInputElement} */ #country;
     /** @type {HTMLInputElement} */ #year;
     /** @type {HTMLInputElement} */ #gdp;
@@ -74,17 +74,23 @@ export default class RecordPoster extends HTMLElement {
         this.#result.innerHTML = "";
 
         for (let country of countryResult) {
-            let recordView = new RecordSummary();
-            recordView.countryId = country.id;
+            let recordView = new GeneralSummary();
+            recordView.generalRecordId = country.id;
+            recordView.generalRecordYear = country.year;
 
             let countrySpan = document.createElement("span");
             countrySpan.slot = "country";
-            countrySpan.innerText = country.name;
+            countrySpan.innerText = country.id;
+
+            let yearSpan = document.createElement("span");
+            yearSpan.slot = "year";
+            yearSpan.innerText = country.year;
 
             recordView.appendChild(countrySpan);
+            recordView.appendChild(yearSpan);
 
             recordView.addEventListener("click", () => {
-                this.dispatchEvent(new GeneralSelectedEvent(recordView.songId));
+                this.dispatchEvent(new GeneralSelectedEvent(recordView.generalRecordId));
             });
 
             this.#result.appendChild(recordView);
@@ -92,4 +98,4 @@ export default class RecordPoster extends HTMLElement {
     }
 }
 
-window.customElements.define("general-record-poster", RecordPoster);
+window.customElements.define("general-record-poster", GeneralPoster);
