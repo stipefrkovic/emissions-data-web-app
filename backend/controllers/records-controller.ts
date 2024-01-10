@@ -1,372 +1,294 @@
-import { Request, Response } from "express";
-import { DataSource, Raw } from "typeorm";
-import { plainToClass, plainToClassFromExist, plainToInstance } from "class-transformer";
+import { NextFunction, Request, Response } from "express";
+import { DataSource } from "typeorm";
+import { plainToClass } from "class-transformer";
 import { validate } from "class-validator";
 import Container from "typedi";
-import { Paging, Filter, Order, jsonToCSV } from "./helper";
-import { Record } from "../models/record";
-import { Record as ApiRecord } from "../api-models/record";
-import { General } from "../api-models/general";
-import { Emission } from "../api-models/emission";
-import { Energy } from "../api-models/energy";
-import { TempChange } from "../api-models/tempChange";
-import { Country } from "../api-models/country";
-import { isContinent } from "../models/continents";
+import { EmissionCountrySelector, TemperatureYearFilter, ContinentSelector, EmissionYearFilter, GeneralCountrySelector, EnergyPopulationOrder, GeneralYearSelector, EnergyYearSelector, Batcher, PeriodSelector } from "./query";
+import { resourceConvertor } from "./helper";
+import { alreadyExists } from "../error";
+import { ApiFullGeneralRecord, ApiGeneralRecord } from "../api-models/general";
+import { ApiEmissionRecord } from "../api-models/emission";
+import { ApiEnergyRecord } from "../api-models/energy";
+import { ApiTemperatureRecord } from "../api-models/temperature";
+import { ApiCountry } from "../api-models/country";
+import { Country as ModelCountry } from "../models/country";
+import { isContinent } from "../models/continent";
+import { GeneralRecord } from "../models/general-record";
+import { EmissionRecord } from "../models/emission-record";
+import { EnergyRecord } from "../models/energy-record";
+import { TemperatureRecord } from "../models/temperature-record";
+import { Continent } from "../models/continent";
+import { badValidation } from "./validate";
+import { emptyList, resourceNotFound } from "../error";
 
 // TODO verify json and csv for ALL responses
+// TODO australia oceania
+// difference between 404 and 204
+// TODO responses in spec.yml and otherwise
+// TODO countries and continents sql thing
 
 export class RecordsController {
 
-    public async getRecordAsync(req: Request<{ id: string, year: string }>, res: Response): Promise <void> {
-        let record
-        if((/^[A-Z]{3}$/).test(req.params.id)){
-            record = await Container.get<DataSource>("database").getRepository(Record).findOneBy({
-                year: Raw(c => `${c} = :year`, { year: req.params.year }),
-                iso_code: Raw(c => `${c} = :iso`, { iso: req.params.id })
-            });
-        } else {
-            record = await Container.get<DataSource>("database").getRepository(Record).findOneBy({
-                year: Raw(c => `${c} = :year`, { year: req.params.year }),
-                country: Raw(c => `${c} = :country`, { country: req.params.id })
-            });
-        }
+    public async createGeneralRecordAsync(req: Request, res: Response, next: NextFunction): Promise <void> {
+        const apiFullGeneralRecord : ApiFullGeneralRecord = plainToClass(ApiFullGeneralRecord, req.body, { enableImplicitConversion: true });
 
-        if(!record) {
-            res.status(404);
-            res.json({error: "Resource not found"});
-            return;
-        }
-
-        let acceptHeader = req.headers['accept'];
-        if (acceptHeader && acceptHeader.includes('text/csv')) {
-            try {
-                res.status(200)
-                res.setHeader('Content-Type', 'text/csv')
-                res.send(jsonToCSV(record));
-            } catch (error) {
-                console.log(error);
-                res.status(500);
-                res.send('Server error; no results, try again later');
-            }
-            
-        } else {
-            res.status(200);
-            res.json(record);
-        }
-
+        let generaldRecordQuery = Container.get<DataSource>("database").getRepository(GeneralRecord).createQueryBuilder("general_record");
         
-        res.json(General.fromDatabase(record));
+        const countrySelector = plainToClass(GeneralCountrySelector, req.body, { enableImplicitConversion: true });
+        if (badValidation(await validate(countrySelector, { validationError: { target: true }}), res, next)) return;
+
+        const yearSelector = plainToClass(GeneralYearSelector, req.body, { enableImplicitConversion: true});
+        if (badValidation(await validate(yearSelector, { validationError: { target: true }}), res, next)) return;
+        
+        generaldRecordQuery = countrySelector.apply(generaldRecordQuery); 
+        generaldRecordQuery = yearSelector.apply(generaldRecordQuery);
+        
+        console.log(countrySelector, yearSelector)
+        let recordsCount = await generaldRecordQuery.getCount();
+        if (alreadyExists(recordsCount, res)) return;
+
+        const generaldRecordRepo = Container.get<DataSource>("database").getRepository(GeneralRecord);
+        let generalRecord : GeneralRecord = ApiFullGeneralRecord.toDatabase(apiFullGeneralRecord)
+        let dbEntry = generaldRecordRepo.create(generalRecord);
+        await generaldRecordRepo.save(dbEntry);
+        let apiGeneralRecord = ApiGeneralRecord.fromDatabase(dbEntry);
+
+        const newResourceUrl = `${req.protocol}://${req.get('host')}/records/${generalRecord.country}/${generalRecord.year}/general`;
+        res.setHeader('Location', newResourceUrl);
+
+        res.status(201);
+        resourceConvertor(apiGeneralRecord, req, res);
+        return;
+    }
+
+    public async getGeneralRecordAsync(req: Request<{ country: string, year: string }>, res: Response, next: NextFunction): Promise <void> {
+        let generaldRecordQuery = Container.get<DataSource>("database").getRepository(GeneralRecord).createQueryBuilder("general_record");
+        
+        const countrySelector = plainToClass(GeneralCountrySelector, req.params, { enableImplicitConversion: true });
+        if (badValidation(await validate(countrySelector, { validationError: { target: true }}), res, next)) return;
+
+        const yearSelector = plainToClass(GeneralYearSelector, req.params, { enableImplicitConversion: true});
+        if (badValidation(await validate(yearSelector, { validationError: { target: true }}), res, next)) return;
+        
+        generaldRecordQuery = countrySelector.apply(generaldRecordQuery); 
+        generaldRecordQuery = yearSelector.apply(generaldRecordQuery);
+        
+        let generalRecord = await generaldRecordQuery.getOne();
+        
+        if (resourceNotFound(generalRecord, res, next)) return;
+
+        let apiGeneralRecord = ApiGeneralRecord.fromDatabase(generalRecord!);
+
+        res.status(200);
+        resourceConvertor(apiGeneralRecord, req, res);
+        return;
+    }
+
+    public async updateGeneralRecordAsync(req: Request<{ country: string, year: string }>, res: Response, next: NextFunction): Promise <void> {                
+        let generaldRecordQuery = Container.get<DataSource>("database").getRepository(GeneralRecord).createQueryBuilder("general_record");
+        
+        const countrySelector = plainToClass(GeneralCountrySelector, req.params, { enableImplicitConversion: true });
+        if (badValidation(await validate(countrySelector, { validationError: { target: true }}), res, next)) return;
+
+        const yearSelector = plainToClass(GeneralYearSelector, req.params, { enableImplicitConversion: true});
+        if (badValidation(await validate(yearSelector, { validationError: { target: true }}), res, next)) return;
+        
+        generaldRecordQuery = countrySelector.apply(generaldRecordQuery); 
+        generaldRecordQuery = yearSelector.apply(generaldRecordQuery);
+        
+        let generalRecord = await generaldRecordQuery.getOne();
+        
+        if (resourceNotFound(generalRecord, res, next)) return;
+
+        let apiGeneralRecord : ApiGeneralRecord = plainToClass(ApiGeneralRecord, req.body, { enableImplicitConversion: true });
+        generalRecord!.gdp = apiGeneralRecord.gdp;
+        generalRecord!.population = apiGeneralRecord.population;
+    
+        const generaldRecordRepo = Container.get<DataSource>("database").getRepository(GeneralRecord);
+        await generaldRecordRepo.save(generalRecord!);
+        apiGeneralRecord = ApiGeneralRecord.fromDatabase(generalRecord!);
+        
+        res.status(200)
+        resourceConvertor(apiGeneralRecord, req, res);
+        return;
+    }
+
+    public async deleteGeneralRecordAsync(req: Request<{ country: string, year: string }>, res: Response, next: NextFunction): Promise <void> {
+        let generaldRecordQuery = Container.get<DataSource>("database").getRepository(GeneralRecord).createQueryBuilder("general_record");
+        
+        const countrySelector = plainToClass(GeneralCountrySelector, req.params, { enableImplicitConversion: true });
+        if (badValidation(await validate(countrySelector, { validationError: { target: true }}), res, next)) return;
+
+        const yearSelector = plainToClass(GeneralYearSelector, req.params, { enableImplicitConversion: true});
+        if (badValidation(await validate(yearSelector, { validationError: { target: true }}), res, next)) return;
+        
+        generaldRecordQuery = countrySelector.apply(generaldRecordQuery); 
+        generaldRecordQuery = yearSelector.apply(generaldRecordQuery);
+        
+        let generalRecord = await generaldRecordQuery.getOne();
+        
+        if (resourceNotFound(generalRecord, res, next)) return;
+
+        const generaldRecordRepo = Container.get<DataSource>("database").getRepository(GeneralRecord);
+        await generaldRecordRepo.delete({country: generalRecord!.country, year: generalRecord!.year});
+
+        res.status(204).json();
         return;
     }
     
-    public async getEmissionAsync(req: Request<{ id: string }>, res: Response): Promise <void> {
-        const filter = plainToClass(Filter, req.query, { enableImplicitConversion: true });
-
-        let query = Container.get<DataSource>("database").getRepository(Record).createQueryBuilder("record");
-        query = filter.apply(query);
-
-        if((/^[A-Z]{3}$/).test(req.params.id)){
-            query.andWhere("record.iso_code = :iso", {
-                iso: req.params.id,
-            });
-        } else {
-            query.andWhere("record.country = :country", {
-                    country: req.params.id,
-            });
-        }
-
-        let records = await query.getMany();
-
-        if(records.length==0){
-            res.status(204);
-            res.json("List empty; no results");
-            return;
-        }
-
-        let mappedRecords = records.map(Emission.fromDatabase);
-
-        let acceptHeader = req.headers['accept'];
-        if (acceptHeader && acceptHeader.includes('text/csv')) {
-            try {
-                res.status(200)
-                res.setHeader('Content-Type', 'text/csv')
-                res.send(jsonToCSV(mappedRecords));
-            } catch (error) {
-                console.log(error);
-                res.status(500)
-                res.send('Server error; no results, try again later');
-            }
-        } else {
-            res.status(200);
-            res.json(mappedRecords);
-        }
-
-    }
-
-    public async getTempChangeAsync(req: Request<{ continent: string}>, res: Response): Promise <void> {
-        // TODO verify australia/ocenia in all places
-        const filter = plainToClass(Filter, req.query, { enableImplicitConversion: true });
-
-        let query = Container.get<DataSource>("database").getRepository(Record).createQueryBuilder("record");
-        query = filter.apply(query);
-
-        if (req.params.continent && isContinent(req.params.continent)){
-            query.andWhere("record.country = :continent", {
-                continent: req.params.continent,
-            });
-        } else {
-            res.status(400);
-            res.json({
-                "error-message": "The request body has an invalid entry."
-            });
-            return;
-        }
-
-        let records = await query.getMany();
-
-        console.log(records);
-
-        if(records.length==0) {
-            res.status(204);
-            res.send("List empty; no results");
-            return;
-        }
-
-        let mappedRecords = records.map(TempChange.fromDatabase);
-
-        let acceptHeader = req.headers['accept'];
-        if (acceptHeader && acceptHeader.includes('text/csv')) {
-            // csv response
-            try {
-                res.status(200)
-                   .setHeader('Content-Type', 'text/csv')
-                   .send(jsonToCSV(mappedRecords))
-                   ;
-            } catch (error) {
-                console.log(error);
-                res.status(500)
-                   .send('Server error; no results, try again later')
-                   ;
-            }
-            
-        } else {
-            // json response
-            res.status(200)
-               .json(mappedRecords)
-               ;
-        }
-    }
-
-    public async deleteRecordAsync(req: Request<{ id: string, year: string }>, res: Response): Promise <void> {
-        const recordRepository = Container.get<DataSource>("database").getRepository(Record);
-        let record
-        if((/^[A-Z]{3}$/).test(req.params.id)){
-            record = await recordRepository.findOneBy({
-                year: Raw(c => `${c} = :year`, { year: req.params.year }),
-                iso_code: Raw(c => `${c} = :iso`, { iso: req.params.id })
-            });
-        } else {
-            record = await recordRepository.findOneBy({
-                year: Raw(c => `${c} = :year`, { year: req.params.year }),
-                country: Raw(c => `${c} = :country`, { country: req.params.id })
-            });
-        }
-
-        if(!record) {
-            res.status(404);
-            res.json({error: "Resource not found"});
-        } else {
-            await recordRepository.delete([req.params.id, req.params.year]);
-            res.json();
-        }
-
-        return;
-    }
-
-    public async updateRecordAsync(req: Request<{ id: string, year: string }, {}, ApiRecord>, res: Response): Promise <void> {
-        const apiRecord = plainToClass(ApiRecord, req.body, { enableImplicitConversion: true });
-        const validationResult = await validate(ApiRecord, { validationError: { target: false }});
-        if(validationResult.length > 0) {
-            res.status(400);
-            res.json({ error: "Record validation error", details: validationResult });
-            return;
-        }
+    public async getEmissionRecordAsync(req: Request<{ country: string }>, res: Response, next: NextFunction): Promise <void> {
+        let emissionRecordQuery = Container.get<DataSource>("database").getRepository(EmissionRecord).createQueryBuilder("emission_record");
         
-        let record
-        const recordRepository = Container.get<DataSource>("database").getRepository(Record);
-        if((/^[A-Z]{3}$/).test(req.params.id)){
-            record = await recordRepository.findOneBy({
-                year: Raw(c => `${c} = :year`, { year: req.params.year }),
-                iso_code: Raw(c => `${c} = :iso`, { iso: req.params.id })
-            });
-        } else {
-            record = await recordRepository.findOneBy({
-                year: Raw(c => `${c} = :year`, { year: req.params.year }),
-                country: Raw(c => `${c} = :country`, { country: req.params.id })
-            });
-        }
-
-        if(!record) {
-            res.status(404);
-            res.json({error: "Resource not found"});
-            return;
-        }
-
-        record.gdp = apiRecord.gdp ?? 0;
-        record.population = apiRecord.population ?? 0;
-    
-
-        await recordRepository.save(record);
-        res.json(ApiRecord.fromDatabase(record));
-        return;
-    }
-
-    public async createRecordAsync(req: Request, res: Response): Promise <void> {
-        const apiRecord = plainToInstance(ApiRecord, req.body, { enableImplicitConversion: true });
-
-        const validationResult = await validate(apiRecord, { validationError: { target: false }});
-        if(validationResult.length > 0) {
-            res.status(400);
-            res.json({ error: "Record validation error", details: validationResult });
-            return;
-        }
-
-        let record : Record = {
-            country: apiRecord.country,
-            year: apiRecord.year,
-            iso_code: apiRecord.iso_code,
-            population: apiRecord.population,
-            gdp: apiRecord.gdp ?? 0,
-            co2: apiRecord.co2 ?? 0,
-            energy_per_capita: apiRecord.energyPerCapita ?? 0,
-            energy_per_gdp: apiRecord.energyPerGdp ?? 0,
-            methane: apiRecord.methane ?? 0,
-            nitrous_oxide: apiRecord.nitrousOxide ?? 0,
-            total_ghg: apiRecord.totalGhg ?? 0,
-            share_of_temperature_change_from_ghg: apiRecord.shareOfTempChangeFromGhg ?? 0,
-            temperature_change_from_ch4: apiRecord.tempChangeFromCH4 ?? 0,
-            temperature_change_from_co2: apiRecord.tempChangeFromCO2 ?? 0,
-            temperature_change_from_ghg: apiRecord.tempChangeFromGHG ?? 0,
-            temperature_change_from_n2o: apiRecord.tempChangeFromN2O ?? 0,
-        };
-
-        let query = Container.get<DataSource>("database").getRepository(Record).createQueryBuilder("record");
-
-        let existingCount;
-        if((/^[A-Z]{3}$/).test(req.params.id)){
-            existingCount = await query.andWhere({
-                year: Raw(c => `${c} = :year`, { year: req.params.year }),
-                iso_code: Raw(c => `${c} = :iso`, { iso: req.params.id })
-            }).getCount();
-        } else {
-            existingCount = await query.andWhere({
-                year: Raw(c => `${c} = :year`, { year: req.params.year }),
-                country: Raw(c => `${c} = :country`, { country: req.params.id })
-            }).getCount();
-        }
+        const emissionYearFilter = plainToClass(EmissionYearFilter, req.query, { enableImplicitConversion: true });
+        if (badValidation(await validate(emissionYearFilter, { validationError: { target: true }}), res, next)) return;
         
+        const emissionCountrySelector = plainToClass(EmissionCountrySelector, req.params, {enableImplicitConversion: true});
+        if (badValidation(await validate(emissionCountrySelector, { validationError: { target: true }}), res, next)) return;
 
-        if(existingCount > 0) {
-            res.status(409);
-            res.json({ error: "Record with the same name already exists" });
-            return;
-        }
+        emissionRecordQuery = emissionYearFilter.apply(emissionRecordQuery);
+        emissionRecordQuery = emissionCountrySelector.apply(emissionRecordQuery);
 
-        const recordsRepository = Container.get<DataSource>("database").getRepository(Record);
-        let dbEntry = recordsRepository.create(record);
-        await recordsRepository.save(dbEntry);
+        let emissionRecords = await emissionRecordQuery.getMany();
 
-        res.json(dbEntry);
-        return;
+        if (emptyList(emissionRecords, req, res)) return;
+
+        let apiEmissionRecords = emissionRecords.map(ApiEmissionRecord.fromDatabase);
+
+        res.status(200);
+        resourceConvertor(apiEmissionRecords, req, res);
     }
 
-    public async getEnergyRecordsAsync(req: Request<{ year: string}, {}, ApiRecord>, res: Response): Promise <void> {
-        let query = Container.get<DataSource>("database").getRepository(Record).createQueryBuilder("record");
+    public async getTemperatureRecordAsync(req: Request<{ continent: string}>, res: Response, next: NextFunction): Promise <void> {
+        let temperatureRecordQuery = Container.get<DataSource>("database").getRepository(TemperatureRecord).createQueryBuilder("temperature_record");
+        
+        const temperatureHigherYearFilter = plainToClass(TemperatureYearFilter, req.query, { enableImplicitConversion: true });
+        if (badValidation(await validate(temperatureHigherYearFilter, { validationError: { target: true }}), res, next)) return;
+        
+        const continentSelector = plainToClass(ContinentSelector, req.params, {enableImplicitConversion: true});
+        if (badValidation(await validate(continentSelector, { validationError: { target: true }}), res, next)) return;
 
-        if (req.params.year){
-            query.andWhere("record.year = :year", {
-                year: req.params.year,
-            });
-        } else {
-            res.status(400);
-            res.json({
-                "error-message": "The request body has an invalid entry."
-            });
-            return;
-        }
+        temperatureRecordQuery = temperatureHigherYearFilter.apply(temperatureRecordQuery);
+        temperatureRecordQuery = continentSelector.apply(temperatureRecordQuery);
 
-        const sortOrder = req.query['order-by'] == "descending" ? "DESC" : "ASC";
-        query.orderBy('record.population', sortOrder);
+        let temperatureRecords = await temperatureRecordQuery.getMany();
+        if (emptyList(temperatureRecords, req, res)) return;
 
-        const batchSize = req.query['batch-size'] as unknown as number;
-        const batchIndex = req.query['batch-index'] as unknown as number;
-        const skipCount = (batchIndex - 1) * batchSize;
-        query.skip(skipCount);
-        query.take(batchSize);
+        let apiTemperatureRecords = temperatureRecords.map(ApiTemperatureRecord.fromDatabase);
 
-        query.andWhere("record.iso_code != ''");
+        res.status(200);
+        resourceConvertor(apiTemperatureRecords, req, res);
+    }
 
-        let records = await query.getMany();
+    public async getEnergyRecordsAsync(req: Request<{ year: string}>, res: Response, next: NextFunction): Promise <void> {
+        let energyRecordQuery = Container.get<DataSource>("database").getRepository(EnergyRecord).createQueryBuilder("energy_record");
 
-        if(!records) {
-            res.status(204);
-            res.send("List empty; no results");
-            return;
-        }
+        const energyYearSelector = plainToClass(EnergyYearSelector, req.params, { enableImplicitConversion: true });
+        if (badValidation(await validate(energyYearSelector, { validationError: { target: true }}), res, next)) return;
 
-        let mappedRecords = records.map(Energy.fromDatabase);
+        const energyPopulationOrder = plainToClass(EnergyPopulationOrder, req.query, { enableImplicitConversion: true });
+        if (badValidation(await validate(energyPopulationOrder, { validationError: { target: true }}), res, next)) return;
 
-        let acceptHeader = req.headers['accept'];
-        if (acceptHeader && acceptHeader.includes('text/csv')) {
-            // csv response
+        const batcher = plainToClass(Batcher, req.query, { enableImplicitConversion: true });
+        if (badValidation(await validate(batcher, { validationError: { target: true }}), res, next)) return;
+
+        energyRecordQuery = energyYearSelector.apply(energyRecordQuery);
+        energyRecordQuery = energyPopulationOrder.apply(energyRecordQuery);
+        energyRecordQuery = batcher.apply(energyRecordQuery);
+
+        let energyRecords = await energyRecordQuery.getMany()
+        if (emptyList(energyRecords, req, res)) return;
+
+        let apiEnergyRecords = energyRecords.map(ApiEnergyRecord.fromDatabase);
+
+        res.status(200);
+        resourceConvertor(apiEnergyRecords, req, res);
+    }
+
+    public async getCountriesAsync(req: Request, res: Response, next: NextFunction): Promise <void> {
+        let temperatureRecordQuery = Container.get<DataSource>("database").getRepository(TemperatureRecord).createQueryBuilder("temperature_record");
+        
+        const periodSelector = plainToClass(PeriodSelector, req.query, { enableImplicitConversion: true });
+        if (badValidation(await validate(periodSelector, { validationError: { target: true }}), res, next)) return;
+
+        temperatureRecordQuery = periodSelector.apply(temperatureRecordQuery);
+        let order_dir : 'DESC' | 'ASC' = req.query['order-dir'] === 'DESC' ? 'DESC' : 'ASC';
+        temperatureRecordQuery
+            .orderBy(`total_temperature_change`, order_dir)
+            .select('temperature_record.country AS country, SUM(temperature_record.share_of_temperature_change_from_ghg) AS total_temperature_change')
+            .addSelect('(SELECT c.country FROM country c WHERE c.country = temperature_record.country)', 'actual_country')
+            .groupBy('temperature_record.country')
+        let countries = await temperatureRecordQuery.getRawMany();
+        countries = countries.filter(x => (x.actual_country != null));
+
+        if (emptyList(countries, req, res)) return;
+
+        let apiCountries = countries.map(ApiCountry.fromDatabase);
+
+        res.status(200);
+        resourceConvertor(apiCountries, req, res);
+    }
+
+    public async createRecordsAsync(req: Request, res: Response): Promise <void> {
+        if (req.body.iso_code && req.body.iso_code != '') {
+            let generalRecord : GeneralRecord = {
+                country: req.body.country,
+                year: req.body.year,
+                gdp: req.body.gdp == '' ? null : req.body.gdp ?? null,
+                population: req.body.population == '' ? null : req.body.population ?? null,
+            };
+            let emissionRecord : EmissionRecord = {
+                country: req.body.country,
+                year: req.body.year,
+                co2: req.body.co2 == '' ? null : req.body.co2 ?? null,
+                methane: req.body.methane == '' ? null : req.body.methane ?? null,
+                nitrous_oxide: req.body.nitrous_oxide == '' ? null : req.body.nitrous_oxide ?? null,
+                total_ghg: req.body.total_ghg == '' ? null : req.body.total_ghg ?? null,
+            };
+            let energyRecord : EnergyRecord = {
+                country: req.body.country,
+                year: req.body.year,
+                energy_per_capita: req.body.energy_per_capita == '' ? null : req.body.energy_per_capita ?? null,
+                energy_per_gdp: req.body.energy_per_gdp == '' ? null : req.body.energy_per_gdp ?? null,
+            };
+            let country : ModelCountry = {
+                country: req.body.country,
+                iso_code: req.body.iso_code
+            };
             try {
-                res.status(200)
-                   .setHeader('Content-Type', 'text/csv')
-                   .send(jsonToCSV(mappedRecords))
-                   ;
+                const db = Container.get<DataSource>("database");
+                const savedGeneralRecord = await db.getRepository(GeneralRecord).save(generalRecord);
+                const savedEmissionRecord = await db.getRepository(EmissionRecord).save(emissionRecord);
+                const savedEnergyRecord = await db.getRepository(EnergyRecord).save(energyRecord);
+                const savedCountry = await db.getRepository(ModelCountry).save(country);
+                res.status(201).json();               
             } catch (error) {
-                console.log(error);
-                res.status(500)
-                   .send('Server error; no results, try again later')
-                   ;
+                console.error(error);
+                res.status(500).json({ error: 'Error saving record' });
             }
-            
-        } else {
-            // json response
-            res.status(200)
-               .json(mappedRecords)
-               ;
-        }
-    }
-
-    public async getCountriesAsync(req: Request, res: Response): Promise <void> {
-        const filter = plainToClass(Filter, req.query, { enableImplicitConversion: true });
-        const order = plainToClass(Order, req.query, { enableImplicitConversion: true });
-
-        let query = Container.get<DataSource>("database").getRepository(Record).createQueryBuilder("record");
-        query = order.apply(query);
-        query = filter.apply(query);
-
-        query.andWhere("record.iso_code != ''");
-
-        let records = await query.getMany();
-        let mappedRecords = records.map(Country.fromDatabase);
-
-        let acceptHeader = req.headers['accept'];
-        if (acceptHeader && acceptHeader.includes('text/csv')) {
+        } 
+        if (isContinent(req.body.country)) {
+            let temperatureRecord : TemperatureRecord = {
+                country: req.body.country,
+                year: req.body.year,
+                share_of_temperature_change_from_ghg: req.body.share_of_temperature_change_from_ghg == '' ? null : req.body.share_of_temperature_change_from_ghg ?? null,
+                temperature_change_from_ch4: req.body.temperature_change_from_ch4 == '' ? null : req.body.temperature_change_from_ch4 ?? null,
+                temperature_change_from_co2: req.body.temperature_change_from_co2 == '' ? null : req.body.temperature_change_from_co2 ?? null,
+                temperature_change_from_ghg: req.body.temperature_change_from_ghg == '' ? null : req.body.temperature_change_from_ghg ?? null,
+                temperature_change_from_n2o: req.body.temperature_change_from_n2o == '' ? null : req.body.temperature_change_from_n2o ?? null,
+            };
+            let continent : Continent = {
+                continent: req.body.country
+            };
             try {
-                res.status(200);
-                res.setHeader('Content-Type', 'text/csv');
-                res.send(jsonToCSV(mappedRecords));
+                const db = Container.get<DataSource>("database");
+                const savedTemperatureRecord = await db.getRepository(TemperatureRecord).save(temperatureRecord);
+                const savedContinent = await db.getRepository(Continent).save(continent);
+                res.status(201).json();
             } catch (error) {
-                console.log(error);
-                res.status(500);
-                res.send('Server error; no results, try again later');
+                console.error(error);
+                res.status(500).json({ error: 'Error saving record' });
             }
-            
-        } else {
-            res.status(200);
-            res.json(mappedRecords);
         }
     }
+
 }
