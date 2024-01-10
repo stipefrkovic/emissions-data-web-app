@@ -9,12 +9,12 @@ import GeneralSelectedEvent from "./general-record-selected-event.ts";
  * country name, year, GDP and population.
  * Summary information of the general record will be posted and displayed.
  */
-export default class RecordUpdater extends HTMLElement {
+export default class RecordPoster extends HTMLElement {
     /** @type {HTMLInputElement} */ #country;
     /** @type {HTMLInputElement} */ #year;
     /** @type {HTMLInputElement} */ #gdp;
     /** @type {HTMLInputElement} */ #population;
-    /** @type {HTMLButtonElement} */ #update;
+    /** @type {HTMLButtonElement} */ #post;
     /** @type {HTMLDivElement} */ #result;
 
     /**
@@ -26,7 +26,7 @@ export default class RecordUpdater extends HTMLElement {
         super();
 
         // We start by finding the template and taking its contents.
-        const template: HTMLElement | null = document.getElementById("general-record-updater");
+        const template: HTMLElement | null = document.getElementById("general-record-poster");
         if (template instanceof HTMLMetaElement) {
             const templateContent = template.content;
 
@@ -41,7 +41,7 @@ export default class RecordUpdater extends HTMLElement {
                 this.#year = this.shadowRoot.getElementById("year");
                 this.#gdp = this.shadowRoot.getElementById("gdp");
                 this.#population = this.shadowRoot.getElementById("population");
-                this.#update = this.shadowRoot.getElementById("update");
+                this.#post = this.shadowRoot.getElementById("post");
                 this.#result = this.shadowRoot.getElementById("records");
             } else {
                 alert("Shadow DOM ain't working (null error)!");
@@ -50,7 +50,7 @@ export default class RecordUpdater extends HTMLElement {
             alert("Template is not working (null).");
         }
 
-        this.#update.addEventListener("click", async () => {
+        this.#post.addEventListener("click", async () => {
             await this.search();
         });
     }
@@ -92,4 +92,4 @@ export default class RecordUpdater extends HTMLElement {
     }
 }
 
-window.customElements.define("general-record-updater", RecordUpdater);
+window.customElements.define("general-record-poster", RecordPoster);
