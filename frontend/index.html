@@ -319,12 +319,6 @@
         // movie-selected event omitted by the finder, and when it is triggered
         // we update the selected movie for the detail list.
         document
-          .getElementById("genRecordFinder")
-          .addEventListener("general-record-selected", (ev) => {
-            document.getElementById("detail").generalRecordId = ev.generalRecordId;
-          });
-  
-        document
         .getElementById("genRecordFinder")
         .addEventListener("general-record-selected", (ev) => {
         document.getElementById("detail").generalRecordId = ev.generalRecordId;
@@ -359,6 +353,8 @@
       <script type="module" src="./component/general-record-deleter.ts"></script>
       <script type="module" src="./component/general-record-updater.ts"></script>
       <script type="module" src="./component/general-record-poster.ts"></script>
+      <script type="module" src="./component/general-record-summary.ts"></script>
+      <script type="module" src="./component/general-record-detail.ts"></script>
       <script type="module" src="./component/emission-record-finder.ts"></script>
       <script type="module" src="./component/temp-change-record-finder.ts"></script>
 </body>

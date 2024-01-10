@@ -39,7 +39,7 @@ export default class GeneralSummary extends HTMLElement {
     constructor() {
         super();
 
-        const template: HTMLElement | null = document.getElementById("emission-record-finder");
+        const template: HTMLElement | null = document.getElementById("general-record-summary");
         if (template instanceof HTMLMetaElement) {
             const templateContent = template.content;
 

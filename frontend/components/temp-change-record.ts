@@ -1,4 +1,5 @@
 import records from "../api/records.ts";
+import TempChangeSummary from "./temp-change-record-summary.ts";
 // ApiTempChangeSummary maybe needed
 // TempChangeSummary maybe needed
 
@@ -91,8 +92,9 @@ export default class TempChangeRecordFinder extends HTMLElement {
         // template.
         for (let continent of continentResult) {
             // Create a new summary instance and set its ID (for later reference)
-            let tempChangeRecordView = new MovieSummary();
-            tempChangeRecordView.continentId = continent.id;
+            let tempChangeRecordView = new TempChangeSummary();
+            tempChangeRecordView.tempChangeRecordId = continent.id;
+            tempChangeRecordView.tempChangeRecordYear = continent.year;
 
             // Connect slots: this is done by creating two spans (can be arbitrary elements)
             // with the "slot" attribute set to match the slot name. We then put these two
@@ -128,7 +130,7 @@ export default class TempChangeRecordFinder extends HTMLElement {
             // Add an event listener: we want to trigger a "movie-selected" event when
             // the user clicks a specific movie.
             tempChangeRecordView.addEventListener("click", () => {
-                this.dispatchEvent(new TempChangeRecordSelectedEvent(tempChangeRecordView.continentId));
+                this.dispatchEvent(new TempChangeRecordSelectedEvent(tempChangeRecordView.id));
             });
 
             this.#result.appendChild(tempChangeRecordView);

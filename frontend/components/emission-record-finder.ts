@@ -1,4 +1,5 @@
 import records from "../api/records.ts";
+import EmissionSummary from "./emission-record-summary.ts";
 // ApiGeneralSummary maybe needed
 // GeneralSummary maybe needed
 
@@ -91,8 +92,9 @@ export default class EmissionRecordFinder extends HTMLElement {
         // template.
         for (let country of countryResult) {
             // Create a new summary instance and set its ID (for later reference)
-            let emissionRecordView = new MovieSummary();
-            emissionRecordView.countryId = country.id;
+            let emissionRecordView = new EmissionSummary();
+            emissionRecordView.emissionRecordId = country.id;
+            emissionRecordView.emissionRecordYear = country.year;
 
             // Connect slots: this is done by creating two spans (can be arbitrary elements)
             // with the "slot" attribute set to match the slot name. We then put these two
@@ -123,7 +125,7 @@ export default class EmissionRecordFinder extends HTMLElement {
             // Add an event listener: we want to trigger a "movie-selected" event when
             // the user clicks a specific movie.
             emissionRecordView.addEventListener("click", () => {
-                this.dispatchEvent(new EmissionRecordSelectedEvent(emissionRecordView.countryId));
+                this.dispatchEvent(new EmissionRecordSelectedEvent(emissionRecordView.emissionRecordId));
             });
 
             this.#result.appendChild(emissionRecordView);

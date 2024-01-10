@@ -4,7 +4,7 @@ import General from "../models/general.js";
 /**
  * A custom element for a detailed general record view.
  * The current general record ID is stored as an attribute on the element itself.
- * when this ID changes, the view is recreated to reflect the information of the new song.
+ * when this ID changes, the view is recreated to reflect the information of the new record.
  */
 export default class GeneralDetail extends HTMLElement {
     /** @type {HTMLTemplateElement} */ #template;
