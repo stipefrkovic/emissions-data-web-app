@@ -39,21 +39,17 @@ export default class GeneralSummary extends HTMLElement {
     constructor() {
         super();
 
-        const template: HTMLElement | null = document.getElementById("general-record-summary");
-        if (template instanceof HTMLMetaElement) {
+        const template = document.getElementById("general-record-summary");
             const templateContent = template.content;
 
             // Prepare shadow DOM and fill it with the template contents
             this.attachShadow({ mode: "open" });
             if (this.shadowRoot != null) {
-                this.shadowRoot.appendChild((templateContent as any).cloneNode(true));
+                this.shadowRoot.appendChild((templateContent).cloneNode(true));
             } else {
                 alert("Shadow DOM ain't working (null error)!");
             }
-        } else {
-            alert("Template is not working (null).");
         }
-    }
 };
 
 window.customElements.define("general-record-summary", GeneralSummary);

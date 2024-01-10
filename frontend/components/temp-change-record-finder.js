@@ -1,25 +1,25 @@
-import records from "../api/records.ts";
-import EmissionSummary from "./emission-record-summary.ts";
-// ApiGeneralSummary maybe needed
-// GeneralSummary maybe needed
+import records from "../api/records.js";
+import TempChangeSummary from "./temp-change-record-summary.js";
+// ApiTempChangeSummary maybe needed
+// TempChangeSummary maybe needed
 
 // This is a custom Event to represent a movie being selected,
 // carrying a movieId field with it to represent which movie is
 // being selected. This is used in the MovieFinder element, to
 // inform the rest of the application that the user selected a movie.
-export class EmissionRecordSelectedEvent extends Event {
+export class TempChangeRecordSelectedEvent extends Event {
     /** @type {number} */
-    countryId;
+    continentId;
 
     /**
-     * @param {number} countryId 
+     * @param {number} countinentId 
      */
-    constructor(countryId) {
+    constructor(continentId) {
         // We call the parent constructor with a string representing
         // the name of this event. This is what we listen to.
-        super("emission-record-selected");
+        super("temp-change-record-selected");
 
-        this.countryId = countryId;
+        this.continentId = continentId;
     }
 }
 
@@ -28,8 +28,8 @@ export class EmissionRecordSelectedEvent extends Event {
 // to search for, and will show all matching results with pagination.
 // The user can pick any of the results, after which the element will
 // emit a "movie-selected" event as defined above.
-export default class EmissionRecordFinder extends HTMLElement {
-    /** @type {HTMLInputElement} */ #countrySearch;
+export default class TempChangeRecordFinder extends HTMLElement {
+    /** @type {HTMLInputElement} */ #continentSearch;
     /** @type {HTMLInputElement} */ #yearSearch;
     /** @type {HTMLButtonElement} */ #retrieve;
     /** @type {HTMLDivElement} */ #result;
@@ -39,7 +39,7 @@ export default class EmissionRecordFinder extends HTMLElement {
         super();
 
         // We start by finding the template and taking its contents.
-        const template: HTMLElement | null = document.getElementById("emission-record-finder");
+        const template = document.getElementById("temp-change-record-finder");
         if (template instanceof HTMLMetaElement) {
             const templateContent = template.content;
 
@@ -50,9 +50,9 @@ export default class EmissionRecordFinder extends HTMLElement {
 
                 // Find elements inside the templates and cache them for
                 // future reference.
-                this.#countrySearch = this.shadowRoot.getElementById("country");
+                this.#continentSearch = this.shadowRoot.getElementById("country");
                 this.#yearSearch = this.shadowRoot.getElementById("year");
-                this.#retrieve = this.shadowRoot.getElementById("retrieve-emission");
+                this.#retrieve = this.shadowRoot.getElementById("retrieve-temp-change");
                 this.#result = this.shadowRoot.getElementById("emission-records");
             } else {
                 alert("Shadow DOM ain't working (null error)!");
@@ -71,13 +71,13 @@ export default class EmissionRecordFinder extends HTMLElement {
     // This function will start a "getMovies" operation from the API. It will take the
     // local form state and get the appropriate results.
     async search() {
-        let countryName = this.#countrySearch.value;
+        let continentName = this.#continentSearch.value;
         let year = this.#yearSearch.value;
 
         /** @type {ApiRecordSummary[]} */
-        let countryResult;
+        let continentResult;
         try {
-            countryResult = await records.getEmissionRecord(countryName, year);
+            continentResult = await records.getTempChangeRecord(continentName, year);
         } catch (e) {
             alert(e);
             return;
@@ -90,48 +90,53 @@ export default class EmissionRecordFinder extends HTMLElement {
         // Build the new view: we instantiate a MovieSummary custom element for every
         // result, and create two spans that connect to the two slots in MovieSummary's
         // template.
-        for (let country of countryResult) {
+        for (let continent of continentResult) {
             // Create a new summary instance and set its ID (for later reference)
-            let emissionRecordView = new EmissionSummary();
-            emissionRecordView.emissionRecordId = country.id;
-            emissionRecordView.emissionRecordYear = country.year;
+            let tempChangeRecordView = new TempChangeSummary();
+            tempChangeRecordView.tempChangeRecordId = continent.id;
+            tempChangeRecordView.tempChangeRecordYear = continent.year;
 
             // Connect slots: this is done by creating two spans (can be arbitrary elements)
             // with the "slot" attribute set to match the slot name. We then put these two
             // spans inside the custom element as if they were child nodes - this is where
             // the shadow DOM will pull the slot values from. They are never displayed like
             // this directly, so the order or structure does not matter.
-            let co2Span = document.createElement("span");
-            co2Span.slot = "co2";
-            co2Span.innerText = country.co2;
+            let shareTempChangeSpan = document.createElement("span");
+            shareTempChangeSpan.slot = "share-temp-change";
+            shareTempChangeSpan.innerText = continent.shareTempChange;
 
-            let methaneSpan = document.createElement("span");
-            methaneSpan.slot = "methane";
-            methaneSpan.innerText = country.methane;
+            let tempChangeCo2Span = document.createElement("span");
+            tempChangeCo2Span.slot = "temp-change-co2";
+            tempChangeCo2Span.innerText = continent.tempChangeCo2;
 
-            let nitrousOxideSpan = document.createElement("span");
-            nitrousOxideSpan.slot = "nitrous-oxide";
-            nitrousOxideSpan.innerText = country.nitrousOxide;
+            let tempChangeN2OSpan = document.createElement("span");
+            tempChangeN2OSpan.slot = "temp-change-n2o";
+            tempChangeN2OSpan.innerText = continent.tempChangeN2O;
 
-            let totalGhgSpan = document.createElement("span");
-            totalGhgSpan.slot = "total-ghg";
-            totalGhgSpan.innerText = country.totalGhg;
+            let tempChangeGhgSpan = document.createElement("span");
+            tempChangeGhgSpan.slot = "temp-change-ghg";
+            tempChangeGhgSpan.innerText = continent.tempChangeGhg;
 
-            emissionRecordView.appendChild(co2Span);
-            emissionRecordView.appendChild(methaneSpan);
-            emissionRecordView.appendChild(nitrousOxideSpan);
-            emissionRecordView.appendChild(totalGhgSpan);
+            let tempChangeCh4Span = document.createElement("span");
+            tempChangeCh4Span.slot = "temp-change-ch4";
+            tempChangeCh4Span.innerText = continent.tempChangeCh4;
+
+            tempChangeRecordView.appendChild(shareTempChangeSpan);
+            tempChangeRecordView.appendChild(tempChangeCo2Span);
+            tempChangeRecordView.appendChild(tempChangeN2OSpan);
+            tempChangeRecordView.appendChild(tempChangeGhgSpan);
+            tempChangeRecordView.appendChild(tempChangeCh4Span);
 
             // Add an event listener: we want to trigger a "movie-selected" event when
             // the user clicks a specific movie.
-            emissionRecordView.addEventListener("click", () => {
-                this.dispatchEvent(new EmissionRecordSelectedEvent(emissionRecordView.emissionRecordId));
+            tempChangeRecordView.addEventListener("click", () => {
+                this.dispatchEvent(new TempChangeRecordSelectedEvent(tempChangeRecordView.id));
             });
 
-            this.#result.appendChild(emissionRecordView);
+            this.#result.appendChild(tempChangeRecordView);
         }
     }
 };
 
 // Define the MovieFinder class as a custom element
-window.customElements.define('general-record-finder', EmissionRecordFinder);
+window.customElements.define('temp-change-record-finder', TempChangeRecordFinder);

@@ -1,7 +1,7 @@
-import records from "../api/records.ts";
+import records from "../api/records.js";
 // ApiGeneralSummary maybe needed
-import GeneralSummary from "./general-record-summary.ts";
-import GeneralSelectedEvent from "./general-record-selected-event.ts";
+import GeneralSummary from "./general-record-summary.js";
+import GeneralSelectedEvent from "./general-record-selected-event.js";
 
 /**
  * A custom element representing a general record poster.

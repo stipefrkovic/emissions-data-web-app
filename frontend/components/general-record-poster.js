@@ -1,7 +1,7 @@
-import records from "../api/records.ts";
+import records from "../api/records.js";
 // ApiGeneralSummary maybe needed
-import GeneralSummary from "./general-record-summary.ts";
-import GeneralSelectedEvent from "./general-record-selected-event.ts";
+import GeneralSummary from "./general-record-summary.js";
+import GeneralSelectedEvent from "./general-record-selected-event.js";
 
 /**
  * A custom element representing a general record poster.
@@ -26,15 +26,11 @@ export default class GeneralPoster extends HTMLElement {
         super();
 
         // We start by finding the template and taking its contents.
-        const template: HTMLElement | null = document.getElementById("general-record-poster");
-        if (template instanceof HTMLMetaElement) {
-            const templateContent = template.content;
+        const template = document.getElementById("general-record-poster");
+        const templateContent = template.content;
 
-            // Prepare shadow DOM and fill it with the template contents
-            this.attachShadow({ mode: "open" });
-            if (this.shadowRoot != null) {
-                this.shadowRoot.appendChild((templateContent as any).cloneNode(true));
-
+    this.attachShadow({ mode: "open" });
+    this.shadowRoot.appendChild(templateContent.cloneNode(true));
                 // Find elements inside the templates and cache them for
                 // future reference.
                 this.#country = this.shadowRoot.getElementById("country");
@@ -43,12 +39,6 @@ export default class GeneralPoster extends HTMLElement {
                 this.#population = this.shadowRoot.getElementById("population");
                 this.#post = this.shadowRoot.getElementById("post");
                 this.#result = this.shadowRoot.getElementById("records");
-            } else {
-                alert("Shadow DOM ain't working (null error)!");
-            }
-        } else {
-            alert("Template is not working (null).");
-        }
 
         this.#post.addEventListener("click", async () => {
             await this.search();
