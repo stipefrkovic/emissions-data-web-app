@@ -51,7 +51,7 @@ export default class EmissionRecordFinder extends HTMLElement {
                 // future reference.
                 this.#countrySearch = this.shadowRoot.getElementById("country");
                 this.#yearSearch = this.shadowRoot.getElementById("year");
-                this.#retrieve = this.shadowRoot.getElementById("retrieve");
+                this.#retrieve = this.shadowRoot.getElementById("retrieve-emission");
                 this.#result = this.shadowRoot.getElementById("emission-records");
             } else {
                 alert("Shadow DOM ain't working (null error)!");

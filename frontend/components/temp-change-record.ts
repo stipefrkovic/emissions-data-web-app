@@ -51,7 +51,7 @@ export default class TempChangeRecordFinder extends HTMLElement {
                 // future reference.
                 this.#continentSearch = this.shadowRoot.getElementById("country");
                 this.#yearSearch = this.shadowRoot.getElementById("year");
-                this.#retrieve = this.shadowRoot.getElementById("retrieve");
+                this.#retrieve = this.shadowRoot.getElementById("retrieve-temp-change");
                 this.#result = this.shadowRoot.getElementById("emission-records");
             } else {
                 alert("Shadow DOM ain't working (null error)!");
