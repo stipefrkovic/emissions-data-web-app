@@ -3,26 +3,6 @@ import records from "../api/records.ts";
 // GeneralSummary maybe needed
 import GeneralSelectedEvent from "./general-record-selected-event.ts";
 
-// This is a custom Event to represent a movie being selected,
-// carrying a movieId field with it to represent which movie is
-// being selected. This is used in the MovieFinder element, to
-// inform the rest of the application that the user selected a movie.
-export class RecordSelectedEvent extends Event {
-    /** @type {number} */
-    countryId;
-
-    /**
-     * @param {number} countryId 
-     */
-    constructor(countryId) {
-        // We call the parent constructor with a string representing
-        // the name of this event. This is what we listen to.
-        super("general-record-selected");
-
-        this.countryId = countryId;
-    }
-}
-
 // This is a custom element representing a movie finder as a whole.
 // It contains a small form where the user can enter a title and year
 // to search for, and will show all matching results with pagination.
@@ -114,7 +94,7 @@ export default class RecordFinder extends HTMLElement {
             // Add an event listener: we want to trigger a "movie-selected" event when
             // the user clicks a specific movie.
             recordView.addEventListener("click", () => {
-                this.dispatchEvent(new RecordSelectedEvent(recordView.countryId));
+                this.dispatchEvent(new GeneralSelectedEvent(recordView.countryId));
             });
 
             this.#result.appendChild(recordView);

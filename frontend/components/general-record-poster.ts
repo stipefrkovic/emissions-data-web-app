@@ -78,7 +78,7 @@ export default class RecordPoster extends HTMLElement {
             recordView.countryId = country.id;
 
             let countrySpan = document.createElement("span");
-            countrySpan.slot = "name";
+            countrySpan.slot = "country";
             countrySpan.innerText = country.name;
 
             recordView.appendChild(countrySpan);

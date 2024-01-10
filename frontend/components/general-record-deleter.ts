@@ -70,7 +70,7 @@ export default class RecordDeleter extends HTMLElement {
             recordView.countryId = country.id;
 
             let countrySpan = document.createElement("span");
-            countrySpan.slot = "name";
+            countrySpan.slot = "country";
             countrySpan.innerText = country.name;
 
             recordView.appendChild(countrySpan);
