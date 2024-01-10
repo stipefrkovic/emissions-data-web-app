@@ -189,7 +189,7 @@
             integrity="sha384-rbsA2VBKQhggwzxH7pPCaAqO46MgnOM80zW1RWuH61DGLwZJEdK2Kadq2F9CUG65" crossorigin="anonymous">
         <div class="bg-light p-3 mt-2 rounded">
             <h5 class="mb-0">
-                <slot name="country"></slot> <slot name="gdp"></slot> <slot name="population"></slot>
+                <slot name="country"></slot> <slot name="year"></slot> <slot name="population"></slot>
             </h5>
         </div>
 
@@ -355,8 +355,8 @@
     <script>
         // This allows us to 'connect' the finder and detail element without
         // either of them being "aware of" the other. We listen for the special
-        // movie-selected event omitted by the finder, and when it is triggered
-        // we update the selected movie for the detail list.
+        // record-selected event omitted by the finder, and when it is triggered
+        // we update the selected record for the detail list.
         document
         .getElementById("genRecordFinder")
         .addEventListener("general-record-selected", (ev) => {

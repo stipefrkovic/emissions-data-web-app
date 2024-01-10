@@ -69,8 +69,6 @@ export default class EnergyFinder extends HTMLElement {
         this.#find.addEventListener("click", async () => {
             this.#batches =
                 this.#batchesSearch.options[this.#batchesSearch.selectedIndex].value;
-
-            /** @type {ApiSongSummary[]} */
             let energyResult;
             try {
                 energyResult = await records.getEnergyRecord(

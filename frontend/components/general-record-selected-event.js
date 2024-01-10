@@ -6,7 +6,7 @@ export default class GeneralSelectedEvent extends Event {
     countryId;
   
     /**
-     * @param {string} songId
+     * @param {string} countryId
      */
     constructor(countryId) {
       super("general-record-selected");
