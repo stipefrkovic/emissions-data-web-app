@@ -18,8 +18,8 @@ export class RecordsRouter implements IRouter {
         app.route('/records/general')
             .post(validateApiFullGeneralRecord, asyncHandler(this.controller.createGeneralRecordAsync))
 
-        // app.route('/records/:country/emission')
-        //     .get(asyncHandler(this.controller.getEmissionAsync))
+        app.route('/records/:country/emission')
+            .get(asyncHandler(this.controller.getEmissionAsync))
             
         // app.route('/records/:continent/temp-change')
         //     .get(asyncHandler(this.controller.getTempChangeAsync))

@@ -3,13 +3,13 @@ import { plainToClass } from 'class-transformer';
 import { Request, Response, NextFunction } from 'express';
 import { ApiFullGeneralRecord, ApiGeneralRecord } from '../api-models/general';
 import { CountrySelector } from './helper';
+import { CustomError } from '../error';
 
 // TODO check missing properties setting
 
 export function badValidation(validationErrors: ValidationError[], res: Response, next: NextFunction) : boolean {
     if (validationErrors.length > 0) {
-      res.status(400)
-      let error: Error = new Error(String(validationErrors));
+      let error: CustomError = new CustomError(String(validationErrors), 400);
       next(error)
       return true;
     }

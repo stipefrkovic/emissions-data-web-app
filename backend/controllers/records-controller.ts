@@ -3,10 +3,10 @@ import { DataSource, Raw, getConnection } from "typeorm";
 import { plainToClass, plainToClassFromExist, plainToInstance } from "class-transformer";
 import { validate } from "class-validator";
 import Container from "typedi";
-import { Paging, Filter, Order, jsonToCSV, CountrySelector, YearSelector, resourceConvertor, emptyList, ContinentSelector, alreadyExists } from "./helper";
+import { Paging, HigherYearFilter, jsonToCSV, CountrySelector, YearSelector, resourceConvertor, alreadyExists, EmissionCountrySelector } from "./helper";
 import { Record as ApiRecord } from "../api-models/record";
 import { ApiFullGeneralRecord, ApiGeneralRecord } from "../api-models/general";
-import { Emission } from "../api-models/emission";
+import { ApiEmissionRecord } from "../api-models/emission";
 import { Energy } from "../api-models/energy";
 import { TempChange } from "../api-models/tempChange";
 import { Country } from "../api-models/country";
@@ -18,7 +18,7 @@ import { EnergyRecord } from "../models/energy-record";
 import { TemperatureRecord } from "../models/temperature-record";
 import { Continent } from "../models/continent";
 import { badValidation } from "./validate";
-import { resourceNotFound } from "../error";
+import { emptyList, resourceNotFound } from "../error";
 
 // TODO verify json and csv for ALL responses
 // TODO australia oceania
@@ -44,8 +44,7 @@ export class RecordsController {
         
         console.log(countrySelector, yearSelector)
         let recordsCount = await generaldRecordQuery.getCount();
-        // TODO remove
-        // if (alreadyExists(recordsCount, res)) return;
+        if (alreadyExists(recordsCount, res)) return;
 
         const generaldRecordRepo = Container.get<DataSource>("database").getRepository(GeneralRecord);
         let generalRecord : GeneralRecord = ApiFullGeneralRecord.toDatabase(apiFullGeneralRecord)
@@ -136,24 +135,27 @@ export class RecordsController {
         return;
     }
     
-    // public async getEmissionAsync(req: Request<{ country: string }>, res: Response): Promise <void> {
-    //     let query = Container.get<DataSource>("database").getRepository(Record).createQueryBuilder("record");
+    public async getEmissionAsync(req: Request<{ country: string }>, res: Response, next: NextFunction): Promise <void> {
+        let emissionRecordQuery = Container.get<DataSource>("database").getRepository(EmissionRecord).createQueryBuilder("emission_record");
         
-    //     const filter = plainToClass(Filter, req.query, { enableImplicitConversion: true });
-    //     const countrySelector = plainToClass(CountrySelector, req.params, {enableImplicitConversion: true});
+        const higherYearFilter = plainToClass(HigherYearFilter, req.query, { enableImplicitConversion: true });
+        if (badValidation(await validate(higherYearFilter, { validationError: { target: true }}), res, next)) return;
         
-    //     query = filter.apply(query);
-    //     query = countrySelector.apply(query);
+        const emissionCountrySelector = plainToClass(EmissionCountrySelector, req.params, {enableImplicitConversion: true});
+        if (badValidation(await validate(emissionCountrySelector, { validationError: { target: true }}), res, next)) return;
 
-    //     let records = await query.getMany();
+        emissionRecordQuery = higherYearFilter.apply(emissionRecordQuery);
+        emissionRecordQuery = emissionCountrySelector.apply(emissionRecordQuery);
 
-    //     if (emptyList(records, res)) return;
+        let records = await emissionRecordQuery.getMany();
 
-    //     let mappedRecords = records.map(Emission.fromDatabase);
+        if (emptyList(records, res)) return;
 
-    //     res.status(200);
-    //     resourceConvertor(mappedRecords, req, res);
-    // }
+        let apiEmissionRecords = records.map(ApiEmissionRecord.fromDatabase);
+
+        res.status(200);
+        resourceConvertor(apiEmissionRecords, req, res);
+    }
 
     // public async getTempChangeAsync(req: Request<{ continent: string}>, res: Response): Promise <void> {
     //     let query = Container.get<DataSource>("database").getRepository(Record).createQueryBuilder("record");

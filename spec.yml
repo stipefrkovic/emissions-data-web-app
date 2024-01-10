@@ -80,6 +80,9 @@ components:
     emission:
       type: object
       properties:
+        year:
+          type: integer
+          description: Year of the creation of the record
         co2:
           type: number
           description: CO2 emission of the country

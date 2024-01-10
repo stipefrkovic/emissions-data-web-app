@@ -29,3 +29,12 @@ export function resourceNotFound(result: any, res: Response, next: NextFunction)
     }
     return false;
 }
+
+export function emptyList(list: any, res: Response): boolean {
+    if (list.length == 0) {
+      res.status(204);
+      res.json({message: "List empty; no results"});
+      return true;
+    }
+    return false;
+  }
