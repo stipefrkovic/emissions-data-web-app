@@ -1,7 +1,7 @@
-import records from "../api/records.js";
-// ApiGeneralSummary maybe needed
+/*import records from "../api/records.js";
 import GeneralSummary from "./general-record-summary.js";
-import GeneralSelectedEvent from "./general-record-selected-event.js";
+import GeneralSelectedEvent from "./general-record-selected-event.js";*/
+
 /**
  * A custom element representing a general record deleter.
  * It contains a small form where the user can enter a country id.

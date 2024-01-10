@@ -1,3 +1,7 @@
+import records from "../api/records.js";
+import GeneralSummary from "./general-record-summary.js";
+import GeneralSelectedEvent from "./general-record-selected-event.js";
+
 // This is a custom element representing a movie finder as a whole.
 // It contains a small form where the user can enter a title and year
 // to search for, and will show all matching results with pagination.
@@ -34,9 +38,48 @@ export default class GeneralFinder extends HTMLElement {
     });
   }
 
-  // This function will start a "getMovies" operation from the API. It will take the
-  // local form state and get the appropriate results.
+  async search() {
+    let countryName = this.#countrySearch.value;
+    let year = this.#yearSearch.value;
+
+    /** @type {} */
+    let countryResult;
+    try {
+      countryResult = await records.getGeneralRecord(countryName, year);
+    } catch (e) {
+      alert(e);
+      return;
+    }
+
+    //Clear view
+    this.#result.innerHTML = "";
+
+    //Build new view
+    let recordView = new GeneralSummary();
+    recordView.generalRecordId = countryResult.id;
+    recordView.generalRecordYear = countryResult.year;
+
+    let countrySpan = document.createElement("span");
+    countrySpan.slot = "country";
+    countrySpan.innerText = countryResult.id;
+
+    let yearSpan = document.createElement("span");
+    yearSpan.slot = "year";
+    yearSpan.innerText = countryResult.year;
+
+    recordView.appendChild(countrySpan);
+    recordView.appendChild(yearSpan);
+
+    recordView.addEventListener("click", () => {
+      this.dispatchEvent(new GeneralSelectedEvent(recordView.generalRecordId));
+    });
+
+    this.#result.appendChild(recordView);
+  }
 }
+
+// This function will start a "getMovies" operation from the API. It will take the
+// local form state and get the appropriate results.
 
 // Define the MovieFinder class as a custom element
 window.customElements.define("general-record-finder", GeneralFinder);
