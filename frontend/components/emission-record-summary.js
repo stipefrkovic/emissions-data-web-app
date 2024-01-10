@@ -11,7 +11,7 @@ export default class EmissionSummary extends HTMLElement {
     }
 
     set emissionRecordId(value) {
-        if(value == null)
+        if (value == null)
             this.removeAttribute("emission-record-id");
         else
             this.setAttribute("emission-record-id", value);
@@ -25,7 +25,7 @@ export default class EmissionSummary extends HTMLElement {
     }
 
     set emissionRecordYear(value) {
-        if(value == null)
+        if (value == null)
             this.removeAttribute("emission-record-year");
         else
             this.setAttribute("emission-record-year", value);
@@ -39,20 +39,12 @@ export default class EmissionSummary extends HTMLElement {
     constructor() {
         super();
 
-        const template: HTMLElement | null = document.getElementById("emission-record-summary");
-        if (template instanceof HTMLMetaElement) {
-            const templateContent = template.content;
+        const template = document.getElementById("emission-record-summary");
+        const templateContent = template.content;
 
-            // Prepare shadow DOM and fill it with the template contents
-            this.attachShadow({ mode: "open" });
-            if (this.shadowRoot != null) {
-                this.shadowRoot.appendChild((templateContent as any).cloneNode(true));
-            } else {
-                alert("Shadow DOM ain't working (null error)!");
-            }
-        } else {
-            alert("Template is not working (null).");
-        }
+        // Prepare shadow DOM and fill it with the template contents
+        this.attachShadow({ mode: "open" });
+        this.shadowRoot.appendChild(templateContent.cloneNode(true));
     }
 };
 

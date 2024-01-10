@@ -39,27 +39,19 @@ export default class EmissionRecordFinder extends HTMLElement {
         super();
 
         // We start by finding the template and taking its contents.
-        const template: HTMLElement | null = document.getElementById("emission-record-finder");
-        if (template instanceof HTMLMetaElement) {
-            const templateContent = template.content;
+        const template = document.getElementById("emission-record-finder");
+        const templateContent = template.content;
 
-            // Prepare shadow DOM and fill it with the template contents
-            this.attachShadow({ mode: "open" });
-            if (this.shadowRoot != null) {
-                this.shadowRoot.appendChild((templateContent as any).cloneNode(true));
+        // Prepare shadow DOM and fill it with the template contents
+        this.attachShadow({ mode: "open" });
+        this.shadowRoot.appendChild(templateContent.cloneNode(true));
 
-                // Find elements inside the templates and cache them for
-                // future reference.
-                this.#countrySearch = this.shadowRoot.getElementById("country");
-                this.#yearSearch = this.shadowRoot.getElementById("year");
-                this.#retrieve = this.shadowRoot.getElementById("retrieve-emission");
-                this.#result = this.shadowRoot.getElementById("emission-records");
-            } else {
-                alert("Shadow DOM ain't working (null error)!");
-            }
-        } else {
-            alert("Template is not working (null).");
-        }
+        // Find elements inside the templates and cache them for
+        // future reference.
+        this.#countrySearch = this.shadowRoot.getElementById("country");
+        this.#yearSearch = this.shadowRoot.getElementById("year");
+        this.#retrieve = this.shadowRoot.getElementById("retrieve-emission");
+        this.#result = this.shadowRoot.getElementById("emission-records");
 
         // Set up listeners to start search operation after every form
         // action.

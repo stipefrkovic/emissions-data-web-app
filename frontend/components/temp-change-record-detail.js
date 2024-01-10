@@ -25,7 +25,7 @@ export default class TempChangeDetail extends HTMLElement {
     }
 
     set generalRecordId(value) {
-        if(value == null)
+        if (value == null)
             this.removeAttribute("temp-change-record-id");
         else
             this.setAttribute("temp-change-record-id", value);
@@ -39,7 +39,7 @@ export default class TempChangeDetail extends HTMLElement {
     }
 
     set tempChangeRecordYear(value) {
-        if(value == null)
+        if (value == null)
             this.removeAttribute("temp-change-record-year");
         else
             this.setAttribute("temp-change-record-year", value);
@@ -59,41 +59,29 @@ export default class TempChangeDetail extends HTMLElement {
     }
 
     initializeTemplate() {
-        if (this.shadowRoot != null) {
-            this.shadowRoot.innerHTML = "";
-            this.shadowRoot.appendChild(this.#template.content.cloneNode(true));
+        this.shadowRoot.innerHTML = "";
+        this.shadowRoot.appendChild(this.#template.content.cloneNode(true));
 
-            this.#id = this.shadowRoot.getElementById("country");
-            this.#year = this.shadowRoot.getElementById("year");
-            this.#shareTempChange = this.shadowRoot.getElementById("share-temp-change");
-            this.#tempChangeCo2 = this.shadowRoot.getElementById("temp-change-co2");
-            this.#tempChangeN2O = this.shadowRoot.getElementById("temp-change-n2o");
-            this.#tempChangeGhg = this.shadowRoot.getElementById("temp-change-ghg");
-            this.#tempChangeCh4 = this.shadowRoot.getElementById("temp-change-ch4");
-        } else {
-            alert("Shadow DOM ain't working (null error)!");
-        }
+        this.#id = this.shadowRoot.getElementById("country");
+        this.#year = this.shadowRoot.getElementById("year");
+        this.#shareTempChange = this.shadowRoot.getElementById("share-temp-change");
+        this.#tempChangeCo2 = this.shadowRoot.getElementById("temp-change-co2");
+        this.#tempChangeN2O = this.shadowRoot.getElementById("temp-change-n2o");
+        this.#tempChangeGhg = this.shadowRoot.getElementById("temp-change-ghg");
+        this.#tempChangeCh4 = this.shadowRoot.getElementById("temp-change-ch4");
     }
 
     async attributeChangedCallback() {
-        if(!this.generalRecordId) {
-            if (this.shadowRoot != null) {
-                this.shadowRoot.innerHTML = "";
-            } else {
-                alert("Shadow DOM ain't working (null error)!");
-            }
+        if (!this.generalRecordId) {
+            this.shadowRoot.innerHTML = "";
             return;
         }
 
         /** @type {General} */
         let record;
         try {
-            if (this.tempChangeRecordId != null && this.tempChangeRecordYear != null) {
-                record = await records.getTempChangeRecord(this.tempChangeRecordId, this.tempChangeRecordYear);
-            } else {
-                alert("Temperature change record year (or id) is null (invalid value).");
-            }
-        } catch(e) {
+            record = await records.getTempChangeRecord(this.tempChangeRecordId, this.tempChangeRecordYear);
+        } catch (e) {
             alert(e);
             return;
         }

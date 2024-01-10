@@ -58,7 +58,6 @@ export default class EmissionDetail extends HTMLElement {
     }
 
     initializeTemplate() {
-        if (this.shadowRoot != null) {
             this.shadowRoot.innerHTML = "";
             this.shadowRoot.appendChild(this.#template.content.cloneNode(true));
 
@@ -68,29 +67,18 @@ export default class EmissionDetail extends HTMLElement {
             this.#methane = this.shadowRoot.getElementById("methane");
             this.#nitrousOxide = this.shadowRoot.getElementById("nitrous-oxide");
             this.#totalGhg = this.shadowRoot.getElementById("total-ghg");
-        } else {
-            alert("Shadow DOM ain't working (null error)!");
-        }
     }
 
     async attributeChangedCallback() {
         if(!this.generalRecordId) {
-            if (this.shadowRoot != null) {
                 this.shadowRoot.innerHTML = "";
-            } else {
-                alert("Shadow DOM ain't working (null error)!");
-            }
             return;
         }
 
         /** @type {General} */
         let record;
         try {
-            if (this.emissionRecordId != null && this.emissionRecordYear != null) {
                 record = await records.getGeneralRecord(this.emissionRecordId, this.emissionRecordYear);
-            } else {
-                alert("Emission record year (or id) is null (invalid value).");
-            }
         } catch(e) {
             alert(e);
             return;
