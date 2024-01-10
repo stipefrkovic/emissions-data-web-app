@@ -12,7 +12,7 @@ import { Energy } from "../api-models/energy";
 import { TempChange } from "../api-models/tempChange";
 import { Country } from "../api-models/country";
 import { Country as ModelCountry} from "../models/country"
-import { isContinent } from "../models/continents";
+import { isContinent } from "../models/continent";
 import { GeneralRecord } from "../models/general-record";
 import { EmissionRecord } from "../models/emission-record";
 import { EnergyRecord } from "../models/energy-record";
@@ -231,23 +231,22 @@ export class RecordsController {
             let generalRecord : GeneralRecord = {
                 country: req.body.country,
                 year: req.body.year,
-                gdp: req.body.gdp ?? null,
-                population: req.body.population ?? null,
+                gdp: req.body.gdp == '' ? null : req.body.gdp ?? null,
+                population: req.body.population == '' ? null : req.body.population ?? null,
             };
-            console.log(generalRecord)
             let emissionRecord : EmissionRecord = {
                 country: req.body.country,
                 year: req.body.year,
-                co2: req.body.co2 ?? null,
-                methane: req.body.methane ?? null,
-                nitrous_oxide: req.body.nitrous_oxide ?? null,
-                total_ghg: req.body.total_ghg ?? null,
+                co2: req.body.co2 == '' ? null : req.body.co2 ?? null,
+                methane: req.body.methane == '' ? null : req.body.methane ?? null,
+                nitrous_oxide: req.body.nitrous_oxide == '' ? null : req.body.nitrous_oxide ?? null,
+                total_ghg: req.body.total_ghg == '' ? null : req.body.total_ghg ?? null,
             };
             let energyRecord : EnergyRecord = {
                 country: req.body.country,
                 year: req.body.year,
-                energy_per_capita: req.body.energy_per_capita ?? null,
-                energy_per_gdp: req.body.energy_per_gdp ?? null,
+                energy_per_capita: req.body.energy_per_capita == '' ? null : req.body.energy_per_capita ?? null,
+                energy_per_gdp: req.body.energy_per_gdp == '' ? null : req.body.energy_per_gdp ?? null,
             };
             let country : ModelCountry = {
                 country: req.body.country,
@@ -259,23 +258,21 @@ export class RecordsController {
                 const savedEmissionRecord = await db.getRepository(EmissionRecord).save(emissionRecord);
                 const savedEnergyRecord = await db.getRepository(EnergyRecord).save(energyRecord);
                 const savedCountry = await db.getRepository(ModelCountry).save(country);
-                res.status(201);               
-                resourceConvertor([savedGeneralRecord, savedEmissionRecord, savedEnergyRecord, savedCountry], 
-                     req, 
-                     res);
+                res.status(201).json();               
             } catch (error) {
                 console.error(error);
                 res.status(500).json({ error: 'Error saving record' });
             }
-        } else {
+        } 
+        if (isContinent(req.body.country)) {
             let temperatureRecord : TemperatureRecord = {
                 continent: req.body.country,
                 year: req.body.year,
-                share_of_temperature_change_from_ghg: req.body.share_of_temperature_change_from_ghg ?? null,
-                temperature_change_from_ch4: req.body.temperature_change_from_ch4 ?? null,
-                temperature_change_from_co2: req.body.temperature_change_from_co2 ?? null,
-                temperature_change_from_ghg: req.body.temperature_change_from_ghg ?? null,
-                temperature_change_from_n2o: req.body.temperature_change_from_n2o ?? null,
+                share_of_temperature_change_from_ghg: req.body.share_of_temperature_change_from_ghg == '' ? null : req.body.share_of_temperature_change_from_ghg ?? null,
+                temperature_change_from_ch4: req.body.temperature_change_from_ch4 == '' ? null : req.body.temperature_change_from_ch4 ?? null,
+                temperature_change_from_co2: req.body.temperature_change_from_co2 == '' ? null : req.body.temperature_change_from_co2 ?? null,
+                temperature_change_from_ghg: req.body.temperature_change_from_ghg == '' ? null : req.body.temperature_change_from_ghg ?? null,
+                temperature_change_from_n2o: req.body.temperature_change_from_n2o == '' ? null : req.body.temperature_change_from_n2o ?? null,
             };
             let continent : Continent = {
                 continent: req.body.country
@@ -284,8 +281,7 @@ export class RecordsController {
                 const db = Container.get<DataSource>("database");
                 const savedTemperatureRecord = await db.getRepository(TemperatureRecord).save(temperatureRecord);
                 const savedContinent = await db.getRepository(Continent).save(continent);
-                res.status(201);
-                resourceConvertor([savedTemperatureRecord, savedContinent], req, res);
+                res.status(201).json();
             } catch (error) {
                 console.error(error);
                 res.status(500).json({ error: 'Error saving record' });

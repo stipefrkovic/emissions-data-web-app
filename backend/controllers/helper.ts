@@ -3,7 +3,7 @@ import { Min, Max, IsDefined, ValidationError, IsInt } from "class-validator";
 import { Record} from "../models/record";
 import Papa from "papaparse";
 import { Request, Response } from "express";
-import { isContinent } from "../models/continents";
+import { isContinent } from "../models/continent";
 
 /**
  * Interface that can be implemented by classes to allow different kinds of queries.
@@ -162,7 +162,6 @@ export function resourceConvertor(result: any, req: Request, res: Response) {
       return;
     }
   }
-  console.log(result);
   res.json(result);
 }
 

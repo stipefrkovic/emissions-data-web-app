@@ -8,9 +8,9 @@ export class GeneralRecord {
     @PrimaryColumn({ type: 'int'})
     year!: number;
 
-    @Column({ type: 'int', nullable: true })
+    @Column({ type: 'bigint', nullable: true })
     gdp?: number;
 
-    @Column({ type: 'int', nullable: true })
+    @Column({ type: 'bigint', nullable: true })
     population?: number;
 }
