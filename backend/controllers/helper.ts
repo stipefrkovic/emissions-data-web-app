@@ -1,9 +1,12 @@
-import { ObjectLiteral, SelectQueryBuilder } from "typeorm";
-import { Min, Max, IsDefined, ValidationError, IsInt } from "class-validator";
+import { DataSource, ObjectLiteral, SelectQueryBuilder } from "typeorm";
+import { Min, Max, IsDefined, ValidationError, IsInt, ValidateIf, IsISO31661Alpha3 } from "class-validator";
 import { Record} from "../models/record";
 import Papa from "papaparse";
 import { Request, Response } from "express";
 import { isContinent } from "../models/continent";
+import { GeneralRecord } from "../models/general-record";
+import Container from "typedi";
+import { Country } from "../models/country";
 
 /**
  * Interface that can be implemented by classes to allow different kinds of queries.
@@ -69,25 +72,34 @@ export class Filter implements IQueryHelper<Record> {
 
 }
 
-export class CountrySelector implements IQueryHelper<Record> {
+// TODO may be a better way? add try everywhere
+export class CountrySelector implements IQueryHelper<GeneralRecord> {
   @IsDefined()
   "country": string;
 
-  apply(query: SelectQueryBuilder<Record>): SelectQueryBuilder<Record> {
+  apply(query: SelectQueryBuilder<GeneralRecord>): SelectQueryBuilder<GeneralRecord> {
     if (isISOCode(this["country"])) {
-      query.andWhere("record.iso_code = :iso_code", {iso_code: this["country"]});
+      const subQuery = Container.get<DataSource>("database").getRepository(Country).createQueryBuilder()
+        .select('c.country')
+        .from('country', 'c')
+        .where('c.iso_code = :iso_code', { iso_code: this.country})
+        ;
+      query.andWhere(`general_record.country IN (${subQuery.getQuery()})`);
+      query.setParameters(subQuery.getParameters());
     } else {
-      query.andWhere("record.country = :country", {country: this["country"]});
+      query.andWhere("general_record.country = :country", {country: this["country"]});
     }
     return query;
   }
 }
 
-export class YearSelector implements IQueryHelper<Record> {
+export class YearSelector implements IQueryHelper<GeneralRecord> {
   @IsDefined()
+  @Min(1900)
+  @Max(1999)
   "year": number; 
-  apply(query: SelectQueryBuilder<Record>): SelectQueryBuilder<Record> {
-    query.andWhere("record.year = :year", {year: this["year"]});
+  apply(query: SelectQueryBuilder<GeneralRecord>): SelectQueryBuilder<GeneralRecord> {
+    query.andWhere("general_record.year = :year", {year: this["year"]});
     return query;
   }
 }
@@ -114,20 +126,6 @@ export function isISOCode(id: string): boolean {
   return (/^[A-Z]{3}$/).test(id);
 }
 
-export function noResource(result: any, res: Response): boolean {
-  if (!result) {
-    res.status(404);
-    res.json({error: "Resource not found"});
-    return true;
-  }
-  return false;
-}
-
-export function noResourceError(res: Response) {
-  res.status(404);
-  res.json({error: "Resource not found"});
-  return true;
-}
 
 export function emptyList(list: any, res: Response): boolean {
   if (list.length == 0) {
@@ -163,14 +161,4 @@ export function resourceConvertor(result: any, req: Request, res: Response) {
     }
   }
   res.json(result);
-}
-
-export function invalidValidation(validation: ValidationError[], res: Response): boolean {
-  if (validation.length > 0) {
-    res.status(400);
-    res.json({ error: "Record validation error"});
-    console.error(validation)
-    return true;
-  }
-  return false;
 }

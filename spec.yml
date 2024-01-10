@@ -198,10 +198,13 @@ paths:
               properties:
                 country:
                   type: string
-                  description: Country name or its ISO code
+                  description: Country name
                 year:
                   type: integer
                   description: Year of the creation of the record
+                iso_code:
+                  type: string
+                  description: Country ISO code
                 gdp:
                   type: integer
                   description: GDP of the country

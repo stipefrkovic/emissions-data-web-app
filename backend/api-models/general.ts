@@ -1,36 +1,56 @@
-import { IsInt, IsNotEmpty, IsNumber, IsNumberString, IsString, isInt, isNotEmpty, isNumberString } from "class-validator";
-import { Record as DbRecord } from "../models/record";
+import { IsISO31661Alpha3, IsInt, IsNotEmpty, IsNumber, IsNumberString, IsString, Max, Min, isInt, isNotEmpty, isNumberString } from "class-validator";
+import { GeneralRecord } from "../models/general-record";
+import { Country } from "../models/country";
 
-export class GeneralFull {
+export class ApiFullGeneralRecord {
     @IsString() @IsNotEmpty()
     country!: string;
-    @IsNumberString() @IsNotEmpty()
-    year!: string;
-    @IsInt() @IsNotEmpty()
-    GDP?: number;
-    @IsInt() @IsNotEmpty()
+    
+    @IsInt() @IsNotEmpty() @Min(1900) @Max(1999)
+    year!: number;
+    
+    @IsString() @IsNotEmpty() @IsISO31661Alpha3()
+    iso_code!: string;
+    
+    @IsInt()
+    gdp?: number;
+    
+    @IsInt() @Min(0)
     population?: number;
 
-    public static fromDatabase(general : DbRecord) : GeneralFull {
-        return {
-            country: general.country,
-            year: general.year.toString(),
-            GDP: general.gdp,
-            population: general.population
+    // public static fromDatabase(generalRecord: GeneralRecord, country: Country) : ApiFullGeneralRecord {
+    //     return {
+    //         country: generalRecord.country,
+    //         year: generalRecord.year,
+    //         iso_code: country.iso_code,
+    //         gdp: generalRecord.gdp,
+    //         population: generalRecord.population
+    //     };
+    // }
+
+    public static toDatabase(apiFullGeneralRecord: ApiFullGeneralRecord) : GeneralRecord {
+        let generalRecord : GeneralRecord = {
+            country: apiFullGeneralRecord.country,
+            year: apiFullGeneralRecord.year,
+            gdp: apiFullGeneralRecord.gdp,
+            population: apiFullGeneralRecord.population
         };
+        return generalRecord;
     }
 }
 
-export class General {
-    @IsInt() @IsNotEmpty()
-    GDP?: number;
-    @IsInt() @IsNotEmpty()
+export class ApiGeneralRecord {
+    @IsInt()
+    gdp?: number;
+    
+    @IsInt() @Min(0)
     population?: number;
 
-    public static fromDatabase(general : DbRecord) : General {
-        return {
-            GDP: general.gdp,
-            population: general.population
+    public static fromDatabase(generalRecord: GeneralRecord) : ApiGeneralRecord {
+        let apiGeneralRecord : ApiGeneralRecord = {
+            gdp: generalRecord.gdp,
+            population: generalRecord.population
         };
+        return apiGeneralRecord;
     }
 }

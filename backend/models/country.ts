@@ -1,4 +1,7 @@
-import { Column, Entity, PrimaryColumn } from "typeorm";
+import { Column, Entity, OneToMany, PrimaryColumn } from "typeorm";
+import { GeneralRecord } from "./general-record";
+import { EmissionRecord } from "./emission-record";
+import { EnergyRecord } from "./energy-record";
 
 @Entity()
 export class Country {
