@@ -1,13 +1,25 @@
 export default class TempChange{
-    continent!: string;
-    year!: number;
-    shareOfTempChangeFromGhg!: number;
-    tempChangeFromCO2!: number;
-    tempChangeFromN2O!: number;
-    tempChangeFromGHG!: number;
-    tempChangeFromCH4!: number;
+    /** @type {string} */
+    continent;
+    /** @type {number} */
+    year;
+    /** @type {number} */
+    shareOfTempChangeFromGhg;
+    /** @type {number} */
+    tempChangeFromCO2;
+    /** @type {number} */
+    tempChangeFromN2O;
+    /** @type {number} */
+    tempChangeFromGHG;
+    /** @type {number} */
+    tempChangeFromCH4;
 
-    static fromJson(json: Record<string, any>){
+    /**
+     * Convert from JSON to TempChange instance
+     * @param {Record<string, any>} json JSON returned by API
+     * @returns {TempChange}
+     */
+    static fromJson(json){
         let tempChange = new TempChange();
 
         tempChange.continent = json.continent;
