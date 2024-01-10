@@ -3,11 +3,14 @@ import { DataSource, Raw, getConnection } from "typeorm";
 import { plainToClass, plainToClassFromExist, plainToInstance } from "class-transformer";
 import { validate } from "class-validator";
 import Container from "typedi";
-import { Paging, jsonToCSV, YearSelector, resourceConvertor, alreadyExists, EmissionCountrySelector, TemperatureYearFilter, ContinentSelector, EmissionYearFilter, GeneralCountrySelector } from "./helper";
+import { Paging, YearSelector, EmissionCountrySelector, TemperatureYearFilter, ContinentSelector, EmissionYearFilter, GeneralCountrySelector, EnergyPopulationOrder, GeneralYearSelector, EnergyYearSelector, Batcher } from "./query";
+import { resourceConvertor } from "./helper";
+import { jsonToCSV } from "./helper";
+import { alreadyExists } from "../error";
 import { Record as ApiRecord } from "../api-models/record";
 import { ApiFullGeneralRecord, ApiGeneralRecord } from "../api-models/general";
 import { ApiEmissionRecord } from "../api-models/emission";
-import { Energy } from "../api-models/energy";
+import { ApiEnergyRecord } from "../api-models/energy";
 import { ApiTemperatureRecord } from "../api-models/temperature";
 import { Country } from "../api-models/country";
 import { Country as ModelCountry} from "../models/country"
@@ -36,7 +39,7 @@ export class RecordsController {
         const countrySelector = plainToClass(GeneralCountrySelector, req.body, { enableImplicitConversion: true });
         if (badValidation(await validate(countrySelector, { validationError: { target: true }}), res, next)) return;
 
-        const yearSelector = plainToClass(YearSelector, req.body, { enableImplicitConversion: true});
+        const yearSelector = plainToClass(GeneralYearSelector, req.body, { enableImplicitConversion: true});
         if (badValidation(await validate(yearSelector, { validationError: { target: true }}), res, next)) return;
         
         generaldRecordQuery = countrySelector.apply(generaldRecordQuery); 
@@ -66,7 +69,7 @@ export class RecordsController {
         const countrySelector = plainToClass(GeneralCountrySelector, req.params, { enableImplicitConversion: true });
         if (badValidation(await validate(countrySelector, { validationError: { target: true }}), res, next)) return;
 
-        const yearSelector = plainToClass(YearSelector, req.params, { enableImplicitConversion: true});
+        const yearSelector = plainToClass(GeneralYearSelector, req.params, { enableImplicitConversion: true});
         if (badValidation(await validate(yearSelector, { validationError: { target: true }}), res, next)) return;
         
         generaldRecordQuery = countrySelector.apply(generaldRecordQuery); 
@@ -89,7 +92,7 @@ export class RecordsController {
         const countrySelector = plainToClass(GeneralCountrySelector, req.params, { enableImplicitConversion: true });
         if (badValidation(await validate(countrySelector, { validationError: { target: true }}), res, next)) return;
 
-        const yearSelector = plainToClass(YearSelector, req.params, { enableImplicitConversion: true});
+        const yearSelector = plainToClass(GeneralYearSelector, req.params, { enableImplicitConversion: true});
         if (badValidation(await validate(yearSelector, { validationError: { target: true }}), res, next)) return;
         
         generaldRecordQuery = countrySelector.apply(generaldRecordQuery); 
@@ -118,7 +121,7 @@ export class RecordsController {
         const countrySelector = plainToClass(GeneralCountrySelector, req.params, { enableImplicitConversion: true });
         if (badValidation(await validate(countrySelector, { validationError: { target: true }}), res, next)) return;
 
-        const yearSelector = plainToClass(YearSelector, req.params, { enableImplicitConversion: true});
+        const yearSelector = plainToClass(GeneralYearSelector, req.params, { enableImplicitConversion: true});
         if (badValidation(await validate(yearSelector, { validationError: { target: true }}), res, next)) return;
         
         generaldRecordQuery = countrySelector.apply(generaldRecordQuery); 
@@ -149,7 +152,7 @@ export class RecordsController {
 
         let emissionRecords = await emissionRecordQuery.getMany();
 
-        if (emptyList(emissionRecords, res)) return;
+        if (emptyList(emissionRecords, req, res)) return;
 
         let apiEmissionRecords = emissionRecords.map(ApiEmissionRecord.fromDatabase);
 
@@ -170,8 +173,7 @@ export class RecordsController {
         temperatureRecordQuery = continentSelector.apply(temperatureRecordQuery);
 
         let temperatureRecords = await temperatureRecordQuery.getMany();
-
-        if (emptyList(temperatureRecords, res)) return;
+        if (emptyList(temperatureRecords, req, res)) return;
 
         let apiTemperatureRecords = temperatureRecords.map(ApiTemperatureRecord.fromDatabase);
 
@@ -179,34 +181,30 @@ export class RecordsController {
         resourceConvertor(apiTemperatureRecords, req, res);
     }
 
-    // public async getEnergyRecordsAsync(req: Request<{ year: string}, {}, ApiRecord>, res: Response): Promise <void> {
-    //     let query = Container.get<DataSource>("database").getRepository(Record).createQueryBuilder("record");
+    public async getEnergyRecordsAsync(req: Request<{ year: string}, {}, ApiRecord>, res: Response, next: NextFunction): Promise <void> {
+        let energyRecordQuery = Container.get<DataSource>("database").getRepository(EnergyRecord).createQueryBuilder("energy_record");
 
-    //     const order = plainToClass(Order, req.query, { enableImplicitConversion: true });
-    //     const yearSelector = plainToClass(YearSelector, req.params, { enableImplicitConversion: true});
-        
-    //     query = order.apply(query);
-    //     query = yearSelector.apply(query);
+        const energyYearSelector = plainToClass(EnergyYearSelector, req.params, { enableImplicitConversion: true });
+        if (badValidation(await validate(energyYearSelector, { validationError: { target: true }}), res, next)) return;
 
-    //     // TODO paging
+        const energyPopulationOrder = plainToClass(EnergyPopulationOrder, req.query, { enableImplicitConversion: true });
+        if (badValidation(await validate(energyPopulationOrder, { validationError: { target: true }}), res, next)) return;
 
-    //     // const batchSize = req.query['batch-size'] as unknown as number;
-    //     // const batchIndex = req.query['batch-index'] as unknown as number;
-    //     // const skipCount = (batchIndex - 1) * batchSize;
-    //     // query.skip(skipCount);
-    //     // query.take(batchSize);
+        const batcher = plainToClass(Batcher, req.query, { enableImplicitConversion: true });
+        if (badValidation(await validate(batcher, { validationError: { target: true }}), res, next)) return;
 
-    //     // query.andWhere("record.iso_code != ''");
+        energyRecordQuery = energyYearSelector.apply(energyRecordQuery);
+        energyRecordQuery = energyPopulationOrder.apply(energyRecordQuery);
+        energyRecordQuery = batcher.apply(energyRecordQuery);
 
-    //     let records = await query.getMany();
+        let energyRecords = await energyRecordQuery.getMany()
+        if (emptyList(energyRecords, req, res)) return;
 
-    //     if (emptyList(records, res)) return;
+        let apiEnergyRecords = energyRecords.map(ApiEnergyRecord.fromDatabase);
 
-    //     let mappedRecords = records.map(Energy.fromDatabase);
-
-    //     res.status(200);
-    //     resourceConvertor(mappedRecords, req, res);
-    // }
+        res.status(200);
+        resourceConvertor(apiEnergyRecords, req, res);
+    }
 
     // public async getCountriesAsync(req: Request, res: Response): Promise <void> {
     //     let query = Container.get<DataSource>("database").getRepository(Record).createQueryBuilder("record");

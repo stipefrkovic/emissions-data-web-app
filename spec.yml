@@ -483,17 +483,17 @@ paths:
           maximum: 1999
       - name: order-dir
         in: query
-        required: false
+        required: true
         description: Sort records of countries based on population size
         schema:
           type: string
           enum:
             - ASC
             - DESC
-          default: descending
+          default: DESC
       - name: batch-size
         in: query
-        required: false
+        required: true
         description: Size of records batch to be retrieved
         schema:
           type: integer
@@ -505,7 +505,7 @@ paths:
           default: 10
       - name: batch-index
         in: query
-        required: false
+        required: true
         description: Index of the batch of records (starting from 1) that 
                      indicates which batch is returned (e.g. in batches of 
                      size 10 which are covering values 1-100, index 2 means 

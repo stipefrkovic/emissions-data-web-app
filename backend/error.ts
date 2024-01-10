@@ -1,4 +1,5 @@
 import { NextFunction, Request, Response } from "express";
+import { resourceConvertor } from "./controllers/helper";
 
 export const errorHandler = (err: CustomError, req: Request, res: Response, next: NextFunction) => {
     console.error(err);
@@ -30,11 +31,19 @@ export function resourceNotFound(result: any, res: Response, next: NextFunction)
     return false;
 }
 
-export function emptyList(list: any, res: Response): boolean {
+export function emptyList(list: any, req: Request, res: Response): boolean {
     if (list.length == 0) {
       res.status(204);
-      res.json({message: "List empty; no results"});
+      resourceConvertor({message: "List empty; no results"}, req, res);
       return true;
     }
     return false;
   }
+export function alreadyExists(count: number, res: Response): boolean {
+  if (count > 0) {
+    res.status(409);
+    res.json({ error: "Record with the same name already exists" });
+    return true;
+  }
+  return false;
+}
