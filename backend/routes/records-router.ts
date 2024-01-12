@@ -30,8 +30,8 @@ export class RecordsRouter implements IRouter {
         app.route('/records/countries')
             .get(asyncHandler(this.controller.getCountriesAsync))
 
-        app.route('/records')
-            .post(asyncHandler(this.controller.createRecordsAsync))
+        app.route('/records/fill')
+            .post(asyncHandler(this.controller.fillDatabaseAsync))
 
         app.use((req: Request, res: Response, next: NextFunction) => {
             res.status(404).json({ 'error-message': 'Resource not found' });

@@ -167,18 +167,21 @@ components:
       description: Server error; no results, try again later
 
 paths:
-  /records:
+  /records/fill:
     post:
-      summary: Create all records
+      summary: Fill database with Emissions CSV dataset from source URL
       tags: 
         - All Records
-      description: Create all records
-      requestBody:
-        required: true
-        content: 
-          application/json:
-            schema:
-              $ref: "#/components/schemas/all"
+        - Special
+      description: Fill database with Emissions CSV dataset from source URL
+      parameters:
+        - name: emissions_csv_url
+          in: query
+          required: true
+          description: Source URL for the Emissions CSV dataset
+          schema:
+            type: string
+            default: https://nyc3.digitaloceanspaces.com/owid-public/data/co2/owid-co2-data.csv
       responses:
         '201':
           description: Succesfully created
@@ -187,6 +190,9 @@ paths:
                 schema:
                   type: string
                 description: The URL of the newly-created general record
+                # TODO 
+        '500':
+          description: Internal Server Error
 
   /records/general:
     post:

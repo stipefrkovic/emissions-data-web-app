@@ -7,6 +7,13 @@ export function jsonToCSV(data: any): string {
   let csv = Papa.unparse(data);
   return csv;
 }
+
+// may throw error, call in try-catch block
+export function csvToJson(data: string): any {
+  let json = Papa.parse(data);
+  return json;
+}
+
 export function resourceConvertor(result: any, req: Request, res: Response) {
   let acceptHeader = req.headers['accept'];
   if (acceptHeader) {
