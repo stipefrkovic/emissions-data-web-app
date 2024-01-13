@@ -5,44 +5,60 @@ import { TemperatureRecord } from "../models/temperature-record";
 import { EnergyRecord } from "../models/energy-record";
 import { Country } from "../models/country";
 import { Continent } from "../models/continent";
+import { Transform } from "class-transformer";
 
 
 export class ApiFullRecord {
     @IsString() @IsNotEmpty()
     country!: string;
     @IsInt() @Min(1900) @Max(1999)
+    @Transform(o => parseInt(o.value))
     year!: number;
     @ValidateIf((o: any) => isNotEmpty(o.iso_code)) @IsString()  @IsISO31661Alpha3()
-    iso_code!: string;
+    @Transform(o => isEmpty(o.value) ? undefined : o.value)
+    iso_code?: string;
     
     @IsOptional() @IsInt()
+    @Transform(o => isEmpty(o.value) ? undefined : parseInt(o.value))
     gdp?: number;
     @IsOptional() @IsInt() @Min(0)
+    @Transform(o => isEmpty(o.value) ? undefined : parseInt(o.value))
     population?: number;
     
     @IsOptional() @IsNumber()
+    @Transform(o => isEmpty(o.value) ? undefined : parseFloat(o.value))
     co2?: number;
     @IsOptional() @IsNumber()
+    @Transform(o => isEmpty(o.value) ? undefined : parseFloat(o.value))
     methane?: number;
     @IsOptional() @IsNumber()
+    @Transform(o => isEmpty(o.value) ? undefined : parseFloat(o.value))
     nitrous_oxide?: number;
     @IsOptional() @IsNumber()
+    @Transform(o => isEmpty(o.value) ? undefined : parseFloat(o.value))
     total_ghg?: number;
     
     @IsOptional() @IsNumber()
+    @Transform(o => isEmpty(o.value) ? undefined : parseFloat(o.value))
     share_of_temperature_change_from_ghg?: number;
     @IsOptional() @IsNumber()
+    @Transform(o => isEmpty(o.value) ? undefined : parseFloat(o.value))
     temperature_change_from_co2?: number;
     @IsOptional() @IsNumber()
+    @Transform(o => isEmpty(o.value) ? undefined : parseFloat(o.value))
     temperature_change_from_n2o?: number;
     @IsOptional() @IsNumber()
+    @Transform(o => isEmpty(o.value) ? undefined : parseFloat(o.value))
     temperature_change_from_ghg?: number;
     @IsOptional() @IsNumber()
+    @Transform(o => isEmpty(o.value) ? undefined : parseFloat(o.value))
     temperature_change_from_ch4?: number;
 
     @IsOptional() @IsNumber()
+    @Transform(o => isEmpty(o.value) ? undefined : parseFloat(o.value))
     energy_per_capita?: number;
     @IsOptional() @IsNumber()
+    @Transform(o => isEmpty(o.value) ? undefined : parseFloat(o.value))
     energy_per_gdp?: number;
 
     static variables = [
@@ -112,7 +128,7 @@ export class ApiFullRecord {
     toCountry(): Country {
         let country: Country = {
             country: this.country,
-            iso_code: this.iso_code
+            iso_code: this.iso_code!
         }
         return country;
     }

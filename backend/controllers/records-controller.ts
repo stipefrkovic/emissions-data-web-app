@@ -6,10 +6,10 @@ import Container from "typedi";
 import { EmissionCountrySelector, TemperatureYearFilter, ContinentSelector, EmissionYearFilter, GeneralCountrySelector, EnergyPopulationOrder, GeneralYearSelector, EnergyYearSelector, Batcher, PeriodSelector } from "./query";
 import { csvToJson, resourceConvertor } from "./helper";
 import { CustomError, alreadyExists } from "../error";
-import { ApiFullGeneralRecord, ApiGeneralRecord } from "../api-models/general";
-import { ApiEmissionRecord } from "../api-models/emission";
-import { ApiEnergyRecord } from "../api-models/energy";
-import { ApiTemperatureRecord } from "../api-models/temperature";
+import { ApiFullGeneralRecord, ApiGeneralRecord } from "../api-models/general-record";
+import { ApiEmissionRecord } from "../api-models/emission-record";
+import { ApiEnergyRecord } from "../api-models/energy-record";
+import { ApiTemperatureRecord } from "../api-models/temperature-record";
 import { ApiCountry } from "../api-models/country";
 import { Country} from "../models/country";
 import { isContinent } from "../models/continent";
@@ -22,7 +22,7 @@ import { badValidation } from "./validate";
 import { emptyList, resourceNotFound } from "../error";
 
 import dataForge, { DataFrame, fromCSV } from 'data-forge';
-import { ApiFullRecord } from "../api-models/record";
+import { ApiFullRecord } from "../api-models/full-record";
 
 // TODO verify json and csv for ALL responses
 // TODO australia oceania
@@ -267,7 +267,8 @@ export class RecordsController {
         for (let i = 0; i < data.length; i++) { 
             if (isDivisibleBy(i, 1000)) console.log(`Processing record ${i}`);
             
-            const apiFullRecord : ApiFullRecord = plainToClass(ApiFullRecord, data[i], { enableImplicitConversion: true })
+            const apiFullRecord : ApiFullRecord = plainToClass(ApiFullRecord, data[i], { enableImplicitConversion: false })
+            
             if (badValidation(await validate(apiFullRecord, { validationError: { target: true }}), res, next)) {
                 console.error(apiFullRecord); 
                 return;
@@ -275,7 +276,8 @@ export class RecordsController {
             
             if (isNotEmpty(apiFullRecord.iso_code)) {
                 try {
-                    await db.getRepository(GeneralRecord).save(apiFullRecord.toGeneralRecord());
+                    let generalRecord = apiFullRecord.toGeneralRecord();
+                    await db.getRepository(GeneralRecord).save(generalRecord);
                     await db.getRepository(EmissionRecord).save(apiFullRecord.toEmissionRecord());
                     await db.getRepository(EnergyRecord).save(apiFullRecord.toEnergyRecord());
                     await db.getRepository(Country).save(apiFullRecord.toCountry());

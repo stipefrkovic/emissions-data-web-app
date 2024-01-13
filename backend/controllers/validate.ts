@@ -1,7 +1,7 @@
 import { ValidationError, validate } from 'class-validator';
 import { plainToClass } from 'class-transformer';
 import { Request, Response, NextFunction } from 'express';
-import { ApiFullGeneralRecord, ApiGeneralRecord } from '../api-models/general';
+import { ApiFullGeneralRecord, ApiGeneralRecord } from '../api-models/general-record';
 import { CountrySelector } from './query';
 import { CustomError } from '../error';
 
