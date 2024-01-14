@@ -5,8 +5,6 @@ import { ApiFullGeneralRecord, ApiGeneralRecord } from '../api-models/general-re
 import { CountrySelector } from './query';
 import { CustomError } from '../error';
 
-// TODO check missing properties setting
-
 export function badValidation(validationErrors: ValidationError[], res: Response, next: NextFunction) : boolean {
     if (validationErrors.length > 0) {
       let error: CustomError = new CustomError(String(validationErrors), 400);

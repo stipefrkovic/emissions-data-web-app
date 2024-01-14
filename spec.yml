@@ -479,7 +479,7 @@ paths:
             - ASC
             - DESC
           default: DESC
-      - name: batch-size
+      - name: batch_size
         in: query
         required: true
         description: Size of records batch to be retrieved
@@ -491,7 +491,7 @@ paths:
             - 50
             - 100
           default: 10
-      - name: batch-index
+      - name: batch_index
         in: query
         required: true
         description: Index of the batch of records (starting from 1) that 
