@@ -17,16 +17,6 @@ export class ApiFullGeneralRecord {
     @IsInt() @Min(0)
     population?: number;
 
-    // public static fromDatabase(generalRecord: GeneralRecord, country: Country) : ApiFullGeneralRecord {
-    //     return {
-    //         country: generalRecord.country,
-    //         year: generalRecord.year,
-    //         iso_code: country.iso_code,
-    //         gdp: generalRecord.gdp,
-    //         population: generalRecord.population
-    //     };
-    // }
-
     public static toDatabase(apiFullGeneralRecord: ApiFullGeneralRecord) : GeneralRecord {
         let generalRecord : GeneralRecord = {
             country: apiFullGeneralRecord.country,

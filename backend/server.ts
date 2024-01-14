@@ -1,4 +1,3 @@
-// import "reflect-metadata"
 import { DataSource } from "typeorm";
 import { config as dotenvConfig } from "dotenv";
 import Container from "typedi";
