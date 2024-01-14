@@ -17,7 +17,7 @@ const HOST = process.env.HOST || "localhost";
 const database = new DataSource({
     type: "mysql",
     host: process.env.DATABASE_HOST || "localhost",
-    port: process.env.DATABASE_PORT as unknown as number || 3306,
+    port: 3306,
     username: process.env.DATABASE_USERNAME || "mariadb",
     password: process.env.DATABASE_PASSWORD || "mariadb",
     database: process.env.DATABASE_NAME || "emissions",

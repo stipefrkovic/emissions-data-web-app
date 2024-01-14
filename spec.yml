@@ -10,8 +10,6 @@ servers:
   - url: http://localhost:3000
     description: ExpressJS backend
 
-# TODO fix params in some methods 
-
 components:
   schemas:
     all:
@@ -473,10 +471,10 @@ paths:
           type: string
           minimum: 1900
           maximum: 1999
-      - name: order-dir
+      - name: order_dir
         in: query
         required: true
-        description: Sort records of countries based on population size
+        description: Direction in which to sort records of countries based on population size
         schema:
           type: string
           enum:
@@ -540,32 +538,24 @@ paths:
 
   /records/countries:
     parameters:
-      - name: ncountries
+      - name: num_countries
         in: query
         required: true
         description: Number n (≥1) of countries to be retrieved
         schema:
           type: integer
           minimum: 1
-      - name: order-by
-        in: query
-        description: Sorting filter for the countries
-        schema:
-          type: string
-          enum:
-            - share_of_temperature_change_from_ghg
-          default: share_of_temperature_change_from_ghg
-      - name: order-dir
+      - name: order_dir
         in: query
         required: false
-        description: Order in which the countries are retrieved based on the filter
+        description: Order in which the countries are retrieved based on the property
         schema:
           type: string
           enum:
             - ASC
             - DESC
           default: descending
-      - name: period-type
+      - name: period_type
         in: query
         required: true
         description: Time period type on which the countries will be sorted
@@ -574,23 +564,21 @@ paths:
           enum:
             - specific-year
             - last-m-years
-      - name: period-value
+      - name: period_value
         in: query
         required: true
         description: Time period value
         schema:
             type: integer
-            minimum: 1
-            maximum: 1999
             description: |
-              If period-type is 'specific-year', period-value must be between 1900 and 2023.
-              If period-type is 'last-m-years', period-value must be between 1 and 100.
+              If period_type is 'specific-year', period_value must be between 1900 and 1999.
+              If period_type is 'last-m-years', period_value must be higher than 1.
     get:
       summary: Retrieve countries
       tags: 
         - All Records
         - Countries
-      description: Retrieve a number of countries with an optional sorting filter
+      description: Retrieve a number of countries optionally sorted on share_of_temperature_change_from_ghg
       responses:
         '200':
           description: OK

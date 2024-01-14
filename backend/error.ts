@@ -31,14 +31,15 @@ export function resourceNotFound(result: any, res: Response, next: NextFunction)
     return false;
 }
 
-export function emptyList(list: any, req: Request, res: Response): boolean {
+export function emptyList(list: any, req: Request, res: Response, message: string): boolean {
     if (list.length == 0) {
       res.status(204);
-      resourceConvertor({message: "List empty; no results"}, req, res);
+      resourceConvertor({message: message}, req, res);
       return true;
     }
     return false;
-  }
+}
+
 export function alreadyExists(count: number, res: Response): boolean {
   if (count > 0) {
     res.status(409);

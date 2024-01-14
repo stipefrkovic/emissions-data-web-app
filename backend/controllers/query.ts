@@ -1,6 +1,6 @@
 import { DataSource, ObjectLiteral, SelectQueryBuilder } from "typeorm";
-import { Min, Max, IsDefined, IsInt, IsIn, IsString, IsOptional } from "class-validator";
-import { continents } from "../models/continent";
+import { Min, Max, IsDefined, IsInt, IsIn, IsString, IsOptional, validate } from "class-validator";
+import { Continent, continents } from "../models/continent";
 import { GeneralRecord } from "../models/general-record";
 import Container from "typedi";
 import { Country } from "../models/country";
@@ -8,6 +8,10 @@ import { TemperatureRecord } from "../models/temperature-record";
 import { EmissionRecord } from "../models/emission-record";
 import { EnergyRecord } from "../models/energy-record";
 import { isISOCode } from "../models/country";
+import { NextFunction, Response } from "express";
+import { CustomError } from "../error";
+import { plainToClass } from "class-transformer";
+import { badValidation } from "./validate";
 
 /**
  * Interface that can be implemented by classes to allow different kinds of queries.
@@ -47,7 +51,7 @@ export class EnergyPopulationOrder implements IQueryHelper<EnergyRecord> {
   @IsDefined()
   @IsString()
   @IsIn(['DESC', 'ASC'])
-  "order-dir"?: "DESC" | "ASC";
+  order_dir!: "DESC" | "ASC";
 
   public apply(query : SelectQueryBuilder<EnergyRecord>) : SelectQueryBuilder<EnergyRecord> {
     const countrySubquery = query
@@ -57,7 +61,7 @@ export class EnergyPopulationOrder implements IQueryHelper<EnergyRecord> {
       .where(`gr.country = energy_record.country`)
       .andWhere(`gr.year = energy_record.year`)
 
-    query.orderBy(`(${countrySubquery.getQuery()})`, this["order-dir"]!);
+    query.orderBy(`(${countrySubquery.getQuery()})`, this.order_dir!);
     return query;
   }
 }
@@ -88,50 +92,6 @@ export class EmissionYearFilter extends YearFilter<EmissionRecord> {
     super('emission_record');
   }
 }
-
-// export class HigherYearFilter implements IQueryHelper<EmissionRecord> {
-//   @IsOptional()
-//   @IsInt()
-//   @Min(1900)
-//   @Max(1999)
-//   year?: number;
-//   // "ncountries": number;
-//   // "period-type": string;
-//   // "period-value": number;
-
-//   public apply(query : SelectQueryBuilder<EmissionRecord>) : SelectQueryBuilder<EmissionRecord> {
-//       if (this["year"]) query.andWhere("emission_record.year >= :year", { year: this.year });
-//       // if (this["period-value"] && this["period-type"] == "specific-year"){
-//       //   query = query.andWhere("record.year = :year", { year: this["period-value"] });
-//       // } else if(this["period-value"]){
-//       //   query = query.andWhere("record.year >= :year", { year: 2000-this["period-value"] });
-//       // }
-//       // if(this.ncountries) query = query.limit(this.ncountries);
-//       return query;
-//   }
-// }
-
-// export class TemperatureHigherYearFilter implements IQueryHelper<TemperatureRecord> {
-//   @IsOptional()
-//   @IsInt()
-//   @Min(1900)
-//   @Max(1999)
-//   year?: number;
-//   // "ncountries": number;
-//   // "period-type": string;
-//   // "period-value": number;
-
-//   public apply(query : SelectQueryBuilder<TemperatureRecord>) : SelectQueryBuilder<TemperatureRecord> {
-//       if (this["year"]) query.andWhere("temperature_record.year >= :year", { year: this.year });
-//       // if (this["period-value"] && this["period-type"] == "specific-year"){
-//       //   query = query.andWhere("record.year = :year", { year: this["period-value"] });
-//       // } else if(this["period-value"]){
-//       //   query = query.andWhere("record.year >= :year", { year: 2000-this["period-value"] });
-//       // }
-//       // if(this.ncountries) query = query.limit(this.ncountries);
-//       return query;
-//   }
-// }
 
 export class CountrySelector <T extends ObjectLiteral> {
   @IsDefined()
@@ -165,6 +125,12 @@ export class EmissionCountrySelector extends CountrySelector<EmissionRecord> {
 export class GeneralCountrySelector extends CountrySelector<GeneralRecord> {
   constructor() {
     super('general_record');
+  }
+}
+
+export class CountryCountrySelector extends CountrySelector<Country> {
+  constructor() {
+    super('country');
   }
 }
 
@@ -260,7 +226,7 @@ export class EnergyYearSelector extends YearSelector<EnergyRecord> {
   }
 } 
 
-export class ContinentSelector implements IQueryHelper<TemperatureRecord> {
+export class TemperatureContinentSelector implements IQueryHelper<TemperatureRecord> {
   @IsDefined()
   @IsString()
   @IsIn(continents)
@@ -275,21 +241,48 @@ export class ContinentSelector implements IQueryHelper<TemperatureRecord> {
 export class PeriodSelector implements IQueryHelper<TemperatureRecord> {
   @IsDefined()
   @IsInt()
-  "period-value"!: number; 
+  @Min(1900, {groups: ['specific-year']})
+  @Max(1999, {groups: ['specific-year']})
+  @Min(1, {groups: ['last-m-years']})
+  period_value!: number; 
   
   @IsDefined()
   @IsString()
   @IsIn(['specific-year', 'last-m-years'])
-  "period-type"!: string; 
+  period_type!: string; 
 
   apply(query: SelectQueryBuilder<TemperatureRecord>): SelectQueryBuilder<TemperatureRecord> {
-    if (this["period-type"] === 'specific-year') {
-      query.andWhere(`temperature_record.year = :year`, {year: this["period-value"]});
+    if (this.period_type === 'specific-year') {
+      query.andWhere(`temperature_record.year = :year`, {year: this.period_value});
 
     }
-    if (this["period-type"] === 'last-m-years') {
-      query.andWhere(`temperature_record.year > ${1999 - this["period-value"]}`);
+    if (this.period_type === 'last-m-years') {
+      query.andWhere(`temperature_record.year > ${1999 - this.period_value}`);
     }
     return query;
   }
+}
+
+export class NumberSelector {
+  @IsDefined()
+  @IsInt()
+  @Min(1)
+  num_countries!: number;
+
+  apply(countries: any[]): any[] {
+    return countries.slice(0, this.num_countries);
+  }
+}
+
+export async function emptyCountryCountryQuery(object: any, res: Response, next: NextFunction) : Promise<boolean> {
+  const countryCountrySelector = plainToClass(CountryCountrySelector, object, { enableImplicitConversion: true });
+  if (badValidation(await validate(countryCountrySelector, { validationError: { target: true }}), res, next)) return true;
+  let countryCountryQuery = Container.get<DataSource>("database").getRepository(Country).createQueryBuilder("country");
+  countryCountryQuery = countryCountrySelector.apply(countryCountryQuery);
+  let countryCountryCount = await countryCountryQuery.getCount();
+  if (countryCountryCount == 0) {
+    next(new CustomError("Country not found", 400));
+    return true;
+  }
+  return false;
 }
