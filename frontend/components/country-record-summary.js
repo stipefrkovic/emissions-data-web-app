@@ -18,6 +18,34 @@ export default class CountrySummary extends HTMLElement {
     }
 
     /**
+     * Get and set the country record order by.
+     */
+    get countryRecordOrderBy() {
+        return this.getAttribute("country-record-order-by");
+    }
+
+    set countryRecordOrderBy(value) {
+        if (value == null)
+            this.removeAttribute("country-record-order-by");
+        else
+            this.setAttribute("country-record-order-by", value);
+    }
+
+    /**
+     * Get and set the country record order.
+     */
+    get countryRecordOrder() {
+        return this.getAttribute("country-record-order");
+    }
+
+    set countryRecordOrder(value) {
+        if (value == null)
+            this.removeAttribute("country-record-order");
+        else
+            this.setAttribute("country-record-order", value);
+    }
+
+    /**
      * Get and set the country record period type.
      */
     get countryRecordPeriodType() {

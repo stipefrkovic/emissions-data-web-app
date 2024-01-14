@@ -23,7 +23,7 @@ export default class EmissionDetail extends HTMLElement {
         return this.getAttribute("emission-record-id");
     }
 
-    set generalRecordId(value) {
+    set emissionRecordId(value) {
         if(value == null)
             this.removeAttribute("emission-record-id");
         else
@@ -70,7 +70,7 @@ export default class EmissionDetail extends HTMLElement {
     }
 
     async attributeChangedCallback() {
-        if(!this.generalRecordId) {
+        if(!this.emissionRecordId) {
                 this.shadowRoot.innerHTML = "";
             return;
         }
