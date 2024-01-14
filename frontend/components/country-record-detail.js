@@ -124,7 +124,7 @@ export default class CountryDetail extends HTMLElement {
         this.initializeTemplate();
 
         this.#countryName.innerText = record.country;
-        this.#shareTempChangeGhg.innerText = record.shareTempChangeGhg;
+        this.#shareTempChangeGhg.innerText = record.share_of_temperature_change_from_ghg;
     }
 };
 
