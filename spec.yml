@@ -149,20 +149,45 @@ components:
                 description: Error message detailing the problem with the request
           example:
             error-message: The request body has an invalid entry.
-        text/csv:
-          schema:
-            type: object
-            description: Error message detailing the problem with the request
-          example: The request body has an invalid entry.
 
     NotFound:
       description: Resource not found
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              error-message:
+                type: string
+                description: Error message detailing the problem with the request
+          example:
+            error-message: Resource not found.
 
     NoResults:
       description: List empty; no results
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              error-message:
+                type: string
+                description: Error message detailing the problem with the request
+          example:
+            error-message: List empty; no results.
 
     ServerError:
       description: Server error; no results, try again later
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              error-message:
+                type: string
+                description: Error message detailing the problem with the request
+          example:
+            error-message: Server error; no results, try again later.
 
 paths:
   /records/fill:
@@ -187,10 +212,11 @@ paths:
               Location:
                 schema:
                   type: string
-                description: The URL of the newly-created general record
-                # TODO 
-        '500':
-          description: Internal Server Error
+                description: The URL of the newly-created records; more specific requests may be necessary
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '5XX':
+          $ref: '#/components/responses/ServerError'
 
   /records/general:
     post:
@@ -230,23 +256,7 @@ paths:
                   type: string
                 description: The URL of the newly-created general record
         '400':
-          description: Request was not well-formed, see error details
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  error-message:
-                    type: string
-                    description: Error message detailing the problem with the request
-              example:
-                error-message: The request body has an invalid entry.
-            text/csv:
-              schema:
-                type: object
-                description: Error message detailing the problem with the request
-              example: The request body has an invalid entry.
-
+          $ref: '#/components/responses/BadRequest'
         '409':
           description: Record with the same name already exists
           headers:
@@ -254,7 +264,6 @@ paths:
               schema:
                 type: string
               description: The URL of the pre-existing record
-
         '5XX':
           $ref: '#/components/responses/ServerError'
   
@@ -293,13 +302,10 @@ paths:
               example: |
                 gdp, 0
                 population, 0
-
         '400':
           $ref: '#/components/responses/BadRequest'
-
         '404':
           $ref: "#/components/responses/NotFound"
-
         '5XX':
           $ref: '#/components/responses/ServerError'
     put:
@@ -329,10 +335,8 @@ paths:
                 population, 0
         '400':
           $ref: '#/components/responses/BadRequest'
-
         '404':
           $ref: "#/components/responses/NotFound"
-
         '5XX':
           $ref: '#/components/responses/ServerError'
     delete:
@@ -393,13 +397,10 @@ paths:
                 methane, 0
                 nitrous oxide, 0
                 total ghg, 0
-
         '204':
           $ref: "#/components/responses/NoResults"
-
         '400':
           $ref: '#/components/responses/BadRequest'
-
         '5XX':
           $ref: '#/components/responses/ServerError'
 
@@ -454,10 +455,8 @@ paths:
                 temperature_change_from_n2o, 0
         '204':
           $ref: "#/components/responses/NoResults"
-
         '400':
           $ref: '#/components/responses/BadRequest'
-
         '5XX':
           $ref: '#/components/responses/ServerError'
   
@@ -526,13 +525,10 @@ paths:
               example: |
                 energy per capita, 0
                 GDP per capita, 0
-
         '204':
           $ref: "#/components/responses/NoResults"
-
         '400':
           $ref: '#/components/responses/BadRequest'
-
         '5XX':
           $ref: '#/components/responses/ServerError'
 
@@ -594,12 +590,9 @@ paths:
               example: |
                 country, string
                 share_of_temperature_change_from_ghg, 0
-        
         '204':
           $ref: "#/components/responses/NoResults"
-
         '400':
           $ref: '#/components/responses/BadRequest'
-
         '5XX':
           $ref: '#/components/responses/ServerError'

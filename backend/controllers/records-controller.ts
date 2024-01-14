@@ -315,6 +315,9 @@ export class RecordsController {
                 }
             }
         }
+
+        const newResourceUrl = `${req.protocol}://${req.get('host')}/records/`;
+        res.setHeader('Location', newResourceUrl);
         
         res.status(201);
         const message = {message: `Succesfully created ${data.length} records`};
