@@ -56,16 +56,16 @@ export default class GeneralFinder extends HTMLElement {
 
     //Build new view
     let recordView = new GeneralSummary();
-    recordView.generalRecordId = countryResult.id;
-    recordView.generalRecordYear = countryResult.year;
+    recordView.generalRecordId = countryName;
+    recordView.generalRecordYear = year;
 
     let countrySpan = document.createElement("span");
     countrySpan.slot = "country";
-    countrySpan.innerText = countryResult.id;
+    countrySpan.innerText = countryName
 
     let yearSpan = document.createElement("span");
     yearSpan.slot = "year";
-    yearSpan.innerText = countryResult.year;
+    yearSpan.innerText = year
 
     recordView.appendChild(countrySpan);
     recordView.appendChild(yearSpan);
