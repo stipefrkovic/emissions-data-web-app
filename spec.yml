@@ -64,7 +64,6 @@ components:
           type: number
           description: Energy per GDP of the country
 
-
     general:
       type: object
       properties:
