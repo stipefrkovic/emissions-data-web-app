@@ -25,10 +25,6 @@ import dataForge, { DataFrame, fromCSV } from 'data-forge';
 import { ApiFullRecord } from "../api-models/full-record";
 
 // TODO verify json and csv for ALL responses
-// TODO australia oceania
-// difference between 404 and 204
-// TODO responses in spec.yml and otherwise
-// TODO countries and continents sql thing
 
 export class RecordsController {
 
