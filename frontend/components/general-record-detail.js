@@ -70,7 +70,7 @@ export default class GeneralDetail extends HTMLElement {
     }
 
     async attributeChangedCallback() {
-        if(!this.generalRecordId) {
+        if(!this.generalRecordId || !this.generalRecordYear) {
             if (this.shadowRoot != null) {
                 this.shadowRoot.innerHTML = "";
             } else {
@@ -82,7 +82,7 @@ export default class GeneralDetail extends HTMLElement {
         /** @type {General} */
         let record;
         try {
-            if (this.generalRecordYear != null) {
+            if (this.generalRecordYear != null && this.generalRecordId != null) {
                 record = await records.getGeneralRecord(this.generalRecordId, this.generalRecordYear);
             } else {
                 alert("General record year is null (invalid value).");
@@ -94,8 +94,8 @@ export default class GeneralDetail extends HTMLElement {
 
         this.initializeTemplate();
 
-        this.#id.innerText = record.id;
-        this.#year.innerText = record.year;
+        this.#id.innerText = this.generalRecordId;
+        this.#year.innerText = this.generalRecordYear;
         this.#gdp.innerText = record.gdp;
         this.#population.innerText = record.population;
     }

@@ -71,7 +71,7 @@ export default class GeneralFinder extends HTMLElement {
     recordView.appendChild(yearSpan);
 
     recordView.addEventListener("click", () => {
-      this.dispatchEvent(new GeneralSelectedEvent(recordView.generalRecordId));
+      this.dispatchEvent(new GeneralSelectedEvent(recordView.generalRecordId, recordView.generalRecordYear));
     });
 
     this.#result.appendChild(recordView);

@@ -18,7 +18,7 @@ export default {
     if (GDP !== undefined) data.GDP = GDP;
     if (population !== undefined) data.population = population;
 
-    const apiResponse = await apiCall(`records/general`, "GET", data);
+    const apiResponse = await apiCall(`records/general`, "POST", data);
     if (!apiResponse.ok) throw new Error(await apiResponse.text());
 
     return GeneralRecord.fromJson(await apiResponse.json());
@@ -46,7 +46,7 @@ export default {
     if (GDP !== undefined) data.GDP = GDP;
     if (population !== undefined) data.population = population;
 
-    const apiResponse = await apiCall(`records/general`, "PUT", data);
+    const apiResponse = await apiCall(`records/${country}/${year}/general`, "PUT", data);
     if (!apiResponse.ok) throw new Error(await apiResponse.text());
 
     return GeneralRecord.fromJson(await apiResponse.json());

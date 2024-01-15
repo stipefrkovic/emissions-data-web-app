@@ -50,7 +50,7 @@
         <general-record-deleter id="genRecordDeleter"></general-record-deleter>
         <general-record-updater id="genRecordUpdater"></general-record-updater>
         <general-record-poster id="genRecordPoster"></general-record-poster>
-        <general-record-detail id="generalRecordDetail" general-record-id="" general-record-year=""></general-record-detail>
+        <general-record-detail id="detail" general-record-id="" general-record-year=""></general-record-detail>
 
         <h2 class="mt-4">Emission Record</h2>
         <hr />
@@ -374,7 +374,8 @@
         document
         .getElementById("genRecordFinder")
         .addEventListener("general-record-selected", (ev) => {
-        document.getElementById("detail").generalRecordId = ev.generalRecordId;
+        document.getElementById("detail").generalRecordId = ev.countryId;
+        document.getElementById("detail").generalRecordYear = ev.countryYear;
         });
         document
           .getElementById("genRecordDeleter")
