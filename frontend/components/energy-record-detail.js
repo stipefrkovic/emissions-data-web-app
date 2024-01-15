@@ -68,8 +68,8 @@ export default class EnergyDetail extends HTMLElement {
         this.initializeTemplate();
 
         this.#year.innerText = record.year;
-        this.#energyPerCapita = record.energyPerCapita;
-        this.#gdpPerCapita = record.gdpPerCapita;
+        this.#energyPerCapita = record.energy_per_capita;
+        this.#gdpPerCapita = record.gdp_per_capita;
     }
 };
 

@@ -57,9 +57,9 @@ export default class EnergyFinder extends HTMLElement {
         // Find elements inside the templates and cache them for
         // future reference.
         this.#yearSearch = this.shadowRoot.getElementById("year");
-        this.#orderBySearch = this.shadowRoot.getElementById("order-by");
-        this.#batchesSearch = this.shadowRoot.getElementById("batches-search");
-        this.#find = this.shadowRoot.getElementById("find");
+        this.#orderBySearch = this.shadowRoot.getElementById("order-options");
+        this.#batchesSearch = this.shadowRoot.getElementById("batches-options");
+        this.#find = this.shadowRoot.getElementById("retrieve-energy");
         this.#results = this.shadowRoot.getElementById("records");
         this.#navNext = this.shadowRoot.getElementById("page-next");
         this.#navPrev = this.shadowRoot.getElementById("page-prev");
@@ -74,7 +74,7 @@ export default class EnergyFinder extends HTMLElement {
                 energyResult = await records.getEnergyRecord(
                     this.#yearSearch.value,
                     this.#orderBySearch.value,
-                    this.#batchesSearch,
+                    this.#batchesSearch.value,
                     1
                 );
             } catch (e) {
