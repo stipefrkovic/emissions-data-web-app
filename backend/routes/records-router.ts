@@ -6,6 +6,7 @@ import { RecordsController } from "../controllers/records-controller";
 import { validateApiFullGeneralRecord, validateApiGeneralRecord } from "../controllers/validate";
 import { errorHandler } from "../error";
 
+// Router for the records endpoints, 1-to-1 mapping to OpenAPI specification
 export class RecordsRouter implements IRouter {
     protected controller : RecordsController = new RecordsController;
 

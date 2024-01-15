@@ -26,6 +26,7 @@ import { ApiFullRecord } from "../api-models/full-record";
 
 // TODO verify json and csv for ALL responses
 
+// Controller for the records endpoint functions, 1-to-1 mapping to OpenAPI specification
 export class RecordsController {
 
     public async createGeneralRecordAsync(req: Request, res: Response, next: NextFunction): Promise <void> {

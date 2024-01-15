@@ -7,10 +7,13 @@ services:
       MYSQL_DATABASE: ${DATABASE_NAME:?}
       MYSQL_USER: ${DATABASE_USER:?}
       MYSQL_PASSWORD: ${DATABASE_PASSWORD:?}
+    # DO NOT CHANGE
     ports:
       - 3306:3306
     volumes:
+    # remove if the database should remain in the environment
       - ./data/mariadb/db:/var/lib/mysql
+    # remove if the database should not be seeded
       - "./data/mariadb/sql:/docker-entrypoint-initdb.d"
     restart: always
 
@@ -23,6 +26,7 @@ services:
     ports:
       - ${BACKEND_PORT:?}:${BACKEND_PORT}
     volumes:
+    # remove if local code updates should not be updated live
       - ./backend:/usr/src/app
     env_file:
       - .env

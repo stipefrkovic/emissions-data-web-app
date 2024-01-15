@@ -1,6 +1,7 @@
 import { IsInt, IsNotEmpty, IsNumber, Max, Min } from "class-validator";
 import { TemperatureRecord } from "../models/temperature-record";
 
+// Temperature Record class for the API, used in the POST request
 export class ApiTemperatureRecord {
     @IsInt() @IsNotEmpty() @Min(1900) @Max(1999)
     year!: number;
@@ -15,6 +16,7 @@ export class ApiTemperatureRecord {
     @IsNumber()
     temperature_change_from_ch4?: number;
 
+    // Creates an API model from the database model
     public static fromDatabase(temperatureRecord : TemperatureRecord) : ApiTemperatureRecord {
         let apiTemperatureRecord : ApiTemperatureRecord = {
             year: temperatureRecord.year,
