@@ -304,9 +304,19 @@
 
         <div class="row mt-2">
             <div class="col-12 col-md-5">
-                <input type="text" class="form-control" id="country" placeholder="Country (name or ISO code)" />
+                <label for="continent" class="form-label">Continent:</label>
+                <select class="form-select" id="continent">
+                    <option value="africa">Africa</option>
+                    <option value="antarctica">Antarctica</option>
+                    <option value="asia">Asia</option>
+                    <option value="australia">Australia</option>
+                    <option value="europe">Europe</option>
+                    <option value="south-america">South America</option>
+                    <option value="north-america">North America</option>
+                </select>
             </div>
             <div class="col-12 col-md-5">
+                <label for="continent" class="form-label">Year:</label>
                 <input type="number" class="form-control" id="year" placeholder="Year (1900-1999)" min="1900" max="1999" />
             </div>
             <div class="col-12 col-md-2 d-grid">
