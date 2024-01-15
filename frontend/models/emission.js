@@ -24,8 +24,8 @@ export default class Emission{
         emission.year = json.year;
         emission.co2 = json.co2;
         emission.methane = json.methane;
-        emission.nitrousOxide = json.nitrousOxide;
-        emission.totalGhg = json.totalGhg;
+        emission.nitrousOxide = json.nitrous_oxide;
+        emission.totalGhg = json.total_ghg;
 
         return emission;
     }

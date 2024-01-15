@@ -1,5 +1,5 @@
-//import records from "../api/records.js";
-//import EmissionSummary from "./emission-record-summary.js";
+import records from "../api/records.js";
+import EmissionSummary from "./emission-record-summary.js";
 // ApiGeneralSummary maybe needed
 // GeneralSummary maybe needed
 
@@ -8,19 +8,19 @@
 // being selected. This is used in the record finder element, to
 // inform the rest of the application that the user selected a record.
 export class EmissionRecordSelectedEvent extends Event {
-    /** @type {number} */
-    countryId;
+  /** @type {number} */
+  countryId;
 
-    /**
-     * @param {number} countryId 
-     */
-    constructor(countryId) {
-        // We call the parent constructor with a string representing
-        // the name of this event. This is what we listen to.
-        super("emission-record-selected");
+  /**
+   * @param {number} countryId
+   */
+  constructor(countryId) {
+    // We call the parent constructor with a string representing
+    // the name of this event. This is what we listen to.
+    super("emission-record-selected");
 
-        this.countryId = countryId;
-    }
+    this.countryId = countryId;
+  }
 }
 
 // This is a custom element representing a emission record finder as a whole.
@@ -29,101 +29,103 @@ export class EmissionRecordSelectedEvent extends Event {
 // The user can pick any of the results, after which the element will
 // emit a "record-selected" event as defined above.
 export default class EmissionRecordFinder extends HTMLElement {
-    /** @type {HTMLInputElement} */ #countrySearch;
-    /** @type {HTMLInputElement} */ #yearSearch;
-    /** @type {HTMLButtonElement} */ #retrieve;
-    /** @type {HTMLDivElement} */ #result;
+  /** @type {HTMLInputElement} */ #countrySearch;
+  /** @type {HTMLInputElement} */ #yearSearch;
+  /** @type {HTMLButtonElement} */ #retrieve;
+  /** @type {HTMLDivElement} */ #result;
 
-    constructor() {
-        // Always call the parent constructor!
-        super();
+  constructor() {
+    // Always call the parent constructor!
+    super();
 
-        // We start by finding the template and taking its contents.
-        const template = document.getElementById("emission-record-finder");
-        const templateContent = template.content;
+    // We start by finding the template and taking its contents.
+    const template = document.getElementById("emission-record-finder");
+    const templateContent = template.content;
 
-        // Prepare shadow DOM and fill it with the template contents
-        this.attachShadow({ mode: "open" });
-        this.shadowRoot.appendChild(templateContent.cloneNode(true));
+    // Prepare shadow DOM and fill it with the template contents
+    this.attachShadow({ mode: "open" });
+    this.shadowRoot.appendChild(templateContent.cloneNode(true));
 
-        // Find elements inside the templates and cache them for
-        // future reference.
-        this.#countrySearch = this.shadowRoot.getElementById("country");
-        this.#yearSearch = this.shadowRoot.getElementById("year");
-        this.#retrieve = this.shadowRoot.getElementById("retrieve-emission");
-        this.#result = this.shadowRoot.getElementById("emission-records");
+    // Find elements inside the templates and cache them for
+    // future reference.
+    this.#countrySearch = this.shadowRoot.getElementById("country");
+    this.#yearSearch = this.shadowRoot.getElementById("year");
+    this.#retrieve = this.shadowRoot.getElementById("retrieve-emission");
+    this.#result = this.shadowRoot.getElementById("emission-records");
 
-        // Set up listeners to start search operation after every form
-        // action.
-        this.#retrieve.addEventListener("click", async () => {
-            await this.search();
-        });
+    // Set up listeners to start search operation after every form
+    // action.
+    this.#retrieve.addEventListener("click", async () => {
+      await this.search();
+    });
+  }
+
+  // This function will start a "getMovies" operation from the API. It will take the
+  // local form state and get the appropriate results.
+  async search() {
+    let countryName = this.#countrySearch.value;
+    let year = this.#yearSearch.value;
+
+    /** @type {ApiRecordSummary[]} */
+    let countryResult;
+    try {
+      countryResult = await records.getEmissionRecord(countryName, year);
+    } catch (e) {
+      alert(e);
+      return;
     }
 
-    // This function will start a "getMovies" operation from the API. It will take the
-    // local form state and get the appropriate results.
-    async search() {
-        let countryName = this.#countrySearch.value;
-        let year = this.#yearSearch.value;
+    // Clear old rendered results only after we received a new set of results, so
+    // the front-end is always in a usable state.
+    this.#result.innerHTML = "";
 
-        /** @type {ApiRecordSummary[]} */
-        let countryResult;
-        try {
-            countryResult = await records.getEmissionRecord(countryName, year);
-        } catch (e) {
-            alert(e);
-            return;
-        }
+    // Build the new view: we instantiate a MovieSummary custom element for every
+    // result, and create two spans that connect to the two slots in MovieSummary's
+    // template.
+for (let country of countryResult) {
+    // Create a new summary instance and set its ID (for later reference)
+    let emissionRecordView = new EmissionSummary();
+    emissionRecordView.emissionRecordId = country.id;
+    emissionRecordView.emissionRecordYear = country.year;
 
-        // Clear old rendered results only after we received a new set of results, so
-        // the front-end is always in a usable state.
-        this.#result.innerHTML = "";
+    // Connect slots: this is done by creating two spans (can be arbitrary elements)
+    // with the "slot" attribute set to match the slot name. We then put these two
+    // spans inside the custom element as if they were child nodes - this is where
+    // the shadow DOM will pull the slot values from. They are never displayed like
+    // this directly, so the order or structure does not matter.
+    let co2Span = document.createElement("span");
+    co2Span.slot = "co2";
+    co2Span.innerText = country.co2;
 
-        // Build the new view: we instantiate a MovieSummary custom element for every
-        // result, and create two spans that connect to the two slots in MovieSummary's
-        // template.
-        for (let country of countryResult) {
-            // Create a new summary instance and set its ID (for later reference)
-            let emissionRecordView = new EmissionSummary();
-            emissionRecordView.emissionRecordId = country.id;
-            emissionRecordView.emissionRecordYear = country.year;
+    let methaneSpan = document.createElement("span");
+    methaneSpan.slot = "methane";
+    methaneSpan.innerText = country.methane;
 
-            // Connect slots: this is done by creating two spans (can be arbitrary elements)
-            // with the "slot" attribute set to match the slot name. We then put these two
-            // spans inside the custom element as if they were child nodes - this is where
-            // the shadow DOM will pull the slot values from. They are never displayed like
-            // this directly, so the order or structure does not matter.
-            let co2Span = document.createElement("span");
-            co2Span.slot = "co2";
-            co2Span.innerText = country.co2;
+    let nitrousOxideSpan = document.createElement("span");
+    nitrousOxideSpan.slot = "nitrous-oxide";
+    nitrousOxideSpan.innerText = country.nitrousOxide;
 
-            let methaneSpan = document.createElement("span");
-            methaneSpan.slot = "methane";
-            methaneSpan.innerText = country.methane;
+    let totalGhgSpan = document.createElement("span");
+    totalGhgSpan.slot = "total-ghg";
+    totalGhgSpan.innerText = country.totalGhg;
 
-            let nitrousOxideSpan = document.createElement("span");
-            nitrousOxideSpan.slot = "nitrous-oxide";
-            nitrousOxideSpan.innerText = country.nitrousOxide;
+    emissionRecordView.appendChild(co2Span);
+    emissionRecordView.appendChild(methaneSpan);
+    emissionRecordView.appendChild(nitrousOxideSpan);
+    emissionRecordView.appendChild(totalGhgSpan);
 
-            let totalGhgSpan = document.createElement("span");
-            totalGhgSpan.slot = "total-ghg";
-            totalGhgSpan.innerText = country.totalGhg;
+    // Add an event listener: we want to trigger a "movie-selected" event when
+    // the user clicks a specific movie.
+    emissionRecordView.addEventListener("click", () => {
+      this.dispatchEvent(
+        new EmissionRecordSelectedEvent(emissionRecordView.emissionRecordId)
+      );
+    });
 
-            emissionRecordView.appendChild(co2Span);
-            emissionRecordView.appendChild(methaneSpan);
-            emissionRecordView.appendChild(nitrousOxideSpan);
-            emissionRecordView.appendChild(totalGhgSpan);
-
-            // Add an event listener: we want to trigger a "movie-selected" event when
-            // the user clicks a specific movie.
-            emissionRecordView.addEventListener("click", () => {
-                this.dispatchEvent(new EmissionRecordSelectedEvent(emissionRecordView.emissionRecordId));
-            });
-
-            this.#result.appendChild(emissionRecordView);
-        }
-    }
+    this.#result.appendChild(emissionRecordView);
+  }
+}
 };
 
 // Define the MovieFinder class as a custom element
-window.customElements.define('emission-record-finder', EmissionRecordFinder);
+window.customElements.define("emission-record-finder", EmissionRecordFinder);

@@ -73,7 +73,7 @@ export default {
     );
     if (!apiResponse.ok) throw new Error(await apiResponse.text());
 
-    return EmissionRecord.fromJson(await apiResponse.json());
+    return (await apiResponse.json()).map(EmissionRecord.fromJson);
   },
   async getTempChangeRecord(continent, year) {
     const data = {};
