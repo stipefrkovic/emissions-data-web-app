@@ -48,8 +48,8 @@ export default class RecordUpdater extends HTMLElement {
   async search() {
     let countryName = this.#country.value;
     let year = this.#year.value;
-    let gdp = this.#gdp.value;
-    let population = this.#population.value;
+    let gdp = parseInt(this.#gdp.value, 10);
+    let population = parseInt(this.#population.value, 10);
 
     /** @type {} */
     let countryResult;

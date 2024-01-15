@@ -385,7 +385,8 @@
         document
         .getElementById("genRecordUpdater")
         .addEventListener("general-record-selected", (ev) => {
-        document.getElementById("detail").generalRecordId = ev.generalRecordId;
+        document.getElementById("detail").generalRecordId = ev.countryId;
+        document.getElementById("detail").generalRecordYear = ev.countryYear;
         });
         document
         .getElementById("genRecordPoster")
