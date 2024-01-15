@@ -1,11 +1,9 @@
 import { ValidationError, validate } from 'class-validator';
 import { plainToClass } from 'class-transformer';
 import { Request, Response, NextFunction } from 'express';
-import { ApiFullGeneralRecord, ApiGeneralRecord } from '../api-models/general';
+import { ApiFullGeneralRecord, ApiGeneralRecord } from '../api-models/general-record';
 import { CountrySelector } from './query';
 import { CustomError } from '../error';
-
-// TODO check missing properties setting
 
 export function badValidation(validationErrors: ValidationError[], res: Response, next: NextFunction) : boolean {
     if (validationErrors.length > 0) {

@@ -39,6 +39,4 @@ export class RecordsRouter implements IRouter {
 
         app.use(errorHandler)
     }
-
-    // TODO 404 error
 }

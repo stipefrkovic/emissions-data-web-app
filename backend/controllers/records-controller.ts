@@ -3,13 +3,13 @@ import { DataSource } from "typeorm";
 import { plainToClass } from "class-transformer";
 import { isDefined, isDivisibleBy, isEmpty, isNotEmpty, validate } from "class-validator";
 import Container from "typedi";
-import { EmissionCountrySelector, TemperatureYearFilter, ContinentSelector, EmissionYearFilter, GeneralCountrySelector, EnergyPopulationOrder, GeneralYearSelector, EnergyYearSelector, Batcher, PeriodSelector } from "./query";
+import { EmissionCountrySelector, TemperatureYearFilter, TemperatureContinentSelector, EmissionYearFilter, GeneralCountrySelector, EnergyPopulationOrder, GeneralYearSelector, EnergyYearSelector, Batcher, PeriodSelector, CountryCountrySelector, emptyCountryCountryQuery, NumberSelector } from "./query";
 import { csvToJson, resourceConvertor } from "./helper";
 import { CustomError, alreadyExists } from "../error";
-import { ApiFullGeneralRecord, ApiGeneralRecord } from "../api-models/general";
-import { ApiEmissionRecord } from "../api-models/emission";
-import { ApiEnergyRecord } from "../api-models/energy";
-import { ApiTemperatureRecord } from "../api-models/temperature";
+import { ApiFullGeneralRecord, ApiGeneralRecord } from "../api-models/general-record";
+import { ApiEmissionRecord } from "../api-models/emission-record";
+import { ApiEnergyRecord } from "../api-models/energy-record";
+import { ApiTemperatureRecord } from "../api-models/temperature-record";
 import { ApiCountry } from "../api-models/country";
 import { Country} from "../models/country";
 import { isContinent } from "../models/continent";
@@ -22,17 +22,15 @@ import { badValidation } from "./validate";
 import { emptyList, resourceNotFound } from "../error";
 
 import dataForge, { DataFrame, fromCSV } from 'data-forge';
-import { ApiFullRecord } from "../api-models/record";
+import { ApiFullRecord } from "../api-models/full-record";
 
 // TODO verify json and csv for ALL responses
-// TODO australia oceania
-// difference between 404 and 204
-// TODO responses in spec.yml and otherwise
-// TODO countries and continents sql thing
 
 export class RecordsController {
 
     public async createGeneralRecordAsync(req: Request, res: Response, next: NextFunction): Promise <void> {
+        if (await emptyCountryCountryQuery(req.body, res, next)) return;
+        
         const apiFullGeneralRecord : ApiFullGeneralRecord = plainToClass(ApiFullGeneralRecord, req.body, { enableImplicitConversion: true });
 
         let generaldRecordQuery = Container.get<DataSource>("database").getRepository(GeneralRecord).createQueryBuilder("general_record");
@@ -65,6 +63,8 @@ export class RecordsController {
     }
 
     public async getGeneralRecordAsync(req: Request<{ country: string, year: string }>, res: Response, next: NextFunction): Promise <void> {
+        if (await emptyCountryCountryQuery(req.params, res, next)) return;
+
         let generaldRecordQuery = Container.get<DataSource>("database").getRepository(GeneralRecord).createQueryBuilder("general_record");
         
         const countrySelector = plainToClass(GeneralCountrySelector, req.params, { enableImplicitConversion: true });
@@ -87,7 +87,9 @@ export class RecordsController {
         return;
     }
 
-    public async updateGeneralRecordAsync(req: Request<{ country: string, year: string }>, res: Response, next: NextFunction): Promise <void> {                
+    public async updateGeneralRecordAsync(req: Request<{ country: string, year: string }>, res: Response, next: NextFunction): Promise <void> {               
+        if (await emptyCountryCountryQuery(req.params, res, next)) return;
+        
         let generaldRecordQuery = Container.get<DataSource>("database").getRepository(GeneralRecord).createQueryBuilder("general_record");
         
         const countrySelector = plainToClass(GeneralCountrySelector, req.params, { enableImplicitConversion: true });
@@ -117,6 +119,8 @@ export class RecordsController {
     }
 
     public async deleteGeneralRecordAsync(req: Request<{ country: string, year: string }>, res: Response, next: NextFunction): Promise <void> {
+        if (await emptyCountryCountryQuery(req.params, res, next)) return;
+
         let generaldRecordQuery = Container.get<DataSource>("database").getRepository(GeneralRecord).createQueryBuilder("general_record");
         
         const countrySelector = plainToClass(GeneralCountrySelector, req.params, { enableImplicitConversion: true });
@@ -140,6 +144,8 @@ export class RecordsController {
     }
     
     public async getEmissionRecordAsync(req: Request<{ country: string }>, res: Response, next: NextFunction): Promise <void> {
+        if (await emptyCountryCountryQuery(req.params, res, next)) return;
+
         let emissionRecordQuery = Container.get<DataSource>("database").getRepository(EmissionRecord).createQueryBuilder("emission_record");
         
         const emissionYearFilter = plainToClass(EmissionYearFilter, req.query, { enableImplicitConversion: true });
@@ -153,7 +159,8 @@ export class RecordsController {
 
         let emissionRecords = await emissionRecordQuery.getMany();
 
-        if (emptyList(emissionRecords, req, res)) return;
+        console.log(emissionRecords);
+        if (emptyList(emissionRecords, req, res, "Resource(s) not found")) return;
 
         let apiEmissionRecords = emissionRecords.map(ApiEmissionRecord.fromDatabase);
 
@@ -167,14 +174,14 @@ export class RecordsController {
         const temperatureHigherYearFilter = plainToClass(TemperatureYearFilter, req.query, { enableImplicitConversion: true });
         if (badValidation(await validate(temperatureHigherYearFilter, { validationError: { target: true }}), res, next)) return;
         
-        const continentSelector = plainToClass(ContinentSelector, req.params, {enableImplicitConversion: true});
+        const continentSelector = plainToClass(TemperatureContinentSelector, req.params, {enableImplicitConversion: true});
         if (badValidation(await validate(continentSelector, { validationError: { target: true }}), res, next)) return;
 
         temperatureRecordQuery = temperatureHigherYearFilter.apply(temperatureRecordQuery);
         temperatureRecordQuery = continentSelector.apply(temperatureRecordQuery);
 
         let temperatureRecords = await temperatureRecordQuery.getMany();
-        if (emptyList(temperatureRecords, req, res)) return;
+        if (emptyList(temperatureRecords, req, res, "Resource(s) not found")) return;
 
         let apiTemperatureRecords = temperatureRecords.map(ApiTemperatureRecord.fromDatabase);
 
@@ -199,7 +206,7 @@ export class RecordsController {
         energyRecordQuery = batcher.apply(energyRecordQuery);
 
         let energyRecords = await energyRecordQuery.getMany()
-        if (emptyList(energyRecords, req, res)) return;
+        if (emptyList(energyRecords, req, res, "Resource(s) not found")) return;
 
         let apiEnergyRecords = energyRecords.map(ApiEnergyRecord.fromDatabase);
 
@@ -211,19 +218,26 @@ export class RecordsController {
         let temperatureRecordQuery = Container.get<DataSource>("database").getRepository(TemperatureRecord).createQueryBuilder("temperature_record");
         
         const periodSelector = plainToClass(PeriodSelector, req.query, { enableImplicitConversion: true });
-        if (badValidation(await validate(periodSelector, { validationError: { target: true }}), res, next)) return;
+        if (badValidation(await validate(periodSelector, { groups: [periodSelector.period_type], validationError: { target: true }}), res, next)) return;
+
+        const numberSelector = plainToClass(NumberSelector, req.query, { enableImplicitConversion: true});
+        if (badValidation(await validate(numberSelector, { validationError: { target: true }}), res, next)) return;
 
         temperatureRecordQuery = periodSelector.apply(temperatureRecordQuery);
-        let order_dir : 'DESC' | 'ASC' = req.query['order-dir'] === 'DESC' ? 'DESC' : 'ASC';
+        
+        let order_dir : 'DESC' | 'ASC' = req.query.order_dir === 'DESC' ? 'DESC' : 'ASC';
         temperatureRecordQuery
             .orderBy(`total_temperature_change`, order_dir)
             .select('temperature_record.country AS country, SUM(temperature_record.share_of_temperature_change_from_ghg) AS total_temperature_change')
             .addSelect('(SELECT c.country FROM country c WHERE c.country = temperature_record.country)', 'actual_country')
             .groupBy('temperature_record.country')
+
         let countries = await temperatureRecordQuery.getRawMany();
         countries = countries.filter(x => (x.actual_country != null));
 
-        if (emptyList(countries, req, res)) return;
+        if (emptyList(countries, req, res, "Resource(s) not found")) return;
+
+        countries = numberSelector.apply(countries);
 
         let apiCountries = countries.map(ApiCountry.fromDatabase);
 
@@ -267,7 +281,8 @@ export class RecordsController {
         for (let i = 0; i < data.length; i++) { 
             if (isDivisibleBy(i, 1000)) console.log(`Processing record ${i}`);
             
-            const apiFullRecord : ApiFullRecord = plainToClass(ApiFullRecord, data[i], { enableImplicitConversion: true })
+            const apiFullRecord : ApiFullRecord = plainToClass(ApiFullRecord, data[i], { enableImplicitConversion: false })
+            
             if (badValidation(await validate(apiFullRecord, { validationError: { target: true }}), res, next)) {
                 console.error(apiFullRecord); 
                 return;
@@ -277,6 +292,7 @@ export class RecordsController {
                 try {
                     await db.getRepository(GeneralRecord).save(apiFullRecord.toGeneralRecord());
                     await db.getRepository(EmissionRecord).save(apiFullRecord.toEmissionRecord());
+                    await db.getRepository(TemperatureRecord).save(apiFullRecord.toTemperatureRecord());
                     await db.getRepository(EnergyRecord).save(apiFullRecord.toEnergyRecord());
                     await db.getRepository(Country).save(apiFullRecord.toCountry());
                 } catch (error) {
@@ -295,6 +311,9 @@ export class RecordsController {
                 }
             }
         }
+
+        const newResourceUrl = `${req.protocol}://${req.get('host')}/records/`;
+        res.setHeader('Location', newResourceUrl);
         
         res.status(201);
         const message = {message: `Succesfully created ${data.length} records`};
