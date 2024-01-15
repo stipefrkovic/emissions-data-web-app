@@ -1,4 +1,4 @@
-//import records from "../api/records.js";
+import records from "../api/records.js";
 import General from "../models/general.js";
 
 /**

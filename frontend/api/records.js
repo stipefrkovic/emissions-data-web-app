@@ -88,7 +88,7 @@ export default {
     );
     if (!apiResponse.ok) throw new Error(await apiResponse.text());
 
-    return TempChangeRecord.fromJson(await apiResponse.json());
+    return (await apiResponse.json()).map(TempChangeRecord.fromJson);
   },
 
   async getEnergyRecord(

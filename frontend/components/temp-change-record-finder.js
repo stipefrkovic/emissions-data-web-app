@@ -1,4 +1,4 @@
-//import records from "../api/records.js";
+import records from "../api/records.js";
 import TempChangeSummary from "./temp-change-record-summary.js";
 // ApiTempChangeSummary maybe needed
 // TempChangeSummary maybe needed
@@ -51,7 +51,7 @@ export default class TempChangeRecordFinder extends HTMLElement {
         this.#continentSearch = this.shadowRoot.getElementById("country");
         this.#yearSearch = this.shadowRoot.getElementById("year");
         this.#retrieve = this.shadowRoot.getElementById("retrieve-temp-change");
-        this.#result = this.shadowRoot.getElementById("emission-records");
+        this.#result = this.shadowRoot.getElementById("temp-records");
 
 
         // Set up listeners to start search operation after every form
@@ -86,7 +86,7 @@ export default class TempChangeRecordFinder extends HTMLElement {
         for (let continent of continentResult) {
             // Create a new summary instance and set its ID (for later reference)
             let tempChangeRecordView = new TempChangeSummary();
-            tempChangeRecordView.tempChangeRecordId = continent.id;
+            tempChangeRecordView.tempChangeRecordId = continentName;
             tempChangeRecordView.tempChangeRecordYear = continent.year;
 
             // Connect slots: this is done by creating two spans (can be arbitrary elements)
@@ -96,23 +96,23 @@ export default class TempChangeRecordFinder extends HTMLElement {
             // this directly, so the order or structure does not matter.
             let shareTempChangeSpan = document.createElement("span");
             shareTempChangeSpan.slot = "share-temp-change";
-            shareTempChangeSpan.innerText = continent.shareTempChange;
+            shareTempChangeSpan.innerText = continent.shareOfTempChangeFromGhg;
 
             let tempChangeCo2Span = document.createElement("span");
             tempChangeCo2Span.slot = "temp-change-co2";
-            tempChangeCo2Span.innerText = continent.tempChangeCo2;
+            tempChangeCo2Span.innerText = continent.tempChangeFromCO2;
 
             let tempChangeN2OSpan = document.createElement("span");
             tempChangeN2OSpan.slot = "temp-change-n2o";
-            tempChangeN2OSpan.innerText = continent.tempChangeN2O;
+            tempChangeN2OSpan.innerText = continent.tempChangeFromN2O;
 
             let tempChangeGhgSpan = document.createElement("span");
             tempChangeGhgSpan.slot = "temp-change-ghg";
-            tempChangeGhgSpan.innerText = continent.tempChangeGhg;
+            tempChangeGhgSpan.innerText = continent.tempChangeFromGHG;
 
             let tempChangeCh4Span = document.createElement("span");
             tempChangeCh4Span.slot = "temp-change-ch4";
-            tempChangeCh4Span.innerText = continent.tempChangeCh4;
+            tempChangeCh4Span.innerText = continent.tempChangeFromCH4;
 
             tempChangeRecordView.appendChild(shareTempChangeSpan);
             tempChangeRecordView.appendChild(tempChangeCo2Span);

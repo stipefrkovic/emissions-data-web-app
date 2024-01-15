@@ -22,13 +22,12 @@ export default class TempChange{
     static fromJson(json){
         let tempChange = new TempChange();
 
-        tempChange.continent = json.continent;
         tempChange.year = json.year;
-        tempChange.shareOfTempChangeFromGhg = json.shareOfTempChangeFromGhg;
-        tempChange.tempChangeFromCO2 = json.tempChangeFromCO2;
-        tempChange.tempChangeFromN2O = json.tempChangeFromN2O;
-        tempChange.tempChangeFromGHG = json.tempChangeFromGHG;
-        tempChange.tempChangeFromCH4 = json.tempChangeFromCH4;
+        tempChange.shareOfTempChangeFromGhg = json.share_of_temperature_change_from_ghg;
+        tempChange.tempChangeFromCO2 = json.temperature_change_from_co2;
+        tempChange.tempChangeFromN2O = json.temperature_change_from_n2o;
+        tempChange.tempChangeFromGHG = json.temperature_change_from_ghg;
+        tempChange.tempChangeFromCH4 = json.temperature_change_from_ch4;
 
         return tempChange;
     }
