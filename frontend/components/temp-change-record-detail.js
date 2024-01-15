@@ -3,8 +3,8 @@ import General from "../models/general.js";
 
 /**
  * A custom element for a detailed temperature change record view.
- * The current temperature change record ID is stored as an attribute on the element itself.
- * when this ID changes, the view is recreated to reflect the information of the new record.
+ * Each current temperature change record attribute (e.g. ID) is stored as an attribute on the element itself.
+ * When this ID changes, the view is recreated to reflect the information of the new record.
  */
 export default class TempChangeDetail extends HTMLElement {
     /** @type {HTMLTemplateElement} */ #template;
@@ -18,7 +18,7 @@ export default class TempChangeDetail extends HTMLElement {
     /** @type {HTMLElement} */ #tempChangeCh4;
 
     /**
-     * Get and set the temperature change record ID.
+     * Get and set the temperature change record ID attribute.
      */
     get tempChangeRecordId() {
         return this.getAttribute("temp-change-record-id");
@@ -32,7 +32,7 @@ export default class TempChangeDetail extends HTMLElement {
     }
 
     /**
-     * Get and set the temperature change record year.
+     * Get and set the temperature change record year attribute.
      */
     get tempChangeRecordYear() {
         return this.getAttribute("temp-change-record-year");
@@ -45,10 +45,20 @@ export default class TempChangeDetail extends HTMLElement {
             this.setAttribute("temp-change-record-year", value);
     }
 
+    /**
+     * This indicates to the browser that we want to be notified of any changes
+     * to each attribute of a temerature change record. The browser will then call "attributeChangedCallback"
+     * for us. This will also be called when someone sets a new value to the property
+     * above, since that set operation is translated into setting a new attribute
+     * value.
+     */
     static get observedAttributes() {
         return ["temp-change-record-id", "temp-change-record-year"];
     }
 
+    /**
+     * A constructor for setting up the proper template environment.
+     */
     constructor() {
         super();
 
@@ -58,6 +68,11 @@ export default class TempChangeDetail extends HTMLElement {
         this.initializeTemplate();
     }
 
+    /**
+     * A function that clones the template and sets the HTML references. 
+     * This allows to completely refresh the contents when loading a new temperature change record, instead 
+     * of clearing all fields separately.
+     */
     initializeTemplate() {
         this.shadowRoot.innerHTML = "";
         this.shadowRoot.appendChild(this.#template.content.cloneNode(true));
@@ -71,6 +86,10 @@ export default class TempChangeDetail extends HTMLElement {
         this.#tempChangeCh4 = this.shadowRoot.getElementById("temp-change-ch4");
     }
 
+    /**
+     * A function for updating the contents of template that is called by the browser when
+     * the number of countries attribute changes.
+     */
     async attributeChangedCallback() {
         if (!this.generalRecordId) {
             this.shadowRoot.innerHTML = "";
@@ -98,4 +117,5 @@ export default class TempChangeDetail extends HTMLElement {
     }
 };
 
+// Define the TempChangeDetail class as a custom element
 window.customElements.define("temp-change-record-detail", TempChangeDetail);

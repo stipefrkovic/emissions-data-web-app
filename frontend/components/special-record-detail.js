@@ -3,8 +3,8 @@ import Special from "../models/special.js";
 
 /**
  * A custom element for a detailed special record view.
- * The current special record ID is stored as an attribute on the element itself.
- * when this ID changes, the view is recreated to reflect the information of the new record.
+ * The current special record URL is stored as an attribute on the element itself.
+ * When this URL changes, the view is recreated to reflect the information of the new record.
  */
 export default class SpecialDetail extends HTMLElement {
     /** @type {HTMLTemplateElement} */ #template;
@@ -25,10 +25,20 @@ export default class SpecialDetail extends HTMLElement {
             this.setAttribute("special-record-url", value);
     }
 
+    /**
+     * This indicates to the browser that we want to be notified of any changes
+     * to each attribute of a special record. The browser will then call "attributeChangedCallback"
+     * for us. This will also be called when someone sets a new value to the property
+     * above, since that set operation is translated into setting a new attribute
+     * value.
+     */
     static get observedAttributes() {
         return ["special-record-url"];
     }
 
+    /**
+     * A constructor for setting up the proper template environment.
+     */
     constructor() {
         super();
 
@@ -38,6 +48,11 @@ export default class SpecialDetail extends HTMLElement {
         this.initializeTemplate();
     }
 
+    /**
+     * A function that clones the template and sets the HTML references. 
+     * This allows to completely refresh the contents when loading a new special record, instead 
+     * of clearing all fields separately.
+     */
     initializeTemplate() {
         if (this.shadowRoot != null) {
             this.shadowRoot.innerHTML = "";
@@ -49,6 +64,10 @@ export default class SpecialDetail extends HTMLElement {
         }
     }
 
+    /**
+     * A function for updating the contents of template that is called by the browser when
+     * the number of countries attribute changes.
+     */
     async attributeChangedCallback() {
         if (!this.specialRecordUrl) {
             if (this.shadowRoot != null) {
@@ -59,7 +78,6 @@ export default class SpecialDetail extends HTMLElement {
             return;
         }
 
-        /** @type {Special} */
         let record;
         try {
 
@@ -75,4 +93,5 @@ export default class SpecialDetail extends HTMLElement {
     }
 };
 
-window.customElements.define("special-record-detail", GeneralDetail);
+// Define the SpecialDetail class as a custom element
+window.customElements.define("special-record-detail", SpecialDetail);

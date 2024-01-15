@@ -3,10 +3,12 @@
 // ApiGeneralSummary maybe needed
 // GeneralSummary maybe needed
 
-// This is a custom Event to represent a record being selected,
-// carrying a countryId field with it to represent which record is
-// being selected. This is used in the record finder element, to
-// inform the rest of the application that the user selected a record.
+/**
+ * This is a custom Event to represent an emission record being selected,
+ * carrying a countryId field with it to represent which emission record is
+ * being selected. This is used in the EmissionFinder element, to
+ * inform the rest of the application that the user selected an emission record.
+ */
 export class EmissionRecordSelectedEvent extends Event {
     /** @type {number} */
     countryId;
@@ -23,11 +25,13 @@ export class EmissionRecordSelectedEvent extends Event {
     }
 }
 
-// This is a custom element representing a emission record finder as a whole.
-// It contains a small form where the user can enter a title and year
-// to search for, and will show all matching results with pagination.
-// The user can pick any of the results, after which the element will
-// emit a "record-selected" event as defined above.
+/**
+ * This is a custom element representing an emission record finder as a whole.
+ * It contains a small form where the user can enter a country name or ISO code and a year
+ * to search for, and will show all matching results. The user can pick the 
+ * result, after which the element will emit a "emission-record-selected" event as 
+ * defined above.
+ */
 export default class EmissionRecordFinder extends HTMLElement {
     /** @type {HTMLInputElement} */ #countrySearch;
     /** @type {HTMLInputElement} */ #yearSearch;
@@ -35,7 +39,6 @@ export default class EmissionRecordFinder extends HTMLElement {
     /** @type {HTMLDivElement} */ #result;
 
     constructor() {
-        // Always call the parent constructor!
         super();
 
         // We start by finding the template and taking its contents.
@@ -60,8 +63,11 @@ export default class EmissionRecordFinder extends HTMLElement {
         });
     }
 
-    // This function will start a "getMovies" operation from the API. It will take the
-    // local form state and get the appropriate results.
+    /**
+       * A function that extracts the values from the small input form and searches the
+       * extracted information by calling the API. Once the necessary information has
+       * been found, it is displayed on the web page using the EmissionSummary object.
+       */
     async search() {
         let countryName = this.#countrySearch.value;
         let year = this.#yearSearch.value;
@@ -79,17 +85,17 @@ export default class EmissionRecordFinder extends HTMLElement {
         // the front-end is always in a usable state.
         this.#result.innerHTML = "";
 
-        // Build the new view: we instantiate a MovieSummary custom element for every
-        // result, and create two spans that connect to the two slots in MovieSummary's
+        // Build the new view: we instantiate an EmissionSummary custom element for every
+        // result, and create four spans that connect to the four slots in EmissionSummary's
         // template.
         for (let country of countryResult) {
-            // Create a new summary instance and set its ID (for later reference)
+            // Create a new summary instance and set its attributes (for later reference)
             let emissionRecordView = new EmissionSummary();
             emissionRecordView.emissionRecordId = country.id;
             emissionRecordView.emissionRecordYear = country.year;
 
-            // Connect slots: this is done by creating two spans (can be arbitrary elements)
-            // with the "slot" attribute set to match the slot name. We then put these two
+            // Connect slots: this is done by creating four spans
+            // with the "slot" attribute set to match the slot name. We then put these four
             // spans inside the custom element as if they were child nodes - this is where
             // the shadow DOM will pull the slot values from. They are never displayed like
             // this directly, so the order or structure does not matter.
@@ -114,8 +120,8 @@ export default class EmissionRecordFinder extends HTMLElement {
             emissionRecordView.appendChild(nitrousOxideSpan);
             emissionRecordView.appendChild(totalGhgSpan);
 
-            // Add an event listener: we want to trigger a "movie-selected" event when
-            // the user clicks a specific movie.
+            // Add an event listener: we want to trigger a "emission-record-selected" event when
+            // the user clicks a specific emission record.
             emissionRecordView.addEventListener("click", () => {
                 this.dispatchEvent(new EmissionRecordSelectedEvent(emissionRecordView.emissionRecordId));
             });
@@ -125,5 +131,5 @@ export default class EmissionRecordFinder extends HTMLElement {
     }
 };
 
-// Define the MovieFinder class as a custom element
+// Define the EmissionRecordFinder class as a custom element.
 window.customElements.define('emission-record-finder', EmissionRecordFinder);

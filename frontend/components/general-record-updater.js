@@ -3,10 +3,10 @@ import GeneralSummary from "./general-record-summary.js";
 import GeneralSelectedEvent from "./general-record-selected-event.js";
 
 /**
- * A custom element representing a general record poster.
+ * A custom element representing a general record updater.
  * It contains a small form where the user can enter a
  * country name, year, GDP and population.
- * Summary information of the general record will be posted and displayed.
+ * Summary information of the general record will be updated and displayed.
  */
 export default class RecordUpdater extends HTMLElement {
   /** @type {HTMLInputElement} */ #country;
@@ -21,13 +21,13 @@ export default class RecordUpdater extends HTMLElement {
    * It initializes the fields by calling the corresponding html elements.
    */
   constructor() {
-    // Always call the parent constructor!
     super();
 
     // We start by finding the template and taking its contents.
     const template = document.getElementById("general-record-updater");
     const templateContent = template.content;
 
+    // Initialize Shadow DOM.
     this.attachShadow({ mode: "open" });
     this.shadowRoot.appendChild(templateContent.cloneNode(true));
 
@@ -40,18 +40,24 @@ export default class RecordUpdater extends HTMLElement {
     this.#update = this.shadowRoot.getElementById("update");
     this.#result = this.shadowRoot.getElementById("records");
 
+    // Set up listeners to start search operation after every form
+    // action.
     this.#update.addEventListener("click", async () => {
       await this.search();
     });
   }
 
+  /**
+   * A function that extracts the values from the small input form and searches the
+   * general record and updates it, if it exists, by calling the API. Once the necessary information has
+   * been found, it is displayed on the web page using the GeneralSummary object.
+   */
   async search() {
     let countryName = this.#country.value;
     let year = this.#year.value;
     let gdp = parseInt(this.#gdp.value, 10);
     let population = parseInt(this.#population.value, 10);
 
-    /** @type {} */
     let countryResult;
     try {
       countryResult = await records.putGeneralRecord(
@@ -65,12 +71,21 @@ export default class RecordUpdater extends HTMLElement {
       return;
     }
 
+    // Clear old rendered results only after we received a new set of results, so
+    // the front-end is always in a usable state.
     this.#result.innerHTML = "";
 
+    // Build the new view: we instantiate a GeneralSummary custom element for every
+    // result, and create two spans that connect to the two slots in GeneralSummary's
+    // template.
     let recordView = new GeneralSummary();
     recordView.generalRecordId = countryName;
     recordView.generalRecordYear = year;
 
+    // Connect slots: this is done by creating two spans 
+    // with the "slot" attribute set to match the slot name. We then put these two
+    // spans inside the custom element as if they were child nodes - this is where
+    // the shadow DOM will pull the slot values from.
     let countrySpan = document.createElement("span");
     countrySpan.slot = "country";
     countrySpan.innerText = countryName;
@@ -82,6 +97,8 @@ export default class RecordUpdater extends HTMLElement {
     recordView.appendChild(countrySpan);
     recordView.appendChild(yearSpan);
 
+    // Add an event listener: we want to trigger a "country-record-selected" event when
+    // the user clicks a specific country record.
     recordView.addEventListener("click", () => {
       this.dispatchEvent(
         new GeneralSelectedEvent(
@@ -95,4 +112,5 @@ export default class RecordUpdater extends HTMLElement {
   }
 }
 
+// Define the RecordUpdater class as a custom element
 window.customElements.define("general-record-updater", RecordUpdater);

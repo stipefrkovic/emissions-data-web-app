@@ -1,10 +1,12 @@
 import records from "../api/records.js";
 import EnergySummary from "./energy-record-summary.js";
 
-// This is a custom Event to represent a movie being selected,
-// carrying a movieId field with it to represent which movie is
-// being selected. This is used in the MovieFinder element, to
-// inform the rest of the application that the user selected a movie.
+/**
+ * This is a custom Event to represent an energy record being selected,
+ * carrying a energyId field with it to represent which energy record is
+ * being selected. This is used in the EnergyFinder element, to
+ * inform the rest of the application that the user selected an energy record.
+ */
 export class EnergyRecordSelectedEvent extends Event {
     /** @type {number} */
     energyId;
@@ -21,11 +23,13 @@ export class EnergyRecordSelectedEvent extends Event {
     }
 }
 
-// This is a custom element representing a movie finder as a whole.
-// It contains a small form where the user can enter a title and year
-// to search for, and will show all matching results with pagination.
-// The user can pick any of the results, after which the element will
-// emit a "movie-selected" event as defined above.
+/**
+ * This is a custom element representing an energy record finder as a whole.
+ * It contains a small form where the user can enter a year, how to order by and the batches size
+ * to search for, and will show all matching results with pagination. The user can pick any of 
+ * the results, after which the element will emit a "energy-record-selected" event as 
+ * defined above.
+ */
 export default class EnergyFinder extends HTMLElement {
     /** @type {HTMLInputElement} */ #yearSearch;
     /** @type {HTMLSelectElement} */ #orderBySearch;
@@ -43,7 +47,6 @@ export default class EnergyFinder extends HTMLElement {
     /** @type {boolean} */ #hasResults = false;
 
     constructor() {
-        // Always call the parent constructor!
         super();
 
         // We start by finding the template and taking its contents.
@@ -64,8 +67,11 @@ export default class EnergyFinder extends HTMLElement {
         this.#navNext = this.shadowRoot.getElementById("page-next");
         this.#navPrev = this.shadowRoot.getElementById("page-prev");
 
+        // Update the view to reflect the internal state.
         this.updateView();
 
+        // Set up listeners to start search operation after every form
+        // action.
         this.#find.addEventListener("click", async () => {
             this.#batches =
                 this.#batchesSearch.options[this.#batchesSearch.selectedIndex].value;
@@ -105,7 +111,11 @@ export default class EnergyFinder extends HTMLElement {
     }
 
     /**
-     * Updates the state of the Next and Prev buttons.
+     * This function will make sure the view (DOM) state is consistent at all
+     * times. It will take the internal state of the element and make sure the
+     * DOM reflects this state. This is better than modifying the DOM from multiple
+     * places, as that might become error-prone when dealing with more complicated
+     * object lifecycles.
      */
     updateView() {
         this.#navNext.disabled =
@@ -115,7 +125,11 @@ export default class EnergyFinder extends HTMLElement {
         this.#navPrev.disabled = !this.#hasResults || this.#currentOffset === 0;
     }
 
-    // TODO: not sure whether this works
+    /**
+     * A function that extracts the values from the small input form and searches the
+     * extracted information by calling the API. Once the necessary information has
+     * been found, it is displayed on the web page using the EnergySummary object.
+     */
     async search() {
         let year = this.#yearSearch.value;
         let orderby =
@@ -140,13 +154,23 @@ export default class EnergyFinder extends HTMLElement {
             return;
         }
 
+        // Clear old rendered results only after we received a new set of results, so
+        // the front-end is always in a usable state.
         this.#results.innerHTML = "";
         this.#hasResults = false;
 
+        // Build the new view: we instantiate an EnergySummary custom element for every
+        // result, and create two spans that connect to the two slots in EnergySummary's
+        // template.
         for (let energy of energyResult) {
+            // Create a new summary instance and set its attributes (for later reference)
             let energyView = new EnergySummary();
             energyView.energyRecordYear = energy.year;
 
+            // Connect slots: this is done by creating two spans 
+            // with the "slot" attribute set to match the slot name. We then put these two
+            // spans inside the custom element as if they were child nodes - this is where
+            // the shadow DOM will pull the slot values from.
             let energyPerCapitaSpan = document.createElement("span");
             energyPerCapitaSpan.slot = "energy-per-capita";
             energyPerCapitaSpan.innerText = energy.energyPerCapita;
@@ -158,6 +182,8 @@ export default class EnergyFinder extends HTMLElement {
             energyView.appendChild(energyPerCapitaSpan);
             energyView.appendChild(gdpPerCapita);
 
+            // Add an event listener: we want to trigger a "energy-record-selected" event when
+            // the user clicks a specific energy record.
             energyView.addEventListener("click", () => {
                 this.dispatchEvent(new EnergyRecordSelectedEvent(energyView.energyRecordYear));
             });
@@ -170,5 +196,5 @@ export default class EnergyFinder extends HTMLElement {
     }
 };
 
-// Define the MovieFinder class as a custom element
+// Define the EnergyFinder class as a custom element
 window.customElements.define('energy-record-finder', EnergyFinder);

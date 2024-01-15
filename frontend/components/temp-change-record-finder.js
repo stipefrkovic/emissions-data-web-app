@@ -3,10 +3,12 @@ import TempChangeSummary from "./temp-change-record-summary.js";
 // ApiTempChangeSummary maybe needed
 // TempChangeSummary maybe needed
 
-// This is a custom Event to represent a movie being selected,
-// carrying a movieId field with it to represent which movie is
-// being selected. This is used in the MovieFinder element, to
-// inform the rest of the application that the user selected a movie.
+/**
+ * This is a custom Event to represent a temperature change record being selected,
+ * carrying a continentId field with it to represent which temperature change record is
+ * being selected. This is used in the TempChangeRecordFinder element, to
+ * inform the rest of the application that the user selected a temperature change record.
+ */
 export class TempChangeRecordSelectedEvent extends Event {
     /** @type {number} */
     continentId;
@@ -23,11 +25,13 @@ export class TempChangeRecordSelectedEvent extends Event {
     }
 }
 
-// This is a custom element representing a movie finder as a whole.
-// It contains a small form where the user can enter a title and year
-// to search for, and will show all matching results with pagination.
-// The user can pick any of the results, after which the element will
-// emit a "movie-selected" event as defined above.
+/**
+ * This is a custom element representing a temperature change record finder as a whole.
+ * It contains a small form where the user can enter a continent name and a year
+ * to search for, and will show all matching results. The user can pick any of 
+ * the results, after which the element will emit a "temp-change-record-selected" event as 
+ * defined above.
+ */
 export default class TempChangeRecordFinder extends HTMLElement {
     /** @type {HTMLInputElement} */ #continentSearch;
     /** @type {HTMLInputElement} */ #yearSearch;
@@ -35,7 +39,6 @@ export default class TempChangeRecordFinder extends HTMLElement {
     /** @type {HTMLDivElement} */ #result;
 
     constructor() {
-        // Always call the parent constructor!
         super();
 
         // We start by finding the template and taking its contents.
@@ -61,13 +64,15 @@ export default class TempChangeRecordFinder extends HTMLElement {
         });
     }
 
-    // This function will start a "getMovies" operation from the API. It will take the
-    // local form state and get the appropriate results.
+    /**
+     * A function that extracts the values from the small input form and searches the
+     * extracted information by calling the API. Once the necessary information has
+     * been found, it is displayed on the web page using the TempChangeSummary object.
+     */
     async search() {
         let continentName = this.#continentSearch.value;
         let year = this.#yearSearch.value;
 
-        /** @type {ApiRecordSummary[]} */
         let continentResult;
         try {
             continentResult = await records.getTempChangeRecord(continentName, year);
@@ -80,20 +85,19 @@ export default class TempChangeRecordFinder extends HTMLElement {
         // the front-end is always in a usable state.
         this.#result.innerHTML = "";
 
-        // Build the new view: we instantiate a MovieSummary custom element for every
-        // result, and create two spans that connect to the two slots in MovieSummary's
+        // Build the new view: we instantiate a TempChangeSummary custom element for every
+        // result, and create five spans that connect to the five slots in TempChangeSummary's
         // template.
         for (let continent of continentResult) {
-            // Create a new summary instance and set its ID (for later reference)
+            // Create a new summary instance and set its attributes (for later reference)
             let tempChangeRecordView = new TempChangeSummary();
             tempChangeRecordView.tempChangeRecordId = continent.id;
             tempChangeRecordView.tempChangeRecordYear = continent.year;
 
-            // Connect slots: this is done by creating two spans (can be arbitrary elements)
-            // with the "slot" attribute set to match the slot name. We then put these two
+            // Connect slots: this is done by creating five spans
+            // with the "slot" attribute set to match the slot name. We then put these five
             // spans inside the custom element as if they were child nodes - this is where
-            // the shadow DOM will pull the slot values from. They are never displayed like
-            // this directly, so the order or structure does not matter.
+            // the shadow DOM will pull the slot values from. 
             let shareTempChangeSpan = document.createElement("span");
             shareTempChangeSpan.slot = "share-temp-change";
             shareTempChangeSpan.innerText = continent.shareTempChange;
@@ -131,5 +135,5 @@ export default class TempChangeRecordFinder extends HTMLElement {
     }
 };
 
-// Define the MovieFinder class as a custom element
+// Define the TempChangeRecordFinder class as a custom element
 window.customElements.define('temp-change-record-finder', TempChangeRecordFinder);
