@@ -30,7 +30,10 @@ services:
   frontend:
     image: frontend
     build: ./frontend
+    depends_on:
+      - backend
     ports:
-        - ${FRONTEND_PORT:?}:${FRONTEND_PORT}
+      - ${FRONTEND_PORT:?}:${FRONTEND_PORT}
     environment:
-        - BACKENDS
+    # TODO is this needed?
+      - BACKENDS
