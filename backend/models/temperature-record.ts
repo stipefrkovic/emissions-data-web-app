@@ -1,5 +1,6 @@
 import { Column, Entity, PrimaryColumn } from "typeorm";
 
+// Temperature record entity for the database
 @Entity()
 export class TemperatureRecord {
     @PrimaryColumn({ type: 'varchar'})

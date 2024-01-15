@@ -20,6 +20,7 @@ export interface IQueryHelper<T extends ObjectLiteral> {
   apply(query: SelectQueryBuilder<T>): SelectQueryBuilder<T>;
 }
 
+// Select year in a generic query
 export class YearSelector<T extends ObjectLiteral> implements IQueryHelper<T> {
   @IsDefined()
   @IsInt()
@@ -35,12 +36,14 @@ export class YearSelector<T extends ObjectLiteral> implements IQueryHelper<T> {
   }
 }
 
+// Select year in a general record query
 export class GeneralYearSelector extends YearSelector<GeneralRecord> {
   constructor() {
     super('general_record');
   }
 } 
 
+// Select country in a generic query
 export class CountrySelector <T extends ObjectLiteral> implements IQueryHelper<T>{
   @IsDefined()
   @IsString()
@@ -64,12 +67,14 @@ export class CountrySelector <T extends ObjectLiteral> implements IQueryHelper<T
   }
 }
 
+// Select year in a general record query
 export class GeneralCountrySelector extends CountrySelector<GeneralRecord> {
   constructor() {
     super('general_record');
   }
 }
 
+// Select year and higher in a generic query
 export class YearFilter<T extends ObjectLiteral> implements IQueryHelper<T>{
   @IsOptional()
   @IsInt()
@@ -85,24 +90,28 @@ export class YearFilter<T extends ObjectLiteral> implements IQueryHelper<T>{
   }
 }
 
+// Select year and higher in an emission record query
 export class EmissionYearFilter extends YearFilter<EmissionRecord> {
   constructor() {
     super('emission_record');
   }
 }
 
+// Select country in an emission record query
 export class EmissionCountrySelector extends CountrySelector<EmissionRecord> {
   constructor() {
     super('emission_record');
   }
 }
 
+// Select year and higher in a temperature record query
 export class TemperatureYearFilter extends YearFilter<TemperatureRecord> {
   constructor() {
     super('temperature_record');
   }
 }
 
+// Select continent in a temperature record query
 export class TemperatureContinentSelector implements IQueryHelper<TemperatureRecord> {
   @IsDefined()
   @IsString()
@@ -115,12 +124,14 @@ export class TemperatureContinentSelector implements IQueryHelper<TemperatureRec
   }
 }
 
+// Select year in an energy record query
 export class EnergyYearSelector extends YearSelector<EnergyRecord> {
   constructor() {
     super('energy_record');
   }
 } 
 
+// Sort based on population from general records in an energy record query
 export class EnergyPopulationOrder implements IQueryHelper<EnergyRecord> {
   @IsDefined()
   @IsString()
@@ -140,6 +151,7 @@ export class EnergyPopulationOrder implements IQueryHelper<EnergyRecord> {
   }
 }
 
+// Batch energy record query
 export class Batcher implements IQueryHelper<EnergyRecord> {
   @IsDefined()
   @IsInt()
@@ -159,6 +171,7 @@ export class Batcher implements IQueryHelper<EnergyRecord> {
   }
 }
 
+// Select a number of countries
 export class NumberSelector {
   @IsDefined()
   @IsInt()
@@ -170,12 +183,14 @@ export class NumberSelector {
   }
 }
 
+// Select a country in a country query
 export class CountryCountrySelector extends CountrySelector<Country> {
   constructor() {
     super('country');
   }
 }
 
+// Determines whether a country exists
 export async function emptyCountryCountryQuery(object: any, res: Response, next: NextFunction) : Promise<boolean> {
   const countryCountrySelector = plainToClass(CountryCountrySelector, object, { enableImplicitConversion: true });
   if (badValidation(await validate(countryCountrySelector, { validationError: { target: true }}), res, next)) return true;
@@ -189,6 +204,7 @@ export async function emptyCountryCountryQuery(object: any, res: Response, next:
   return false;
 }
 
+// Select time period in temperature record query
 export class PeriodSelector implements IQueryHelper<TemperatureRecord> {
   @IsDefined()
   @IsInt()

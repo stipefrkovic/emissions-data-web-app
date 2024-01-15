@@ -7,7 +7,7 @@ import { Country } from "../models/country";
 import { Continent } from "../models/continent";
 import { Transform } from "class-transformer";
 
-
+// 'Full' record class for the API/controller
 export class ApiFullRecord {
     @IsString() @IsNotEmpty()
     country!: string;
@@ -61,6 +61,7 @@ export class ApiFullRecord {
     @Transform(o => isEmpty(o.value) ? undefined : parseFloat(o.value))
     energy_per_gdp?: number;
 
+    // 1-to-1 mapping between the variables, useful for CSV column reduction
     static variables = [
         "country",
         "year",
@@ -80,6 +81,7 @@ export class ApiFullRecord {
         "total_ghg"
     ]
 
+    // Creates a database general record
     toGeneralRecord(): GeneralRecord {
         let generalRecord : GeneralRecord = {
             country: this.country,
@@ -90,6 +92,7 @@ export class ApiFullRecord {
         return generalRecord;
     }
 
+    // Creates a database emission record
     toEmissionRecord(): EmissionRecord {
         let emissionRecord : EmissionRecord = {
             country: this.country,
@@ -102,6 +105,7 @@ export class ApiFullRecord {
         return emissionRecord;
     }
 
+    // Creates a database temperature record
     toTemperatureRecord(): TemperatureRecord {
         let temperatureRecord : TemperatureRecord = {
             country: this.country,
@@ -115,6 +119,7 @@ export class ApiFullRecord {
         return temperatureRecord;
     }
 
+    // Creates a database energy record
     toEnergyRecord(): EnergyRecord {
         let energyRecord : EnergyRecord = {
             country: this.country,
@@ -125,6 +130,7 @@ export class ApiFullRecord {
         return energyRecord;
     }
 
+    // Creates a database country
     toCountry(): Country {
         let country: Country = {
             country: this.country,
@@ -133,6 +139,7 @@ export class ApiFullRecord {
         return country;
     }
 
+    // Creates a database continent
     toContinent(): Continent {
         let continent: Continent = {
             continent: this.country,

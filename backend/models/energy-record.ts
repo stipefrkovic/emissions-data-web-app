@@ -1,5 +1,6 @@
 import { Column, Entity, PrimaryColumn } from "typeorm";
 
+// Energy record entity for the database
 @Entity()
 export class EnergyRecord {
     @PrimaryColumn({ type: 'varchar'})

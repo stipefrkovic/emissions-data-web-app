@@ -1,5 +1,6 @@
 import { Column, Entity, PrimaryColumn } from "typeorm";
 
+// Country entity for the database
 @Entity()
 export class Continent {
     @PrimaryColumn({ type: 'varchar'})

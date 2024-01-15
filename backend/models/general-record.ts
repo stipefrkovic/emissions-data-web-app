@@ -1,5 +1,6 @@
 import { Column, Entity, PrimaryColumn } from "typeorm";
 
+// General record entity for the database
 @Entity()
 export class GeneralRecord {
     @PrimaryColumn({ type: 'varchar'})
