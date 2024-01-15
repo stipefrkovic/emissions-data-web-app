@@ -1,3 +1,7 @@
+# Emissions Data Web Application
+
+2023-24 Web Engineering Project - Group 23 
+
 ## Deliverable Deadlines
 
 - D2: 6.12.2023 
@@ -93,11 +97,20 @@ TODO
 ## Work Distribution
 
 - Stipe
-  - first thing
-  - second thing
+  
+  In order of contribution:
+  - Database + Data
+  - Back-end
+  - docker-compose
+  - README
+  - OpenAPI specification
 - Andro
+
+  In order of contribution:
   - first thing
   - second thing
 - Christopher
+
+  In order of contribution:
   - first thing
   - second thing
