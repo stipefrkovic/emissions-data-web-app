@@ -10,13 +10,67 @@ servers:
   - url: http://localhost:3000
     description: ExpressJS backend
 
+# TODO fix params in some methods 
 
 components:
   schemas:
+    all:
+      type: object
+      properties:
+        country:
+          type: string
+          description: Country name
+        iso_code:
+          type: string
+          description: Country ISO code
+        year:
+          type: integer
+          description: Year of the creation of the record
+        gdp:
+          type: integer
+          description: GDP of the country
+        population:
+          type: integer
+          description: Population of the country
+        co2:
+          type: number
+          description: CO2 emission of the country
+        methane:
+          type: number
+          description: Methane emission of the country
+        nitrous_oxide:
+          type: number
+          description: Nitrous oxide emission of the country
+        total_ghg:
+          type: number
+          description: Total greenhouse gas emission of the country
+        share_of_temperature_change_from_ghg:
+          type: number
+          description: Temperature change of the country
+        temperature_change_from_ch4:
+          type: number
+          description: Temperature change of the country from ch4
+        temperature_change_from_co2:
+          type: number
+          description: Temperature change of the country from co2
+        temperature_change_from_ghg:
+          type: number
+          description: Temperature change of the country from ghg
+        temperature_change_from_n2o:
+          type: number
+          description: Temperature change of the country from n2o
+        energy_per_capita:
+          type: number
+          description: Energy per capita of the country
+        energy_per_gdp:
+          type: number
+          description: Energy per GDP of the country
+
+
     general:
       type: object
       properties:
-        GDP:
+        gdp:
           type: integer
           description: GDP of the country
         population:
@@ -26,6 +80,9 @@ components:
     emission:
       type: object
       properties:
+        year:
+          type: integer
+          description: Year of the creation of the record
         co2:
           type: number
           description: CO2 emission of the country
@@ -42,29 +99,42 @@ components:
     temp-change:
       type: object
       properties:
-        share of temperature change from:
+        year:
+          type: integer
+          description: Year of the creation of the record
+        share_of_temperature_change_from_ghg:
           type: number
           description: Temperature change of the country
-        temperature change from *:
+        temperature_change_from_ch4:
           type: number
-          description: Temperature change of the country
+          description: Temperature change of the country from ch4
+        temperature_change_from_co2:
+          type: number
+          description: Temperature change of the country from co2
+        temperature_change_from_ghg:
+          type: number
+          description: Temperature change of the country from ghg
+        temperature_change_from_n2o:
+          type: number
+          description: Temperature change of the country from n2o
+    
     energy:
       type: object
       properties:
-        energy per capita:
+        energy_per_capita:
           type: number
           description: Energy per capita of the country
-        GDP per capita:
+        energy_per_gdp:
           type: number
-          description: GDP per capita of the country
+          description: Energy per GDP of the country
 
     country:
       type: object
       properties:
-        name:
+        country:
           type: string
           description: name of the country
-        share of temperature change from ghg:
+        share_of_temperature_change_from_ghg:
           type: number
           description: share of temperature change from ghg of the country
   
@@ -97,6 +167,27 @@ components:
       description: Server error; no results, try again later
 
 paths:
+  /records:
+    post:
+      summary: Create all records
+      tags: 
+        - All Records
+      description: Create all records
+      requestBody:
+        required: true
+        content: 
+          application/json:
+            schema:
+              $ref: "#/components/schemas/all"
+      responses:
+        '201':
+          description: Succesfully created
+          headers:
+              Location:
+                schema:
+                  type: string
+                description: The URL of the newly-created general record
+
   /records/general:
     post:
       summary: Create a general record
@@ -113,36 +204,22 @@ paths:
               properties:
                 country:
                   type: string
-                  description: Country name or its ISO code
+                  description: Country name
                 year:
                   type: integer
                   description: Year of the creation of the record
-                GDP:
+                iso_code:
+                  type: string
+                  description: Country ISO code
+                gdp:
                   type: integer
                   description: GDP of the country
                 population:
                   type: integer
                   description: Population of the country
-          text/csv:
-            schema:
-                type: object
-            example: |
-              country, string
-              year, 0
-              GDP, 0
-              population, 0
       responses:
         '201':
           description: General information succesfully created
-          content:
-            application/json:
-                schema:
-                  type: integer
-            text/csv:
-              schema:
-                type: integer
-              example: |
-                0
           headers:
               Location:
                 schema:
@@ -210,7 +287,7 @@ paths:
               schema:
                 type: object
               example: |
-                GDP, 0
+                gdp, 0
                 population, 0
 
         '400':
@@ -233,12 +310,6 @@ paths:
           application/json:
             schema:
               $ref: "#/components/schemas/general"
-          text/csv:
-            schema:
-                type: object
-            example: |
-              GDP, 0
-              population, 0
       responses:
         '200':
           description: General record updated, returns the new state
@@ -250,7 +321,7 @@ paths:
               schema:
                 type: object
               example: |
-                GDP, 0
+                gdp, 0
                 population, 0
         '400':
           $ref: '#/components/responses/BadRequest'
@@ -313,6 +384,7 @@ paths:
               schema:
                 type: array
               example: |
+                year, 0
                 co2, 0
                 methane, 0
                 nitrous oxide, 0
@@ -370,9 +442,12 @@ paths:
               schema:
                 type: array
               example: |
-                share of temperature change from, 0
-                temperature change from *, 0
-        
+                year, 0
+                share_of_temperature_change_from_ghg, 0
+                temperature_change_from_ch4, 0
+                temperature_change_from_co2, 0
+                temperature_change_from_ghg, 0
+                temperature_change_from_n2o, 0
         '204':
           $ref: "#/components/responses/NoResults"
 
@@ -392,19 +467,19 @@ paths:
           type: string
           minimum: 1900
           maximum: 1999
-      - name: order-by
+      - name: order-dir
         in: query
-        required: false
+        required: true
         description: Sort records of countries based on population size
         schema:
           type: string
           enum:
-            - descending
-            - ascending
-          default: descending
+            - ASC
+            - DESC
+          default: DESC
       - name: batch-size
         in: query
-        required: false
+        required: true
         description: Size of records batch to be retrieved
         schema:
           type: integer
@@ -416,7 +491,7 @@ paths:
           default: 10
       - name: batch-index
         in: query
-        required: false
+        required: true
         description: Index of the batch of records (starting from 1) that 
                      indicates which batch is returned (e.g. in batches of 
                      size 10 which are covering values 1-100, index 2 means 
@@ -474,17 +549,17 @@ paths:
           enum:
             - share_of_temperature_change_from_ghg
           default: share_of_temperature_change_from_ghg
-      - name: order
+      - name: order-dir
         in: query
         required: false
         description: Order in which the countries are retrieved based on the filter
         schema:
           type: string
           enum:
-            - ascending
-            - descending
+            - ASC
+            - DESC
           default: descending
-      - name: periodType
+      - name: period-type
         in: query
         required: true
         description: Time period type on which the countries will be sorted
@@ -493,7 +568,7 @@ paths:
           enum:
             - specific-year
             - last-m-years
-      - name: periodValue
+      - name: period-value
         in: query
         required: true
         description: Time period value
@@ -523,8 +598,8 @@ paths:
               schema:
                 type: array
               example: |
-                name, string
-                share of temperature change from ghg, 0
+                country, string
+                share_of_temperature_change_from_ghg, 0
         
         '204':
           $ref: "#/components/responses/NoResults"

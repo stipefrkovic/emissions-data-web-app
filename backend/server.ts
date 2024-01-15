@@ -4,7 +4,12 @@ import { config as dotenvConfig } from "dotenv";
 import Container from "typedi";
 
 import app from "./app";
-import { Record } from "./models/record";
+import { GeneralRecord } from "./models/general-record";
+import { EmissionRecord } from "./models/emission-record";
+import { TemperatureRecord } from "./models/temperature-record";
+import { Country } from "./models/country";
+import { EnergyRecord } from "./models/energy-record";
+import { Continent } from "./models/continent";
 
 const PORT = process.env.PORT as unknown as number || 3000;
 const HOST = process.env.HOST || "localhost";
@@ -17,9 +22,9 @@ const database = new DataSource({
     password: "mariadb",
     database: "emissions",
     entities: [
-        Record
+         GeneralRecord, EmissionRecord, EnergyRecord, Country, TemperatureRecord, Continent
     ],
-    synchronize: false,
+    synchronize: true,
     logging: false
 });
 

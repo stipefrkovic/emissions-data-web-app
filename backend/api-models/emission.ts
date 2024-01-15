@@ -1,21 +1,26 @@
-import { Record as DbRecord } from "../models/record";
+import { IsInt, IsNotEmpty, IsNumber, Max, Min } from "class-validator";
+import { EmissionRecord } from "../models/emission-record";
 
-export class Emission {
-    id!: string;
+export class ApiEmissionRecord {
+    @IsInt() @IsNotEmpty() @Min(1900) @Max(1999)
     year!: number;
+    @IsNumber()
     co2?: number;
+    @IsNumber()
     methane?: number;
-    nitrousOxide?: number;
-    totalGhg?: number;
+    @IsNumber()
+    nitrous_oxide?: number;
+    @IsNumber()
+    total_ghg?: number;
 
-    public static fromDatabase(emission : DbRecord) : Emission {
-        return {
-            id: emission.country,
-            year: emission.year,
-            co2: emission.co2,
-            methane: emission.methane,
-            nitrousOxide: emission.nitrous_oxide,
-            totalGhg: emission.total_ghg
+    public static fromDatabase(emissionRecord : EmissionRecord) : ApiEmissionRecord {
+        let apiEmissionRecord : ApiEmissionRecord = {
+            year: emissionRecord.year,
+            co2: emissionRecord.co2,
+            methane: emissionRecord.methane,
+            nitrous_oxide: emissionRecord.nitrous_oxide,
+            total_ghg: emissionRecord.total_ghg
         };
+        return apiEmissionRecord;
     }
 }
