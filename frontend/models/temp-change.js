@@ -1,3 +1,6 @@
+/**
+ * A class repsonsible for temperature change record attributes.
+ */
 export default class TempChange{
     /** @type {string} */
     continent;

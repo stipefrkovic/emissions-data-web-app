@@ -1,3 +1,6 @@
+/**
+ * A class responsible for general record attributes.
+ */
 export default class General{
     /** @type {string} */
     id;

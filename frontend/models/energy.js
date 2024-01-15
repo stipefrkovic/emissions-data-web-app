@@ -1,3 +1,6 @@
+/**
+ * A class responsible for energy record attributes.
+ */
 export default class Energy{
     /** @type {number} */
     energyPerCapita;
