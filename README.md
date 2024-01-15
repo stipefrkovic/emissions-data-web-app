@@ -66,9 +66,29 @@ This will build and run the database, the back-end, and the front-end containers
 
 ### Additional Endpoints
 
+We created an endpoint `records/fill` that accepts a POST request with a URL parameter for the emissions CSV. The API will fetch the CSV, process it (remove columns, choose only specific years, etc.), create corresponding entities for each entry, and save them to the database. In short, it will fill the databse from a CSV located at the provided URL.
+
 ### Containerization
 
-### Design Principles
+As mentioned, the three tiers: database, back-end, and front-end, are all implemented in separate dockerfiles and run as separate containers, in the above order.
+
+### Design and Implementation Principles and Patterns
+
+#### Back-end and database
+
+- The model-view-controller pattern was implemented to divide the database models, the API models, and the logic between them.
+- API models contain functions to be converted from and to databse models where necessary to prevent type errors.
+- `TypeORM` was used in order to separate the model logic from the database logic, which decreases unnecessary coupling between the back-end and database. 
+- The `class-transformer` and `class-validator` libraries were extensively used in validating request data before utilizing it.
+- `Helper`, `query` (in some cases generic), `validate`, and `error` functions and/or middleware were implemented to avoid code duplication, promote code reusability for common tasks and meaningfully divide responsibilities.
+- The routes are separated, use the same generic interface for consistency, and contain validation and error middleware where necessary.
+- Environment variables were used in initialization of the back-end and the database.
+- The code is commented and the (Open)API specification is provided.
+- TypeScript was used to ensure type safety and other good practices.
+
+#### Front-end
+
+TODO
 
 ## Work Distribution
 
