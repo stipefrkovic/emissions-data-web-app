@@ -1,10 +1,11 @@
 /**
  * A custom element to show the summary of a general record.
- * The current general record ID is stored as an attribute on the element itself.
+ * Each current general record attribute (e.g. ID) is 
+ * stored as an attribute on the element itself.
  */
 export default class GeneralSummary extends HTMLElement {
     /**
-     * Get and set the general record attribute.
+     * Get and set the general record ID attribute.
      */
     get generalRecordId() {
         return this.getAttribute("general-record-id");
@@ -18,7 +19,7 @@ export default class GeneralSummary extends HTMLElement {
     }
 
     /**
-     * Get and set the general record year.
+     * Get and set the general record year attribute.
      */
     get generalRecordYear() {
         return this.getAttribute("general-record-year");
@@ -52,4 +53,5 @@ export default class GeneralSummary extends HTMLElement {
         }
 };
 
+// Define the GeneralSummary class as a custom element
 window.customElements.define("general-record-summary", GeneralSummary);

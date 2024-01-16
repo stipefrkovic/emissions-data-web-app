@@ -1,10 +1,10 @@
 /**
  * A custom element to show the summary of a special record.
- * The current special record ID is stored as an attribute on the element itself.
+ * The current special record URL is stored as an attribute on the element itself.
  */
 export default class SpecialSummary extends HTMLElement {
     /**
-     * Get and set the special record attribute.
+     * Get and set the special record URL attribute.
      */
     get specialRecordUrl() {
         return this.getAttribute("special-record-url");
@@ -38,4 +38,5 @@ export default class SpecialSummary extends HTMLElement {
         }
 };
 
-window.customElements.define("special-record-summary", GeneralSummary);
+// Define the SpecialSummary class as a custom element
+window.customElements.define("special-record-summary", SpecialSummary);

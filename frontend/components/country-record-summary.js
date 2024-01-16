@@ -1,10 +1,11 @@
 /**
  * A custom element to show the summary of a country record.
- * The current country record ID is stored as an attribute on the element itself.
+ * Each current country attribute (e.g. number of countries) is 
+ * stored as an attribute on the element itself.
  */
 export default class CountrySummary extends HTMLElement {
     /**
-     * Get and set the country record attribute.
+     * Get and set the country record number of countries attribute.
      */
     get countryRecordNumOfCountries() {
         return this.getAttribute("country-record-num-of-countries");
@@ -18,7 +19,7 @@ export default class CountrySummary extends HTMLElement {
     }
 
     /**
-     * Get and set the country record order by.
+     * Get and set the country record order by attribute.
      */
     get countryRecordOrderBy() {
         return this.getAttribute("country-record-order-by");
@@ -32,7 +33,7 @@ export default class CountrySummary extends HTMLElement {
     }
 
     /**
-     * Get and set the country record order.
+     * Get and set the country record order attribute.
      */
     get countryRecordOrder() {
         return this.getAttribute("country-record-order");
@@ -46,7 +47,7 @@ export default class CountrySummary extends HTMLElement {
     }
 
     /**
-     * Get and set the country record period type.
+     * Get and set the country record period type attribute.
      */
     get countryRecordPeriodType() {
         return this.getAttribute("country-record-period-type");
@@ -60,7 +61,7 @@ export default class CountrySummary extends HTMLElement {
     }
 
     /**
-     * Get and set the country record period value.
+     * Get and set the country record period value attribute.
      */
     get countryRecordPeriodValue() {
         return this.getAttribute("country-record-period-value");
@@ -94,4 +95,5 @@ export default class CountrySummary extends HTMLElement {
     }
 };
 
+// Define the CountrySummary class as a custom element
 window.customElements.define("country-record-summary", CountrySummary);

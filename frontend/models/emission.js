@@ -1,3 +1,6 @@
+/**
+ * A class responsible for emission record attributes.
+ */
 export default class Emission{
     /** @type {string} */
     id;

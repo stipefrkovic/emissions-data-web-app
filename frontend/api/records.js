@@ -6,6 +6,14 @@ import TempChangeRecord from "../models/temp-change.js";
 import CountryRecord from "../models/country.js";
 
 export default {
+  /**
+   * A function for posting a new general record.
+   * @param {string} country 
+   * @param {number} year 
+   * @param {number} GDP 
+   * @param {number} population 
+   * @returns {Record<string, any>}
+   */
   async postGeneralRecord(
     /** @type {string} */ country,
     /** @type {number} */ year,
@@ -24,6 +32,12 @@ export default {
     return GeneralRecord.fromJson(await apiResponse.json());
   },
 
+  /**
+   * A function for getting a general record.
+   * @param {string} country 
+   * @param {number} year 
+   * @returns {Record<string, any>}
+   */
   async getGeneralRecord(country, year) {
     const apiResponse = await apiCall(
       `records/${country}/${year}/general`,
@@ -34,6 +48,14 @@ export default {
     return GeneralRecord.fromJson(await apiResponse.json());
   },
 
+  /**
+   * A function for updating an existing general record.
+   * @param {string} country 
+   * @param {number} year 
+   * @param {number} GDP 
+   * @param {number} population 
+   * @returns {Record<string, any>}
+   */
   async putGeneralRecord(
     /** @type {string} */ country,
     /** @type {number} */ year,
@@ -51,6 +73,13 @@ export default {
 
     return GeneralRecord.fromJson(await apiResponse.json());
   },
+
+  /**
+   * A function for deleting an existing general record.
+   * @param {string} country 
+   * @param {number} year 
+   * @returns {Record<string, any>}
+   */
   async deleteGeneralRecord(country, year) {
     const apiResponse = await apiCall(
       `records/${country}/${year}/general`,
@@ -60,6 +89,13 @@ export default {
 
     return GeneralRecord.fromJson(await apiResponse.json());
   },
+
+  /**
+   * A function for getting an emission record.
+   * @param {string} country 
+   * @param {number} year 
+   * @returns {Record<string, any>}
+   */
   async getEmissionRecord(country, year) {
     const data = {};
     if (year !== undefined) {
@@ -75,6 +111,13 @@ export default {
 
     return (await apiResponse.json()).map(EmissionRecord.fromJson);
   },
+
+  /**
+   * A function for getting a temperature change record.
+   * @param {string} continent 
+   * @param {number} year 
+   * @returns {Record<string, any>}
+   */
   async getTempChangeRecord(continent, year) {
     const data = {};
     if (year !== undefined) {
@@ -91,9 +134,17 @@ export default {
     return (await apiResponse.json()).map(TempChangeRecord.fromJson);
   },
 
+  /**
+   * A function for getting a list of energy records.
+   * @param {number} year 
+   * @param {string} orderBy 
+   * @param {number} batchSize 
+   * @param {number} batchIndex 
+   * @returns {Record<string, any>}
+   */
   async getEnergyRecord(
     /** @type {number} */ year,
-    /** @type {number} */ orderBy = "descending",
+    /** @type {string} */ orderBy = "descending",
     /** @type {number} */ batchSize = 10,
     /** @type {number} */ batchIndex = 1
   ) {
@@ -106,6 +157,16 @@ export default {
 
     return EnergyRecord.fromJson(await apiResponse.json());
   },
+
+  /**
+   * A function for retrieving a list of country records.
+   * @param {number} ncountries 
+   * @param {string} orderBy 
+   * @param {string} order 
+   * @param {string} periodType 
+   * @param {number} periodValue 
+   * @returns {Record<string, any>}
+   */
   async getCountryRecord(
     /** @type {number} */ ncountries,
     /** @type {string} */ orderBy = "share_of_temperature_change_from_ghg",

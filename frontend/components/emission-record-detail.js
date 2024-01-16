@@ -3,8 +3,8 @@
 
 /**
  * A custom element for a detailed emission record view.
- * The current emission record ID is stored as an attribute on the element itself.
- * when this ID changes, the view is recreated to reflect the information of the new record.
+ * Each current emission record attribute (e.g. ID) is stored as an attribute on the element itself.
+ * When this ID changes, the view is recreated to reflect the information of the new record.
  */
 export default class EmissionDetail extends HTMLElement {
     /** @type {HTMLTemplateElement} */ #template;
@@ -17,7 +17,7 @@ export default class EmissionDetail extends HTMLElement {
     /** @type {HTMLElement} */ #totalGhg;
 
     /**
-     * Get and set the emission record ID.
+     * Get and set the emission record ID attribute.
      */
     get emissionRecordId() {
         return this.getAttribute("emission-record-id");
@@ -31,7 +31,7 @@ export default class EmissionDetail extends HTMLElement {
     }
 
     /**
-     * Get and set the emission record year.
+     * Get and set the emission record year attribute.
      */
     get emissionRecordYear() {
         return this.getAttribute("emission-record-year");
@@ -44,10 +44,20 @@ export default class EmissionDetail extends HTMLElement {
             this.setAttribute("emission-record-year", value);
     }
 
+    /**
+     * This indicates to the browser that we want to be notified of any changes
+     * to each attribute of a emission record. The browser will then call "attributeChangedCallback"
+     * for us. This will also be called when someone sets a new value to the property
+     * above, since that set operation is translated into setting a new attribute
+     * value.
+     */
     static get observedAttributes() {
         return ["emission-record-id", "emission-record-year"];
     }
 
+    /**
+     * A constructor for setting up the proper template environment.
+     */
     constructor() {
         super();
 
@@ -57,6 +67,11 @@ export default class EmissionDetail extends HTMLElement {
         this.initializeTemplate();
     }
 
+    /**
+     * A function that clones the template and sets the HTML references. 
+     * This allows to completely refresh the contents when loading a new emission record, instead 
+     * of clearing all fields separately.
+     */
     initializeTemplate() {
             this.shadowRoot.innerHTML = "";
             this.shadowRoot.appendChild(this.#template.content.cloneNode(true));
@@ -69,6 +84,10 @@ export default class EmissionDetail extends HTMLElement {
             this.#totalGhg = this.shadowRoot.getElementById("total-ghg");
     }
 
+    /**
+     * A function for updating the contents of template that is called by the browser when
+     * the ID attribute changes.
+     */
     async attributeChangedCallback() {
         if(!this.emissionRecordId) {
                 this.shadowRoot.innerHTML = "";
@@ -95,4 +114,5 @@ export default class EmissionDetail extends HTMLElement {
     }
 };
 
+// Define the EmissionDetail class as a custom element
 window.customElements.define("emission-record-detail", EmissionDetail);

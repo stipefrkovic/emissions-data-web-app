@@ -1,10 +1,11 @@
 /**
  * A custom element to show the summary of an energy record.
- * The current energy record ID is stored as an attribute on the element itself.
+ * Each current energy record attribute (e.g. year) is stored 
+ * as an attribute on the element itself.
  */
 export default class EnergySummary extends HTMLElement {
     /**
-     * Get and set the energy record year.
+     * Get and set the energy record year attribute.
      */
     get energyRecordYear() {
         return this.getAttribute("energy-record-year");
@@ -34,4 +35,5 @@ export default class EnergySummary extends HTMLElement {
     }
 };
 
+// Define the EnergySummary class as a custom element
 window.customElements.define("energy-record-summary", EnergySummary);

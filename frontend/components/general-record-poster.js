@@ -21,15 +21,16 @@ export default class GeneralPoster extends HTMLElement {
    * It initializes the fields by calling the corresponding html elements.
    */
   constructor() {
-    // Always call the parent constructor!
     super();
 
     // We start by finding the template and taking its contents.
     const template = document.getElementById("general-record-poster");
     const templateContent = template.content;
 
+    // Initialize Shadow DOM.
     this.attachShadow({ mode: "open" });
     this.shadowRoot.appendChild(templateContent.cloneNode(true));
+    
     // Find elements inside the templates and cache them for
     // future reference.
     this.#country = this.shadowRoot.getElementById("country");
@@ -39,18 +40,24 @@ export default class GeneralPoster extends HTMLElement {
     this.#post = this.shadowRoot.getElementById("post");
     this.#result = this.shadowRoot.getElementById("records");
 
+    // Set up listeners to start search operation after every form
+    // action.
     this.#post.addEventListener("click", async () => {
       await this.search();
     });
   }
 
+  /**
+   * A function that extracts the values from the small input form and posts the
+   * new general record, if it didn't exist before, by calling the API. Once the necessary information has
+   * been created, it is displayed on the web page using the GeneralSummary object.
+   */
   async search() {
     let countryName = this.#country.value;
     let year = this.#year.value;
     let gdp = this.#gdp.value;
     let population = this.#population.value;
 
-    /** @type {} */
     let countryResult;
     try {
       countryResult = await records.postGeneralRecord(
@@ -64,13 +71,23 @@ export default class GeneralPoster extends HTMLElement {
       return;
     }
 
+    // Clear old rendered results only after we received a new set of results, so
+    // the front-end is always in a usable state.
     this.#result.innerHTML = "";
 
+    // Build the new view: we instantiate a GeneralSummary custom element for every
+    // result, and create two spans that connect to the two slots in GeneralSummary's
+    // template.
     for (let country of countryResult) {
+      // Create a new summary instance and set its attributes (for later reference)
       let recordView = new GeneralSummary();
       recordView.generalRecordId = country.id;
       recordView.generalRecordYear = country.year;
 
+      // Connect slots: this is done by creating two spans 
+      // with the "slot" attribute set to match the slot name. We then put these two
+      // spans inside the custom element as if they were child nodes - this is where
+      // the shadow DOM will pull the slot values from.
       let countrySpan = document.createElement("span");
       countrySpan.slot = "country";
       countrySpan.innerText = country.id;
@@ -82,6 +99,8 @@ export default class GeneralPoster extends HTMLElement {
       recordView.appendChild(countrySpan);
       recordView.appendChild(yearSpan);
 
+      // Add an event listener: we want to trigger a "general-record-selected" event when
+      // the user clicks a specific general record.
       recordView.addEventListener("click", () => {
         this.dispatchEvent(
           new GeneralSelectedEvent(recordView.generalRecordId)
@@ -93,4 +112,5 @@ export default class GeneralPoster extends HTMLElement {
   }
 }
 
+// Define the GeneralPoster class as a custom element
 window.customElements.define("general-record-poster", GeneralPoster);
