@@ -1,6 +1,7 @@
 import { IsInt, IsNotEmpty, IsNumber, Max, Min } from "class-validator";
 import { EmissionRecord } from "../models/emission-record";
 
+// Emission record class for the API
 export class ApiEmissionRecord {
     @IsInt() @IsNotEmpty() @Min(1900) @Max(1999)
     year!: number;
@@ -13,6 +14,7 @@ export class ApiEmissionRecord {
     @IsNumber()
     total_ghg?: number;
 
+    // Creates an API model from the database model
     public static fromDatabase(emissionRecord : EmissionRecord) : ApiEmissionRecord {
         let apiEmissionRecord : ApiEmissionRecord = {
             year: emissionRecord.year,

@@ -10,8 +10,6 @@ servers:
   - url: http://localhost:3000
     description: ExpressJS backend
 
-# TODO fix params in some methods 
-
 components:
   schemas:
     all:
@@ -65,7 +63,6 @@ components:
         energy_per_gdp:
           type: number
           description: Energy per GDP of the country
-
 
     general:
       type: object
@@ -151,34 +148,62 @@ components:
                 description: Error message detailing the problem with the request
           example:
             error-message: The request body has an invalid entry.
-        text/csv:
-          schema:
-            type: object
-            description: Error message detailing the problem with the request
-          example: The request body has an invalid entry.
 
     NotFound:
       description: Resource not found
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              error-message:
+                type: string
+                description: Error message detailing the problem with the request
+          example:
+            error-message: Resource not found.
 
     NoResults:
       description: List empty; no results
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              error-message:
+                type: string
+                description: Error message detailing the problem with the request
+          example:
+            error-message: List empty; no results.
 
     ServerError:
       description: Server error; no results, try again later
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              error-message:
+                type: string
+                description: Error message detailing the problem with the request
+          example:
+            error-message: Server error; no results, try again later.
 
 paths:
-  /records:
+  /records/fill:
     post:
-      summary: Create all records
+      summary: Fill database with Emissions CSV dataset from source URL
       tags: 
         - All Records
-      description: Create all records
-      requestBody:
-        required: true
-        content: 
-          application/json:
-            schema:
-              $ref: "#/components/schemas/all"
+        - Special
+      description: Fill database with Emissions CSV dataset from source URL
+      parameters:
+        - name: emissions_csv_url
+          in: query
+          required: true
+          description: Source URL for the Emissions CSV dataset
+          schema:
+            type: string
+            default: https://nyc3.digitaloceanspaces.com/owid-public/data/co2/owid-co2-data.csv
       responses:
         '201':
           description: Succesfully created
@@ -186,7 +211,11 @@ paths:
               Location:
                 schema:
                   type: string
-                description: The URL of the newly-created general record
+                description: The URL of the newly-created records; more specific requests may be necessary
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '5XX':
+          $ref: '#/components/responses/ServerError'
 
   /records/general:
     post:
@@ -226,23 +255,7 @@ paths:
                   type: string
                 description: The URL of the newly-created general record
         '400':
-          description: Request was not well-formed, see error details
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  error-message:
-                    type: string
-                    description: Error message detailing the problem with the request
-              example:
-                error-message: The request body has an invalid entry.
-            text/csv:
-              schema:
-                type: object
-                description: Error message detailing the problem with the request
-              example: The request body has an invalid entry.
-
+          $ref: '#/components/responses/BadRequest'
         '409':
           description: Record with the same name already exists
           headers:
@@ -250,7 +263,6 @@ paths:
               schema:
                 type: string
               description: The URL of the pre-existing record
-
         '5XX':
           $ref: '#/components/responses/ServerError'
   
@@ -267,7 +279,7 @@ paths:
         required: true
         description: "Year of the creation of the records (range: 1900-1999)"
         schema:
-          type: string
+          type: integer
           minimum: 1900
           maximum: 1999
     get:
@@ -289,13 +301,10 @@ paths:
               example: |
                 gdp, 0
                 population, 0
-
         '400':
           $ref: '#/components/responses/BadRequest'
-
         '404':
           $ref: "#/components/responses/NotFound"
-
         '5XX':
           $ref: '#/components/responses/ServerError'
     put:
@@ -325,10 +334,8 @@ paths:
                 population, 0
         '400':
           $ref: '#/components/responses/BadRequest'
-
         '404':
           $ref: "#/components/responses/NotFound"
-
         '5XX':
           $ref: '#/components/responses/ServerError'
     delete:
@@ -362,7 +369,7 @@ paths:
         required: false
         description: "Year of the creation of the records (range: 1900-1999)"
         schema:
-          type: string
+          type: integer
           minimum: 1900
           maximum: 1999
     get:
@@ -389,13 +396,10 @@ paths:
                 methane, 0
                 nitrous oxide, 0
                 total ghg, 0
-
         '204':
           $ref: "#/components/responses/NoResults"
-
         '400':
           $ref: '#/components/responses/BadRequest'
-
         '5XX':
           $ref: '#/components/responses/ServerError'
 
@@ -420,7 +424,7 @@ paths:
         required: false
         description: "Year of the creation of the records (range: 1900-1999)"
         schema:
-          type: string
+          type: integer
           minimum: 1900
           maximum: 1999
     get:
@@ -450,10 +454,8 @@ paths:
                 temperature_change_from_n2o, 0
         '204':
           $ref: "#/components/responses/NoResults"
-
         '400':
           $ref: '#/components/responses/BadRequest'
-
         '5XX':
           $ref: '#/components/responses/ServerError'
   
@@ -464,20 +466,20 @@ paths:
         required: true
         description: "Year of the creation of the records (range: 1900-1999)"
         schema:
-          type: string
+          type: integer
           minimum: 1900
           maximum: 1999
-      - name: order-dir
+      - name: order_dir
         in: query
         required: true
-        description: Sort records of countries based on population size
+        description: Direction in which to sort records of countries based on population size
         schema:
           type: string
           enum:
             - ASC
             - DESC
           default: DESC
-      - name: batch-size
+      - name: batch_size
         in: query
         required: true
         description: Size of records batch to be retrieved
@@ -489,7 +491,7 @@ paths:
             - 50
             - 100
           default: 10
-      - name: batch-index
+      - name: batch_index
         in: query
         required: true
         description: Index of the batch of records (starting from 1) that 
@@ -522,44 +524,33 @@ paths:
               example: |
                 energy per capita, 0
                 GDP per capita, 0
-
         '204':
           $ref: "#/components/responses/NoResults"
-
         '400':
           $ref: '#/components/responses/BadRequest'
-
         '5XX':
           $ref: '#/components/responses/ServerError'
 
   /records/countries:
     parameters:
-      - name: ncountries
+      - name: num_countries
         in: query
         required: true
         description: Number n (≥1) of countries to be retrieved
         schema:
           type: integer
           minimum: 1
-      - name: order-by
-        in: query
-        description: Sorting filter for the countries
-        schema:
-          type: string
-          enum:
-            - share_of_temperature_change_from_ghg
-          default: share_of_temperature_change_from_ghg
-      - name: order-dir
+      - name: order_dir
         in: query
         required: false
-        description: Order in which the countries are retrieved based on the filter
+        description: Order in which the countries are retrieved based on the property
         schema:
           type: string
           enum:
             - ASC
             - DESC
           default: descending
-      - name: period-type
+      - name: period_type
         in: query
         required: true
         description: Time period type on which the countries will be sorted
@@ -568,23 +559,21 @@ paths:
           enum:
             - specific-year
             - last-m-years
-      - name: period-value
+      - name: period_value
         in: query
         required: true
         description: Time period value
         schema:
             type: integer
-            minimum: 1
-            maximum: 1999
             description: |
-              If period-type is 'specific-year', period-value must be between 1900 and 2023.
-              If period-type is 'last-m-years', period-value must be between 1 and 100.
+              If period_type is 'specific-year', period_value must be between 1900 and 1999.
+              If period_type is 'last-m-years', period_value must be higher than 1.
     get:
       summary: Retrieve countries
       tags: 
         - All Records
         - Countries
-      description: Retrieve a number of countries with an optional sorting filter
+      description: Retrieve a number of countries optionally sorted on share_of_temperature_change_from_ghg
       responses:
         '200':
           description: OK
@@ -600,12 +589,9 @@ paths:
               example: |
                 country, string
                 share_of_temperature_change_from_ghg, 0
-        
         '204':
           $ref: "#/components/responses/NoResults"
-
         '400':
           $ref: '#/components/responses/BadRequest'
-
         '5XX':
           $ref: '#/components/responses/ServerError'

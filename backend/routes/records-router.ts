@@ -6,6 +6,7 @@ import { RecordsController } from "../controllers/records-controller";
 import { validateApiFullGeneralRecord, validateApiGeneralRecord } from "../controllers/validate";
 import { errorHandler } from "../error";
 
+// Router for the records endpoints, 1-to-1 mapping to OpenAPI specification
 export class RecordsRouter implements IRouter {
     protected controller : RecordsController = new RecordsController;
 
@@ -30,8 +31,8 @@ export class RecordsRouter implements IRouter {
         app.route('/records/countries')
             .get(asyncHandler(this.controller.getCountriesAsync))
 
-        app.route('/records')
-            .post(asyncHandler(this.controller.createRecordsAsync))
+        app.route('/records/fill')
+            .post(asyncHandler(this.controller.fillDatabaseAsync))
 
         app.use((req: Request, res: Response, next: NextFunction) => {
             res.status(404).json({ 'error-message': 'Resource not found' });
@@ -39,6 +40,4 @@ export class RecordsRouter implements IRouter {
 
         app.use(errorHandler)
     }
-
-    // TODO 404 error
 }
