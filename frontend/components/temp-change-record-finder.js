@@ -48,7 +48,7 @@ export default class TempChangeRecordFinder extends HTMLElement {
 
         // Find elements inside the templates and cache them for
         // future reference.
-        this.#continentSearch = this.shadowRoot.getElementById("country");
+        this.#continentSearch = this.shadowRoot.getElementById("continent");
         this.#yearSearch = this.shadowRoot.getElementById("year");
         this.#retrieve = this.shadowRoot.getElementById("retrieve-temp-change");
         this.#result = this.shadowRoot.getElementById("temp-records");
@@ -64,7 +64,13 @@ export default class TempChangeRecordFinder extends HTMLElement {
     // This function will start a "getMovies" operation from the API. It will take the
     // local form state and get the appropriate results.
     async search() {
-        let continentName = this.#continentSearch.value;
+        let continentUncap = this.#continentSearch.value;
+        const arr = continentUncap.split(" ");
+        for (var i = 0; i < arr.length; i++) {
+            arr[i] = arr[i].charAt(0).toUpperCase() + arr[i].slice(1);
+        
+        }
+        const continentName = arr.join(" ");
         let year = this.#yearSearch.value;
 
         /** @type {ApiRecordSummary[]} */
