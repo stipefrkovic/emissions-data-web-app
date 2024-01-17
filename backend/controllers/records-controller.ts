@@ -24,8 +24,6 @@ import { emptyList, resourceNotFound } from "../error";
 import dataForge, { DataFrame, fromCSV } from 'data-forge';
 import { ApiFullRecord } from "../api-models/full-record";
 
-// TODO verify json and csv for ALL responses
-
 // Controller for the records endpoint functions, 1-to-1 mapping to OpenAPI specification
 export class RecordsController {
 
