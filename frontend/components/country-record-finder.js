@@ -82,7 +82,7 @@ export default class CountryFinder extends HTMLElement {
     
         let countryResult;
         try {
-          countryResult = await records.getCountryRecord(numOfCountries, orderBy, order, periodType, periodValue);
+          countryResult = await records.getCountryRecord(numOfCountries, orderBy, order, periodType, periodValue, document.getElementById("content-type").value);
         } catch (e) {
           alert(e);
           return;

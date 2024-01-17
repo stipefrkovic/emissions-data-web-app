@@ -75,7 +75,7 @@ export default class EmissionRecordFinder extends HTMLElement {
     /** @type {ApiRecordSummary[]} */
     let countryResult;
     try {
-      countryResult = await records.getEmissionRecord(countryName, year);
+      countryResult = await records.getEmissionRecord(countryName, year, document.getElementById("content-type").value);
     } catch (e) {
       alert(e);
       return;

@@ -52,7 +52,7 @@ export default class GeneralFinder extends HTMLElement {
     /** @type {} */
     let countryResult;
     try {
-      countryResult = await records.getGeneralRecord(countryName, year);
+      countryResult = await records.getGeneralRecord(countryName, year, document.getElementById("content-type").value);
     } catch (e) {
       alert(e);
       return;

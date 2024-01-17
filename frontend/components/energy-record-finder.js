@@ -81,7 +81,8 @@ export default class EnergyFinder extends HTMLElement {
                     this.#yearSearch.value,
                     this.#orderBySearch.value,
                     parseInt(this.#batches),
-                    1
+                    1,
+                    document.getElementById("content-type").value
                 );
             } catch (e) {
                 alert(e);
@@ -92,18 +93,18 @@ export default class EnergyFinder extends HTMLElement {
             this.#limit = numOfRecords;
             this.#currentOffset = 1;
             this.#ending = this.#limit % this.#batches;
-            this.#endingOffset = Math.floor(this.#limit / this.#batches) * this.#batches;
+            this.#endingOffset = Math.floor(this.#limit / this.#batches) + 1;
 
             await this.search();
         });
 
         this.#navNext.addEventListener("click", async () => {
-            this.#currentOffset = parseInt(this.#batches, 10) + parseInt(this.#currentOffset, 10);
+            this.#currentOffset = parseInt(this.#currentOffset, 10) + 1;
             await this.search();
         });
 
         this.#navPrev.addEventListener("click", async () => {
-            this.#currentOffset -= this.#batches;
+            this.#currentOffset-- ;
             if (this.#currentOffset < 1) this.#currentOffset = 1;
             await this.search();
         });
@@ -117,10 +118,7 @@ export default class EnergyFinder extends HTMLElement {
      * object lifecycles.
      */
     updateView() {
-        this.#navNext.disabled =
-            this.#ending % this.#batches === 0
-                ? this.#currentOffset === this.#endingOffset - this.#batches
-                : this.#currentOffset === this.#endingOffset;
+        this.#navNext.disabled = parseInt(this.#batches) != parseInt(this.#limit);
         this.#navPrev.disabled = !this.#hasResults || this.#currentOffset === 1;
     }
 
@@ -146,12 +144,14 @@ export default class EnergyFinder extends HTMLElement {
                 year,
                 orderby,
                 parseInt(this.#batchesSearch.options[this.#batchesSearch.selectedIndex].value),
-                parseInt(this.#currentOffset)
+                parseInt(this.#currentOffset),
+                document.getElementById("content-type").value
             );
         } catch (e) {
             alert(e);
             return;
         }
+        this.#limit = energyResult.length;
 
         // Clear old rendered results only after we received a new set of results, so
         // the front-end is always in a usable state.
