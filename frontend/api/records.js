@@ -224,7 +224,9 @@ export default {
     const data = {};
     if (url !== undefined) data.emissions_csv_url = url;
 
-    const apiResponse = await apiCall(`records`, "PUT", data, content);
+    const apiResponse = await apiCall(`records`, "PUT", {
+      emissions_csv_url: url,
+      }, content);
     if (!apiResponse.ok) throw new Error(await apiResponse.text());
 
     return SpecialRecord.fromJson(await apiResponse.json());
