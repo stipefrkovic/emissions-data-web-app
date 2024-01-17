@@ -86,7 +86,7 @@ As mentioned before, if the docker-compose is set to seed the database, the dock
 
 ### Additional Endpoints
 
-We created an endpoint `/records/` that accepts a PUT request with a URL parameter for the emissions CSV. The API will fetch the CSV, process it (remove columns, choose only specific years, etc.), create corresponding entities for each entry, and save them to the database. In short, it will fill the databse from a CSV located at the provided URL.
+We created an endpoint `/records` that accepts a PUT request with a URL parameter for the emissions CSV. The API will fetch the CSV, process it (remove columns, choose only specific years, etc.), create corresponding entities for each entry, and save them to the database. In short, it will fill the databse from a CSV located at the provided URL.
 
 ### Containerization
 

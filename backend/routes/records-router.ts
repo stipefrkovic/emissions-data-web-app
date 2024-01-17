@@ -31,7 +31,7 @@ export class RecordsRouter implements IRouter {
         app.route('/records/countries')
             .get(asyncHandler(this.controller.getCountriesAsync))
 
-        app.route('/records/')
+        app.route('/records')
             .put(asyncHandler(this.controller.fillDatabaseAsync))
 
         app.use((req: Request, res: Response, next: NextFunction) => {

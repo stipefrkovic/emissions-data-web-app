@@ -189,7 +189,7 @@ components:
             error-message: Server error; no results, try again later.
 
 paths:
-  /records/:
+  /records:
     put:
       summary: Fill database with Emissions CSV dataset from source URL
       tags: 
