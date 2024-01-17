@@ -226,7 +226,8 @@ paths:
               schema:
                 type: object
               example: |
-                message, Succesfully created X records
+                message
+                Succesfully created X records
         '400':
           $ref: '#/components/responses/BadRequest'
         '5XX':
@@ -274,8 +275,8 @@ paths:
               schema:
                 type: object
               example: |
-                gdp, 0
-                population, 0
+                gdp, population
+                0, 0
         '400':
           $ref: '#/components/responses/BadRequest'
         '409':
@@ -321,8 +322,8 @@ paths:
               schema:
                 type: object
               example: |
-                gdp, 0
-                population, 0
+                gdp, population
+                0, 0
         '400':
           $ref: '#/components/responses/BadRequest'
         '404':
@@ -352,8 +353,8 @@ paths:
               schema:
                 type: object
               example: |
-                gdp, 0
-                population, 0
+                gdp, population
+                0, 0
         '400':
           $ref: '#/components/responses/BadRequest'
         '404':
@@ -413,11 +414,8 @@ paths:
               schema:
                 type: array
               example: |
-                year, 0
-                co2, 0
-                methane, 0
-                nitrous oxide, 0
-                total ghg, 0
+                year, co2, methane, nitrous_oxide, total_ghg
+                0, 0, 0, 0, 0
         '204':
           $ref: "#/components/responses/NoResults"
         '400':
@@ -468,12 +466,8 @@ paths:
               schema:
                 type: array
               example: |
-                year, 0
-                share_of_temperature_change_from_ghg, 0
-                temperature_change_from_ch4, 0
-                temperature_change_from_co2, 0
-                temperature_change_from_ghg, 0
-                temperature_change_from_n2o, 0
+                year, share_of_temperature_change_from_ghg, temperature_change_from_ch4, temperature_change_from_co2, temperature_change_from_ghg, temperature_change_from_n2o
+                0, 0, 0, 0, 0, 0
         '204':
           $ref: "#/components/responses/NoResults"
         '400':
@@ -544,8 +538,8 @@ paths:
               schema:
                 type: array
               example: |
-                energy per capita, 0
-                GDP per capita, 0
+                energy_per_capita, energy_per_gdp
+                0, 0
         '204':
           $ref: "#/components/responses/NoResults"
         '400':
@@ -609,8 +603,8 @@ paths:
               schema:
                 type: array
               example: |
-                country, string
-                share_of_temperature_change_from_ghg, 0
+                country, share_of_temperature_change_from_ghg
+                string, 0
         '204':
           $ref: "#/components/responses/NoResults"
         '400':
