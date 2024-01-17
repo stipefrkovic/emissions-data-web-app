@@ -28,7 +28,7 @@ export class SpecialRecordSelectedEvent extends Event {
  */
 export default class SpecialPoster extends HTMLElement {
   /** @type {HTMLInputElement} */ #url;
-  /** @type {HTMLButtonElement} */ #post;
+  /** @type {HTMLButtonElement} */ #put;
   /** @type {HTMLDivElement} */ #result;
 
     /**
@@ -49,19 +49,19 @@ export default class SpecialPoster extends HTMLElement {
         // Find elements inside the templates and cache them for
         // future reference.
         this.#url = this.shadowRoot.getElementById("emissions-csv-url");
-        this.#post = this.shadowRoot.getElementById("post");
+        this.#put = this.shadowRoot.getElementById("put");
         this.#result = this.shadowRoot.getElementById("special-records");
 
         // Set up listeners to start search operation after every form
         // action.
-        this.#post.addEventListener("click", async () => {
+        this.#put.addEventListener("click", async () => {
             await this.search();
         });
     }
 
     /**
-     * A function that extracts the values from the small input form and posts the
-     * new special record by calling the API. Once the necessary information has
+     * A function that extracts the values from the small input form and either creates the
+     * new special record or updates the existing one by calling the API. Once the necessary information has
      * been created, it is displayed on the web page using the SpecialSumamry object.
      */
     async search() {
