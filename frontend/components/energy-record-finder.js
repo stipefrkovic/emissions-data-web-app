@@ -98,8 +98,7 @@ export default class EnergyFinder extends HTMLElement {
         });
 
         this.#navNext.addEventListener("click", async () => {
-            // maybe do parseInt
-            this.#currentOffset = this.#batches + this.#currentOffset;
+            this.#currentOffset = parseInt(this.#batches, 10) + parseInt(this.#currentOffset, 10);
             await this.search();
         });
 
