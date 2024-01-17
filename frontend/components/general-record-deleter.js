@@ -1,10 +1,11 @@
-/*import records from "../api/records.js";
+import records from "../api/records.js";
 import GeneralSummary from "./general-record-summary.js";
-import GeneralSelectedEvent from "./general-record-selected-event.js";*/
+import GeneralSelectedEvent from "./general-record-selected-event.js";
 
 /**
  * A custom element representing a general record deleter.
- * It contains a small form where the user can enter a country id.
+ * It contains a small form where the user can enter a country name
+ * or ISO code and year to delete.
  */
 export default class GeneralDeleter extends HTMLElement {
   /** @type {HTMLInputElement} */ #countrySearch;
@@ -34,17 +35,22 @@ export default class GeneralDeleter extends HTMLElement {
     this.#delete = this.shadowRoot.getElementById("delete");
     this.#result = this.shadowRoot.getElementById("records");
 
-    //Search when the button is clicked
+    // Set up listeners to start search operation after every form
+    // action.
     this.#delete.addEventListener("click", async () => {
       await this.search();
     });
   }
 
+  /**
+   * A function that extracts the values from the small input form, searches for the
+   * general record and deletes it, if exists, by calling the API. Once it has been done,
+   * it is displayed on the web page using the GeneralSummary object.
+   */
   async search() {
     let countryName = this.#countrySearch.value;
     let year = this.#yearSearch.value;
 
-    /** @type {} */
     let countryResult;
     try {
       countryResult = await records.deleteGeneralRecord(countryName, year);
@@ -53,35 +59,41 @@ export default class GeneralDeleter extends HTMLElement {
       return;
     }
 
-    //Clear view
+    // Clear old rendered results only after we received a new set of results, so
+    // the front-end is always in a usable state.
     this.#result.innerHTML = "";
 
-    //Build new view
-    for (let country of countryResult) {
-      let recordView = new GeneralSummary();
-      recordView.generalRecordId = country.id;
-      recordView.generalRecordYear = country.year;
+    // Build the new view: we instantiate a GeneralSummary custom element for every
+    // result, and create two spans that connect to the two slots in GneralSummary's
+    // template.
+    let recordView = new GeneralSummary();
+    recordView.generalRecordId = countryName;
+    recordView.generalRecordYear = year;
 
-      let countrySpan = document.createElement("span");
-      countrySpan.slot = "country";
-      countrySpan.innerText = country.id;
+    // Connect slots: this is done by creating two spans 
+    // with the "slot" attribute set to match the slot name. We then put these two
+    // spans inside the custom element as if they were child nodes - this is where
+    // the shadow DOM will pull the slot values from.
+    let countrySpan = document.createElement("span");
+    countrySpan.slot = "country";
+    countrySpan.innerText = countryName;
 
-      let yearSpan = document.createElement("span");
-      yearSpan.slot = "year";
-      yearSpan.innerText = country.year;
+    let yearSpan = document.createElement("span");
+    yearSpan.slot = "year";
+    yearSpan.innerText = year;
 
-      recordView.appendChild(countrySpan);
-      recordView.appendChild(yearSpan);
+    recordView.appendChild(countrySpan);
+    recordView.appendChild(yearSpan);
 
-      recordView.addEventListener("click", () => {
-        this.dispatchEvent(
-          new GeneralSelectedEvent(recordView.generalRecordId)
-        );
-      });
+    // Add an event listener: we want to trigger a "general-record-selected" event when
+    // the user clicks a specific general record.
+    recordView.addEventListener("click", () => {
+      this.dispatchEvent(new GeneralSelectedEvent(recordView.generalRecordId));
+    });
 
-      this.#result.appendChild(recordView);
-    }
+    this.#result.appendChild(recordView);
   }
 }
 
+// Define the GeneralDeleter class as a custom element
 window.customElements.define("general-record-deleter", GeneralDeleter);

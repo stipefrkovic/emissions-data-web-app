@@ -1,10 +1,10 @@
 /**
  * A custom element to show the summary of an emission record.
- * The current emission record ID is stored as an attribute on the element itself.
+ * Each current emission record attribute (e.g. ID) is stored as an attribute on the element itself.
  */
 export default class EmissionSummary extends HTMLElement {
     /**
-     * Get and set the emission record attribute.
+     * Get and set the emission record ID attribute.
      */
     get emissionRecordId() {
         return this.getAttribute("emission-record-id");
@@ -18,7 +18,7 @@ export default class EmissionSummary extends HTMLElement {
     }
 
     /**
-     * Get and set the emission record year.
+     * Get and set the emission record year attribute.
      */
     get emissionRecordYear() {
         return this.getAttribute("emission-record-year");
@@ -48,4 +48,5 @@ export default class EmissionSummary extends HTMLElement {
     }
 };
 
+// Define the EmissionSummary class as a custom element.
 window.customElements.define("emission-record-summary", EmissionSummary);

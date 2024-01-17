@@ -1,10 +1,10 @@
 /**
  * A custom element to show the summary of an temperature change record.
- * The current temperature change record ID is stored as an attribute on the element itself.
+ * The current temperature change record attribute (e.g. ID) is stored as an attribute on the element itself.
  */
 export default class TempChangeSummary extends HTMLElement {
     /**
-     * Get and set the temperature change record attribute.
+     * Get and set the temperature change record ID attribute.
      */
     get tempChangeRecordId() {
         return this.getAttribute("temp-change-record-id");
@@ -18,7 +18,7 @@ export default class TempChangeSummary extends HTMLElement {
     }
 
     /**
-     * Get and set the temperature change record year.
+     * Get and set the temperature change record year attribute.
      */
     get tempChangeRecordYear() {
         return this.getAttribute("temp-change-record-year");
@@ -48,4 +48,5 @@ export default class TempChangeSummary extends HTMLElement {
     }
 };
 
+// Define the TempChangeSummary class as a custom element
 window.customElements.define("temp-change-record-summary", TempChangeSummary);

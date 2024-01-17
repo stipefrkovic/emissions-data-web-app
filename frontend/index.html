@@ -21,8 +21,8 @@
                 </a>
 
                 <ul class="nav col-12 col-lg-auto me-lg-auto mb-2 mb-md-0 ms-4">
-                    <li><a href="." class="nav-link px-2 text-secondary">General Records</a></li>
-                    <li><a target="_blank" href="hello.html" class="nav-link px-2 text-white">Countries</a></li>
+                    <li><a href="index.html" class="nav-link px-2 text-secondary">General Records</a></li>
+                    <li><a target="_blank" href="country.html" class="nav-link px-2 text-white">Countries</a></li>
                 </ul>
             </div>
         </div>
@@ -43,15 +43,29 @@
             </div>
         </div>
 
+        <h2 class="mt-4">General Record</h2>
+        <hr />
+
         <general-record-finder id="genRecordFinder"></general-record-finder>
         <general-record-deleter id="genRecordDeleter"></general-record-deleter>
         <general-record-updater id="genRecordUpdater"></general-record-updater>
         <general-record-poster id="genRecordPoster"></general-record-poster>
-        <general-record-detail id="generalRecordDetail" general-record-id="" general-record-year=""></general-record-detail>
+        <general-record-detail id="detail" general-record-id="" general-record-year=""></general-record-detail>
+
+        <h2 class="mt-4">Emission Record</h2>
+        <hr />
         <emission-record-finder id="emissionRecord"></emission-record-finder>
         <emission-record-detail id="emissionRecordDetail" emission-record-id="" emission-record-year=""></emission-record-detail>
+
+        <h2 class="mt-4">Temperature Change Record</h2>
+        <hr />
         <temp-change-record-finder id="tempChangeRecord"></temp-change-record-finder>
         <temp-change-record-detail id="tempChangeDetail" temp-change-record-id="" temp-change-record-year=""></temp-change-record-detail>
+
+        <h2 class="mt-4">Energy Record</h2>
+        <hr />
+        <energy-record-finder id="energyRecord"></energy-record-finder>
+        <energy-record-detail id="energyRecordDetail" energy-record-id="" energy-record-year=""></energy-record-detail>
     </div>
 
     <!-- Templates here -->
@@ -189,7 +203,7 @@
             integrity="sha384-rbsA2VBKQhggwzxH7pPCaAqO46MgnOM80zW1RWuH61DGLwZJEdK2Kadq2F9CUG65" crossorigin="anonymous">
         <div class="bg-light p-3 mt-2 rounded">
             <h5 class="mb-0">
-                <slot name="country"></slot> <slot name="year"></slot> <slot name="population"></slot>
+                <slot name="country"></slot> <slot name="year"></slot> <slot name="gdp"></slot><slot name="population"></slot>
             </h5>
         </div>
 
@@ -206,7 +220,7 @@
 
         <div class="bg-light p-5 rounded mt-4" id="general-record-details">
             <div class="row">
-                <h5><span id="country"></span> <span class="ms-2 badge" id="year"></span></h5>
+                <h5><span id="country"></span> <span id="year"></span></h5>
                 <div class="col-12 col-md-6">
                     <p id="desc"></p>
                     <p>GDP: <strong id="gdp"></strong></p>
@@ -235,7 +249,7 @@
             </div>
         </div>
 
-        <div id="records">
+        <div id="emission-records">
             <!-- To be filled by the component -->
         </div>
 
@@ -251,9 +265,14 @@
             integrity="sha384-rbsA2VBKQhggwzxH7pPCaAqO46MgnOM80zW1RWuH61DGLwZJEdK2Kadq2F9CUG65" crossorigin="anonymous">
         <div class="bg-light p-3 mt-2 rounded">
             <h5 class="mb-0">
-                <slot name="co2"></slot> 
+                <slot name="year"></slot>
+                <span>CO2:</span> 
+                <slot name="co2"></slot>
+                <span>CH4:</span> 
                 <slot name="methane"></slot>
+                <span>N2O:</span> 
                 <slot name="nitrous-oxide"></slot>
+                <span>Total Gasses:</span> 
                 <slot name="total-ghg"></slot>
             </h5>
         </div>
@@ -290,9 +309,19 @@
 
         <div class="row mt-2">
             <div class="col-12 col-md-5">
-                <input type="text" class="form-control" id="country" placeholder="Country (name or ISO code)" />
+                <label for="continent" class="form-label">Continent:</label>
+                <select class="form-select" id="continent">
+                    <option value="africa">Africa</option>
+                    <option value="antarctica">Antarctica</option>
+                    <option value="asia">Asia</option>
+                    <option value="australia">Australia</option>
+                    <option value="europe">Europe</option>
+                    <option value="South America">South America</option>
+                    <option value="North America">North America</option>
+                </select>
             </div>
             <div class="col-12 col-md-5">
+                <label for="continent" class="form-label">Year:</label>
                 <input type="number" class="form-control" id="year" placeholder="Year (1900-1999)" min="1900" max="1999" />
             </div>
             <div class="col-12 col-md-2 d-grid">
@@ -300,7 +329,7 @@
             </div>
         </div>
 
-        <div id="records">
+        <div id="temp-records">
             <!-- To be filled by the component -->
         </div>
 
@@ -316,11 +345,17 @@
             integrity="sha384-rbsA2VBKQhggwzxH7pPCaAqO46MgnOM80zW1RWuH61DGLwZJEdK2Kadq2F9CUG65" crossorigin="anonymous">
         <div class="bg-light p-3 mt-2 rounded">
             <h5 class="mb-0">
+                <slot name="year"></slot> 
+                <span>Share:</span>
                 <slot name="share-temp-change"></slot> 
+                <span>CO2:</span>
                 <slot name="temp-change-co2"></slot>
+                <span>N2O:</span>
                 <slot name="temp-change-n2o"></slot>
-                <slot name="temp-change-ghg"></slot>
+                <span>CH4:</span>
                 <slot name="temp-change-ch4"></slot>
+                <span>GHG:</span>
+                <slot name="temp-change-ghg"></slot>
             </h5>
         </div>
 
@@ -350,6 +385,96 @@
             <a class="btn btn-primary" id="url" target="_blank">View</a>
         </div>
     </template>
+
+    <template id="energy-record-finder">
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" rel="stylesheet"
+            integrity="sha384-rbsA2VBKQhggwzxH7pPCaAqO46MgnOM80zW1RWuH61DGLwZJEdK2Kadq2F9CUG65" crossorigin="anonymous">
+
+        <div class="row mt-2">
+            <div class="col-12 col-md-5">
+                <input type="number" class="form-control" id="year" placeholder="Year (1900-1999)" min="1900" max="1999" />
+            </div>
+
+            <div class="col-12 col-md-5"></div>
+
+            <div class="col-12 col-md-5">
+                <label for="order-options" class="form-label">Order:</label>
+                <select class="form-select" id="order-options">
+                    <option value="descending">Descending</option>
+                    <option value="ascending">Ascending</option>
+                </select>
+            </div>
+
+            <div class="col-12 col-md-5">
+                <label for="batches-options" class="form-label">Return in batches of:</label>
+                <select class="form-select" id="batches-options-val">
+                    <option value="10">10</option>
+                    <option value="20">20</option>
+                    <option value="50">50</option>
+                    <option value="100">100</option>
+                </select>
+            </div>
+            <br/>
+
+            <div class="col-12 col-md-2 d-grid">
+                <button class="btn btn-primary" id="retrieve-energy">Retrieve!</button>
+            </div>
+        </div>
+
+        <div id="energy-records">
+            <!-- To be filled by the component -->
+        </div>
+
+        <nav class="mt-4">
+            <ul class="pagination justify-content-center">
+                <li class="page-item"><button class="page-link" id="page-prev">Previous</li>
+                <li class="page-item"><button class="page-link" id="page-next">Next</li>
+            </ul>
+        </nav>
+
+        <style>
+            :host {
+                display: block;
+            }
+        </style>
+    </template>
+
+    <template id="energy-record-summary">
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" rel="stylesheet"
+            integrity="sha384-rbsA2VBKQhggwzxH7pPCaAqO46MgnOM80zW1RWuH61DGLwZJEdK2Kadq2F9CUG65" crossorigin="anonymous">
+        <div class="bg-light p-3 mt-2 rounded">
+            <h5 class="mb-0">
+                <slot name="energy-country"></slot> 
+                <span>- Energy per capita: </span>
+                <slot name="energy-per-capita"></slot>
+                <span>- Energy per gdp: </span>
+                <slot name="energy-per-gdp"></slot>
+            </h5>
+        </div>
+
+        <style>
+            :host {
+                cursor: pointer;
+            }
+        </style>
+    </template>
+
+    <template id="energy-record-detail">
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" rel="stylesheet"
+            integrity="sha384-rbsA2VBKQhggwzxH7pPCaAqO46MgnOM80zW1RWuH61DGLwZJEdK2Kadq2F9CUG65" crossorigin="anonymous">
+
+        <div class="bg-light p-5 rounded mt-4" id="movie-details">
+            <div class="row">
+                <h5><span id="year"></span> </h5>
+                <div class="col-12 col-md-6">
+                    <p id="desc"></p>
+                    <p>Energy per capita: <strong id="energy-per-capita"></strong></p>
+                    <p>GDP per capita: <strong id="gdp-per-capita"></strong></p>
+                </div>
+            </div>
+            <a class="btn btn-primary" id="url" target="_blank">View Energy</a>
+        </div>
+    </template>
     <!-- End templates -->
 
     <script>
@@ -360,7 +485,8 @@
         document
         .getElementById("genRecordFinder")
         .addEventListener("general-record-selected", (ev) => {
-        document.getElementById("detail").generalRecordId = ev.generalRecordId;
+        document.getElementById("detail").generalRecordId = ev.countryId;
+        document.getElementById("detail").generalRecordYear = ev.countryYear;
         });
         document
           .getElementById("genRecordDeleter")
@@ -370,12 +496,14 @@
         document
         .getElementById("genRecordUpdater")
         .addEventListener("general-record-selected", (ev) => {
-        document.getElementById("detail").generalRecordId = ev.generalRecordId;
+        document.getElementById("detail").generalRecordId = ev.countryId;
+        document.getElementById("detail").generalRecordYear = ev.countryYear;
         });
         document
         .getElementById("genRecordPoster")
         .addEventListener("general-record-selected", (ev) => {
-        document.getElementById("detail").generalRecordId = ev.generalRecordId;
+        document.getElementById("detail").generalRecordId = ev.countryId;
+        document.getElementById("detail").generalRecordYear = ev.countryYear;
         });
         document
         .getElementById("emissionRecord")
@@ -387,6 +515,11 @@
         .addEventListener("temp-change-record-selected", (ev) => {
         document.getElementById("detail").generalRecordId = ev.generalRecordId;
         });
+        document.getElementById("energyRecord")
+        .addEventListener("energy-record-selected", ev => {
+        document.getElementById("detail").energyRecordId = ev.energyRecordId;
+        });
+
       </script>
       <script type="module" src="./components/general-record-finder.js"></script>
       <script type="module" src="./components/general-record-deleter.js"></script>
@@ -400,6 +533,9 @@
       <script type="module" src="./components/temp-change-record-finder.js"></script>
       <script type="module" src="./components/temp-change-record-summary.js"></script>
       <script type="module" src="./components/temp-change-record-detail.js"></script>
+      <script type="module" src="./components/energy-record-finder.js"></script>
+      <script type="module" src="./components/energy-record-summary.js"></script>
+      <script type="module" src="./components/energy-record-detail.js"></script>
 </body>
 
 </html>
