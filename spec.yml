@@ -212,6 +212,21 @@ paths:
                 schema:
                   type: string
                 description: The URL of the newly-created records; more specific requests may be necessary
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    description: Message
+              example: 
+                message: 'Succesfully created X records'
+            text/csv:
+              schema:
+                type: object
+              example: |
+                message, Succesfully created X records
         '400':
           $ref: '#/components/responses/BadRequest'
         '5XX':
@@ -254,6 +269,16 @@ paths:
                 schema:
                   type: string
                 description: The URL of the newly-created general record
+          content:
+            application/json:
+              schema:
+                  $ref: "#/components/schemas/general"
+            text/csv:
+              schema:
+                type: object
+              example: |
+                gdp, 0
+                population, 0
         '400':
           $ref: '#/components/responses/BadRequest'
         '409':

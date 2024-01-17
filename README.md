@@ -30,6 +30,7 @@ Can be found [here](spec.yml)
 
 ## REST Maturity
 
+<!-- TODO -->
 
 ## Running The Application(s)
 
@@ -52,6 +53,7 @@ cp .env.example .env
 docker compose up --build
 ```
 This will build and run the database, the back-end, and the front-end containers, in that order.
+If the docker-compose is set to seed the database, this command may have to be run twice!
 
 
 ## Requirements
