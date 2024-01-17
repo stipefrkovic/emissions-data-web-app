@@ -55,10 +55,10 @@ docker compose up --build
 This will build and run the database, the back-end, and the front-end containers, in that order.
 If the docker-compose is set to seed the database, this command may have to be run twice!
 
+4. Use the front-end with a Chromium(!) browser at the specified port or the backend directly through the API specification.
 
 ## Requirements
 
-<!-- TODO documentation -->
 - **REQ 1** - The API has 1-to-1 mappings of the operations specified in the list of functionalities to endpoints. They are identified in the API specification under the `General`, `Emission`, `Temperature`, `Energy`, and `Country` labels.
 - **REQ 2** - The API implements conversion of resources to either JSON or CSV representations. Errors and other types of responses are provided in JSON representation.
 - **REQ 3** - The API specification is appropriately documented and is available as mentioned above.
