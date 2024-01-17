@@ -248,13 +248,10 @@ paths:
               properties:
                 country:
                   type: string
-                  description: Country name
+                  description: Country name or ISO 3166-1 alpha-3 code
                 year:
                   type: integer
                   description: Year of the creation of the record
-                iso_code:
-                  type: string
-                  description: Country ISO code
                 gdp:
                   type: integer
                   description: GDP of the country
@@ -398,11 +395,11 @@ paths:
           minimum: 1900
           maximum: 1999
     get:
-      summary: Retrieve an emission record
+      summary: Retrieve emission records
       tags: 
         - All Records
         - Emission Records
-      description: Retrieve emission record(s) of a country, optionally since a specified year and later
+      description: Retrieve emission records of a country, optionally since a specified year and later
       responses:
         '200':
           description: OK
@@ -453,11 +450,11 @@ paths:
           minimum: 1900
           maximum: 1999
     get:
-      summary: Retrieve a temperature change records
+      summary: Retrieve temperature change records
       tags: 
         - All Records
         - Temperature Change Records
-      description: Retrieve temperature change record(s) of a continent, optionally since a specified year and later
+      description: Retrieve temperature change records of a continent, optionally since a specified year and later
       responses:
         '200':
           description: OK
@@ -528,7 +525,7 @@ paths:
           minimum: 1
           default: 1
     get:
-      summary: Retrieve an energy record
+      summary: Retrieve energy records
       tags: 
         - All Records
         - Energy Records

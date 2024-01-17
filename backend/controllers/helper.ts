@@ -23,7 +23,7 @@ export function resourceConvertor(result: any, req: Request, res: Response) {
         res.setHeader('Content-Type', 'text/csv');
         res.send(jsonToCSV(result));
       } catch (error) {
-        console.log(error);
+        console.error(error);
         res.status(500);
         res.send('Server error; no results, try again later');
       }

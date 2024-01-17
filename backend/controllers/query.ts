@@ -1,5 +1,5 @@
 import { DataSource, ObjectLiteral, SelectQueryBuilder } from "typeorm";
-import { Min, Max, IsDefined, IsInt, IsIn, IsString, IsOptional, validate } from "class-validator";
+import { Min, Max, IsDefined, IsInt, IsIn, IsString, IsOptional, validate, ValidateIf, isNotEmpty, IsISO31661Alpha3, isEmpty, isDefined } from "class-validator";
 import { Continent, continents } from "../models/continent";
 import { GeneralRecord } from "../models/general-record";
 import Container from "typedi";
@@ -18,6 +18,10 @@ import { badValidation } from "./validate";
  */
 export interface IQueryHelper<T extends ObjectLiteral> {
   apply(query: SelectQueryBuilder<T>): SelectQueryBuilder<T>;
+}
+
+export interface IQueryHelperAsync<T extends ObjectLiteral> {
+  apply(query: SelectQueryBuilder<T>): Promise<SelectQueryBuilder<T>>;
 }
 
 // Select year in a generic query
@@ -44,23 +48,33 @@ export class GeneralYearSelector extends YearSelector<GeneralRecord> {
 } 
 
 // Select country in a generic query
-export class CountrySelector <T extends ObjectLiteral> implements IQueryHelper<T>{
+export class CountrySelector <T extends ObjectLiteral> implements IQueryHelperAsync<T>{
   @IsDefined()
   @IsString()
   country!: string;
 
   constructor(private alias: string) {}
 
-  apply(query: SelectQueryBuilder<T>): SelectQueryBuilder<T> {
-    if (isISOCode(this.country)) {
-      const subQuery = Container.get<DataSource>("database").getRepository(Country).createQueryBuilder()
+  async apply(query: SelectQueryBuilder<T>): Promise<SelectQueryBuilder<T>> {
+    if (isISOCode(this.country)) {      
+      const countryQuery2 = Container.get<DataSource>("database").getRepository(Country).createQueryBuilder("country");
+      countryQuery2.where('country.iso_code = :iso_code', {iso_code: this.country});
+      let country = await countryQuery2.getOne();
+      if (isEmpty(country) || country!.iso_code !== this.country) throw new CustomError("Invalid request; country not found.", 400);
+    
+      const countryQuery = Container.get<DataSource>("database").getRepository(Country).createQueryBuilder()
         .select('c.country')
         .from('country', 'c')
         .where('c.iso_code = :iso_code', { iso_code: this.country})
         ;
-      query.andWhere(`${this.alias}.country IN (${subQuery.getQuery()})`);
-      query.setParameters(subQuery.getParameters());
+      query.andWhere(`${this.alias}.country IN (${countryQuery.getQuery()})`);
+      query.setParameters(countryQuery.getParameters());
     } else {
+      const countryQuery = Container.get<DataSource>("database").getRepository(Country).createQueryBuilder("country");
+      countryQuery.where(`country.country = :country`, {country: this.country});
+      let countryCount = await countryQuery.getCount();
+      if (countryCount == 0) throw new CustomError("Invalid request; country not found.", 400);
+    
       query.andWhere(`${this.alias}.country = :country`, {country: this.country});
     }
     return query;
@@ -181,27 +195,6 @@ export class NumberSelector {
   apply(countries: any[]): any[] {
     return countries.slice(0, this.num_countries);
   }
-}
-
-// Select a country in a country query
-export class CountryCountrySelector extends CountrySelector<Country> {
-  constructor() {
-    super('country');
-  }
-}
-
-// Determines whether a country exists
-export async function emptyCountryCountryQuery(object: any, res: Response, next: NextFunction) : Promise<boolean> {
-  const countryCountrySelector = plainToClass(CountryCountrySelector, object, { enableImplicitConversion: true });
-  if (badValidation(await validate(countryCountrySelector, { validationError: { target: true }}), res, next)) return true;
-  let countryCountryQuery = Container.get<DataSource>("database").getRepository(Country).createQueryBuilder("country");
-  countryCountryQuery = countryCountrySelector.apply(countryCountryQuery);
-  let countryCountryCount = await countryCountryQuery.getCount();
-  if (countryCountryCount == 0) {
-    next(new CustomError("Country not found", 400));
-    return true;
-  }
-  return false;
 }
 
 // Select time period in temperature record query

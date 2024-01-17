@@ -1,5 +1,8 @@
-import { IsISO31661Alpha3, IsInt, IsNotEmpty, IsString, Max, Min } from "class-validator";
+import { IsISO31661Alpha3, IsInt, IsNotEmpty, IsString, Max, Min, ValidateIf, isISO31661Alpha3, isNotEmpty } from "class-validator";
 import { GeneralRecord } from "../models/general-record";
+import { Country, isISOCode } from "../models/country";
+import Container from "typedi";
+import { DataSource } from "typeorm";
 
 // Full General Record class for the API, used in the POST request
 export class ApiFullGeneralRecord {
@@ -9,9 +12,6 @@ export class ApiFullGeneralRecord {
     @IsInt() @IsNotEmpty() @Min(1900) @Max(1999)
     year!: number;
     
-    @IsString() @IsNotEmpty() @IsISO31661Alpha3()
-    iso_code!: string;
-    
     @IsInt()
     gdp?: number;
     
@@ -19,13 +19,19 @@ export class ApiFullGeneralRecord {
     population?: number;
 
     // Creates a database model from the API model
-    public static toDatabase(apiFullGeneralRecord: ApiFullGeneralRecord) : GeneralRecord {
+    public static async toDatabase(apiFullGeneralRecord: ApiFullGeneralRecord) : Promise<GeneralRecord> {
         let generalRecord : GeneralRecord = {
             country: apiFullGeneralRecord.country,
             year: apiFullGeneralRecord.year,
             gdp: apiFullGeneralRecord.gdp,
             population: apiFullGeneralRecord.population
         };
+        if (isISOCode(apiFullGeneralRecord.country)) {
+            const countryQuery = Container.get<DataSource>("database").getRepository(Country).createQueryBuilder("country");
+            countryQuery.where('country.iso_code = :iso_code', {iso_code: apiFullGeneralRecord.country});
+            let country = await countryQuery.getOne();
+            generalRecord.country = country!.country;
+        }
         return generalRecord;
     }
 }

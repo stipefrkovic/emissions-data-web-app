@@ -3,7 +3,7 @@ import { DataSource } from "typeorm";
 import { plainToClass } from "class-transformer";
 import { isDefined, isDivisibleBy, isEmpty, isNotEmpty, validate } from "class-validator";
 import Container from "typedi";
-import { EmissionCountrySelector, TemperatureYearFilter, TemperatureContinentSelector, EmissionYearFilter, GeneralCountrySelector, EnergyPopulationOrder, GeneralYearSelector, EnergyYearSelector, Batcher, PeriodSelector, CountryCountrySelector, emptyCountryCountryQuery, NumberSelector } from "./query";
+import { EmissionCountrySelector, TemperatureYearFilter, TemperatureContinentSelector, EmissionYearFilter, GeneralCountrySelector, EnergyPopulationOrder, GeneralYearSelector, EnergyYearSelector, Batcher, PeriodSelector, NumberSelector } from "./query";
 import { csvToJson, resourceConvertor } from "./helper";
 import { CustomError, alreadyExists } from "../error";
 import { ApiFullGeneralRecord, ApiGeneralRecord } from "../api-models/general-record";
@@ -29,28 +29,25 @@ import { ApiFullRecord } from "../api-models/full-record";
 // Controller for the records endpoint functions, 1-to-1 mapping to OpenAPI specification
 export class RecordsController {
 
-    public async createGeneralRecordAsync(req: Request, res: Response, next: NextFunction): Promise <void> {
-        if (await emptyCountryCountryQuery(req.body, res, next)) return;
-        
+    public async createGeneralRecordAsync(req: Request, res: Response, next: NextFunction): Promise <void> {        
         const apiFullGeneralRecord : ApiFullGeneralRecord = plainToClass(ApiFullGeneralRecord, req.body, { enableImplicitConversion: true });
 
         let generaldRecordQuery = Container.get<DataSource>("database").getRepository(GeneralRecord).createQueryBuilder("general_record");
         
         const countrySelector = plainToClass(GeneralCountrySelector, req.body, { enableImplicitConversion: true });
-        if (badValidation(await validate(countrySelector, { validationError: { target: true }}), res, next)) return;
+        badValidation(await validate(countrySelector, { validationError: { target: true }}));
 
         const yearSelector = plainToClass(GeneralYearSelector, req.body, { enableImplicitConversion: true});
-        if (badValidation(await validate(yearSelector, { validationError: { target: true }}), res, next)) return;
+        badValidation(await validate(yearSelector, { validationError: { target: true }}));
         
-        generaldRecordQuery = countrySelector.apply(generaldRecordQuery); 
+        generaldRecordQuery = await countrySelector.apply(generaldRecordQuery); 
         generaldRecordQuery = yearSelector.apply(generaldRecordQuery);
         
-        console.log(countrySelector, yearSelector)
         let recordsCount = await generaldRecordQuery.getCount();
-        if (alreadyExists(recordsCount, res)) return;
+        alreadyExists(recordsCount);
 
         const generaldRecordRepo = Container.get<DataSource>("database").getRepository(GeneralRecord);
-        let generalRecord : GeneralRecord = ApiFullGeneralRecord.toDatabase(apiFullGeneralRecord)
+        let generalRecord : GeneralRecord = await ApiFullGeneralRecord.toDatabase(apiFullGeneralRecord)
         let dbEntry = generaldRecordRepo.create(generalRecord);
         await generaldRecordRepo.save(dbEntry);
         let apiGeneralRecord = ApiGeneralRecord.fromDatabase(dbEntry);
@@ -64,22 +61,20 @@ export class RecordsController {
     }
 
     public async getGeneralRecordAsync(req: Request<{ country: string, year: string }>, res: Response, next: NextFunction): Promise <void> {
-        if (await emptyCountryCountryQuery(req.params, res, next)) return;
-
         let generaldRecordQuery = Container.get<DataSource>("database").getRepository(GeneralRecord).createQueryBuilder("general_record");
         
         const countrySelector = plainToClass(GeneralCountrySelector, req.params, { enableImplicitConversion: true });
-        if (badValidation(await validate(countrySelector, { validationError: { target: true }}), res, next)) return;
+        badValidation(await validate(countrySelector, { validationError: { target: true }}));
 
         const yearSelector = plainToClass(GeneralYearSelector, req.params, { enableImplicitConversion: true});
-        if (badValidation(await validate(yearSelector, { validationError: { target: true }}), res, next)) return;
+        badValidation(await validate(yearSelector, { validationError: { target: true }}));
         
-        generaldRecordQuery = countrySelector.apply(generaldRecordQuery); 
+        generaldRecordQuery = await countrySelector.apply(generaldRecordQuery); 
         generaldRecordQuery = yearSelector.apply(generaldRecordQuery);
         
         let generalRecord = await generaldRecordQuery.getOne();
         
-        if (resourceNotFound(generalRecord, res, next)) return;
+        resourceNotFound(generalRecord);
 
         let apiGeneralRecord = ApiGeneralRecord.fromDatabase(generalRecord!);
 
@@ -88,23 +83,21 @@ export class RecordsController {
         return;
     }
 
-    public async updateGeneralRecordAsync(req: Request<{ country: string, year: string }>, res: Response, next: NextFunction): Promise <void> {               
-        if (await emptyCountryCountryQuery(req.params, res, next)) return;
-        
+    public async updateGeneralRecordAsync(req: Request<{ country: string, year: string }>, res: Response, next: NextFunction): Promise <void> {                       
         let generaldRecordQuery = Container.get<DataSource>("database").getRepository(GeneralRecord).createQueryBuilder("general_record");
         
         const countrySelector = plainToClass(GeneralCountrySelector, req.params, { enableImplicitConversion: true });
-        if (badValidation(await validate(countrySelector, { validationError: { target: true }}), res, next)) return;
+        badValidation(await validate(countrySelector, { validationError: { target: true }}));
 
         const yearSelector = plainToClass(GeneralYearSelector, req.params, { enableImplicitConversion: true});
-        if (badValidation(await validate(yearSelector, { validationError: { target: true }}), res, next)) return;
+        badValidation(await validate(yearSelector, { validationError: { target: true }}));
         
-        generaldRecordQuery = countrySelector.apply(generaldRecordQuery); 
+        generaldRecordQuery = await countrySelector.apply(generaldRecordQuery); 
         generaldRecordQuery = yearSelector.apply(generaldRecordQuery);
         
         let generalRecord = await generaldRecordQuery.getOne();
         
-        if (resourceNotFound(generalRecord, res, next)) return;
+        resourceNotFound(generalRecord);
 
         let apiGeneralRecord : ApiGeneralRecord = plainToClass(ApiGeneralRecord, req.body, { enableImplicitConversion: true });
         generalRecord!.gdp = apiGeneralRecord.gdp;
@@ -120,22 +113,20 @@ export class RecordsController {
     }
 
     public async deleteGeneralRecordAsync(req: Request<{ country: string, year: string }>, res: Response, next: NextFunction): Promise <void> {
-        if (await emptyCountryCountryQuery(req.params, res, next)) return;
-
         let generaldRecordQuery = Container.get<DataSource>("database").getRepository(GeneralRecord).createQueryBuilder("general_record");
         
         const countrySelector = plainToClass(GeneralCountrySelector, req.params, { enableImplicitConversion: true });
-        if (badValidation(await validate(countrySelector, { validationError: { target: true }}), res, next)) return;
+        badValidation(await validate(countrySelector, { validationError: { target: true }}));
 
         const yearSelector = plainToClass(GeneralYearSelector, req.params, { enableImplicitConversion: true});
-        if (badValidation(await validate(yearSelector, { validationError: { target: true }}), res, next)) return;
+        badValidation(await validate(yearSelector, { validationError: { target: true }}));
         
-        generaldRecordQuery = countrySelector.apply(generaldRecordQuery); 
+        generaldRecordQuery = await countrySelector.apply(generaldRecordQuery); 
         generaldRecordQuery = yearSelector.apply(generaldRecordQuery);
         
         let generalRecord = await generaldRecordQuery.getOne();
         
-        if (resourceNotFound(generalRecord, res, next)) return;
+        resourceNotFound(generalRecord);
 
         const generaldRecordRepo = Container.get<DataSource>("database").getRepository(GeneralRecord);
         await generaldRecordRepo.delete({country: generalRecord!.country, year: generalRecord!.year});
@@ -145,22 +136,19 @@ export class RecordsController {
     }
     
     public async getEmissionRecordAsync(req: Request<{ country: string }>, res: Response, next: NextFunction): Promise <void> {
-        if (await emptyCountryCountryQuery(req.params, res, next)) return;
-
         let emissionRecordQuery = Container.get<DataSource>("database").getRepository(EmissionRecord).createQueryBuilder("emission_record");
         
         const emissionYearFilter = plainToClass(EmissionYearFilter, req.query, { enableImplicitConversion: true });
-        if (badValidation(await validate(emissionYearFilter, { validationError: { target: true }}), res, next)) return;
+        badValidation(await validate(emissionYearFilter, { validationError: { target: true }}));
         
         const emissionCountrySelector = plainToClass(EmissionCountrySelector, req.params, {enableImplicitConversion: true});
-        if (badValidation(await validate(emissionCountrySelector, { validationError: { target: true }}), res, next)) return;
+        badValidation(await validate(emissionCountrySelector, { validationError: { target: true }}));
 
         emissionRecordQuery = emissionYearFilter.apply(emissionRecordQuery);
-        emissionRecordQuery = emissionCountrySelector.apply(emissionRecordQuery);
+        emissionRecordQuery = await emissionCountrySelector.apply(emissionRecordQuery);
 
         let emissionRecords = await emissionRecordQuery.getMany();
 
-        console.log(emissionRecords);
         if (emptyList(emissionRecords, req, res, "Resource(s) not found")) return;
 
         let apiEmissionRecords = emissionRecords.map(ApiEmissionRecord.fromDatabase);
@@ -173,10 +161,10 @@ export class RecordsController {
         let temperatureRecordQuery = Container.get<DataSource>("database").getRepository(TemperatureRecord).createQueryBuilder("temperature_record");
         
         const temperatureHigherYearFilter = plainToClass(TemperatureYearFilter, req.query, { enableImplicitConversion: true });
-        if (badValidation(await validate(temperatureHigherYearFilter, { validationError: { target: true }}), res, next)) return;
+        badValidation(await validate(temperatureHigherYearFilter, { validationError: { target: true }}));
         
         const continentSelector = plainToClass(TemperatureContinentSelector, req.params, {enableImplicitConversion: true});
-        if (badValidation(await validate(continentSelector, { validationError: { target: true }}), res, next)) return;
+        badValidation(await validate(continentSelector, { validationError: { target: true }}));
 
         temperatureRecordQuery = temperatureHigherYearFilter.apply(temperatureRecordQuery);
         temperatureRecordQuery = continentSelector.apply(temperatureRecordQuery);
@@ -194,13 +182,13 @@ export class RecordsController {
         let energyRecordQuery = Container.get<DataSource>("database").getRepository(EnergyRecord).createQueryBuilder("energy_record");
 
         const energyYearSelector = plainToClass(EnergyYearSelector, req.params, { enableImplicitConversion: true });
-        if (badValidation(await validate(energyYearSelector, { validationError: { target: true }}), res, next)) return;
+        badValidation(await validate(energyYearSelector, { validationError: { target: true }}));
 
         const energyPopulationOrder = plainToClass(EnergyPopulationOrder, req.query, { enableImplicitConversion: true });
-        if (badValidation(await validate(energyPopulationOrder, { validationError: { target: true }}), res, next)) return;
+        badValidation(await validate(energyPopulationOrder, { validationError: { target: true }}));
 
         const batcher = plainToClass(Batcher, req.query, { enableImplicitConversion: true });
-        if (badValidation(await validate(batcher, { validationError: { target: true }}), res, next)) return;
+        badValidation(await validate(batcher, { validationError: { target: true }}));
 
         energyRecordQuery = energyYearSelector.apply(energyRecordQuery);
         energyRecordQuery = energyPopulationOrder.apply(energyRecordQuery);
@@ -219,10 +207,10 @@ export class RecordsController {
         let temperatureRecordQuery = Container.get<DataSource>("database").getRepository(TemperatureRecord).createQueryBuilder("temperature_record");
         
         const periodSelector = plainToClass(PeriodSelector, req.query, { enableImplicitConversion: true });
-        if (badValidation(await validate(periodSelector, { groups: [periodSelector.period_type], validationError: { target: true }}), res, next)) return;
+        badValidation(await validate(periodSelector, { groups: [periodSelector.period_type], validationError: { target: true }}));
 
         const numberSelector = plainToClass(NumberSelector, req.query, { enableImplicitConversion: true});
-        if (badValidation(await validate(numberSelector, { validationError: { target: true }}), res, next)) return;
+        badValidation(await validate(numberSelector, { validationError: { target: true }}));
 
         temperatureRecordQuery = periodSelector.apply(temperatureRecordQuery);
         
@@ -284,11 +272,8 @@ export class RecordsController {
             
             const apiFullRecord : ApiFullRecord = plainToClass(ApiFullRecord, data[i], { enableImplicitConversion: false })
             
-            if (badValidation(await validate(apiFullRecord, { validationError: { target: true }}), res, next)) {
-                console.error(apiFullRecord); 
-                return;
-            }
-            
+            badValidation(await validate(apiFullRecord, { validationError: { target: true }}));
+
             if (isNotEmpty(apiFullRecord.iso_code)) {
                 try {
                     await db.getRepository(GeneralRecord).save(apiFullRecord.toGeneralRecord());
