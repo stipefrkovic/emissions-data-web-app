@@ -43,7 +43,7 @@ export default class EnergyFinder extends HTMLElement {
     /** @type {number} */ #limit = 100;
     /** @type {number} */ #ending = 1;
     /** @type {number} */ #endingOffset = 0;
-    /** @type {number} */ #currentOffset = 0;
+    /** @type {number} */ #currentOffset = 1;
     /** @type {boolean} */ #hasResults = false;
 
     constructor() {
@@ -61,9 +61,9 @@ export default class EnergyFinder extends HTMLElement {
         // future reference.
         this.#yearSearch = this.shadowRoot.getElementById("year");
         this.#orderBySearch = this.shadowRoot.getElementById("order-options");
-        this.#batchesSearch = this.shadowRoot.getElementById("batches-options");
+        this.#batchesSearch = this.shadowRoot.getElementById("batches-options-val");
         this.#find = this.shadowRoot.getElementById("retrieve-energy");
-        this.#results = this.shadowRoot.getElementById("records");
+        this.#results = this.shadowRoot.getElementById("energy-records");
         this.#navNext = this.shadowRoot.getElementById("page-next");
         this.#navPrev = this.shadowRoot.getElementById("page-prev");
 
@@ -76,11 +76,12 @@ export default class EnergyFinder extends HTMLElement {
             this.#batches =
                 this.#batchesSearch.options[this.#batchesSearch.selectedIndex].value;
             let energyResult;
+            console.log(this.#orderBySearch.value);
             try {
                 energyResult = await records.getEnergyRecord(
                     this.#yearSearch.value,
                     this.#orderBySearch.value,
-                    this.#batchesSearch.value,
+                    parseInt(this.#batches),
                     1
                 );
             } catch (e) {
@@ -90,7 +91,7 @@ export default class EnergyFinder extends HTMLElement {
 
             let numOfRecords = energyResult.length;
             this.#limit = numOfRecords;
-            this.#currentOffset = 0;
+            this.#currentOffset = 1;
             this.#ending = this.#limit % this.#batches;
             this.#endingOffset = Math.floor(this.#limit / this.#batches) * this.#batches;
 
@@ -105,7 +106,7 @@ export default class EnergyFinder extends HTMLElement {
 
         this.#navPrev.addEventListener("click", async () => {
             this.#currentOffset -= this.#batches;
-            if (this.#currentOffset < 0) this.#currentOffset = 0;
+            if (this.#currentOffset < 1) this.#currentOffset = 1;
             await this.search();
         });
     }
@@ -122,7 +123,7 @@ export default class EnergyFinder extends HTMLElement {
             this.#ending % this.#batches === 0
                 ? this.#currentOffset === this.#endingOffset - this.#batches
                 : this.#currentOffset === this.#endingOffset;
-        this.#navPrev.disabled = !this.#hasResults || this.#currentOffset === 0;
+        this.#navPrev.disabled = !this.#hasResults || this.#currentOffset === 1;
     }
 
     /**
@@ -146,8 +147,8 @@ export default class EnergyFinder extends HTMLElement {
             energyResult = await records.getEnergyRecord(
                 year,
                 orderby,
-                this.#batchesSearch,
-                this.#currentOffset
+                parseInt(this.#batchesSearch.options[this.#batchesSearch.selectedIndex].value),
+                parseInt(this.#currentOffset)
             );
         } catch (e) {
             alert(e);
@@ -171,16 +172,21 @@ export default class EnergyFinder extends HTMLElement {
             // with the "slot" attribute set to match the slot name. We then put these two
             // spans inside the custom element as if they were child nodes - this is where
             // the shadow DOM will pull the slot values from.
+            let countrySpan = document.createElement("span");
+            countrySpan.slot = "energy-country";
+            countrySpan.innerText = energy.country;
+
             let energyPerCapitaSpan = document.createElement("span");
             energyPerCapitaSpan.slot = "energy-per-capita";
-            energyPerCapitaSpan.innerText = energy.energyPerCapita;
+            energyPerCapitaSpan.innerText = energy.energyPerCapita != null ? energy.energyPerCapita : "No Info";;
 
-            let gdpPerCapita = document.createElement("span");
-            gdpPerCapita.slot = "gdp-per-capita";
-            gdpPerCapita.innerText = energy.gdpPerCapita;
+            let energyPerGdp = document.createElement("span");
+            energyPerGdp.slot = "energy-per-gdp";
+            energyPerGdp.innerText = energy.energyPerGdp != null ? energy.energyPerGdp : "No Info";
 
+            energyView.appendChild(countrySpan);
             energyView.appendChild(energyPerCapitaSpan);
-            energyView.appendChild(gdpPerCapita);
+            energyView.appendChild(energyPerGdp);
 
             // Add an event listener: we want to trigger a "energy-record-selected" event when
             // the user clicks a specific energy record.

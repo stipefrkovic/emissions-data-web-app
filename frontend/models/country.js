@@ -17,8 +17,8 @@ export default class Country {
     static fromJson(json){
         let country = new Country();
 
-        country.name = json.name;
-        country.shareOfTempChangeFromGhg = json.shareOfTempChangeFromGhg;
+        country.name = json.country;
+        country.shareOfTempChangeFromGhg = json.share_of_temperature_change_from_ghg;
 
         return country;
     }

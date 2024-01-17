@@ -15,9 +15,9 @@ export default class Energy{
      */
     static fromJson(json){
         let energy = new Energy();
-
-        energy.energyPerCapita = json.energyPerCapita;
-        energy.energyPerGdp = json.energyPerGdp;
+        energy.country = json.country
+        energy.energyPerCapita = json.energy_per_capita;
+        energy.energyPerGdp = json.energy_per_gdp;
 
         return energy;
     }

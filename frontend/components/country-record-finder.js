@@ -74,7 +74,7 @@ export default class CountryFinder extends HTMLElement {
        * been found, it is displayed on the web page using the CountrySummary object.
        */
       async search() {
-        let numOfCountries = this.#numOfCountriesSearch.value;
+        let numOfCountries = parseInt(this.#numOfCountriesSearch.value);
         let orderBy = this.#orderBySearch.value;
         let order = this.#orderSearch.value;
         let periodType = this.#periodTypeSearch.value;
@@ -95,14 +95,15 @@ export default class CountryFinder extends HTMLElement {
         // Build the new view: we instantiate a CountrySummary custom element for every
         // result, and create two spans that connect to the two slots in CountrySummary's
         // template.
-        for (let country of countryResult) {
+        console.log(countryResult);
+        for (let countryIt of countryResult) {
           // Create a new summary instance and set its attributes (for later reference)
           let countryRecordView = new CountrySummary();
-          countryRecordView.countryRecordNumOfCountries = country.numOfCountries;
-          countryRecordView.countryRecordOrderBy = country.orderBy;
-          countryRecordView.countryRecordOrder = country.order;
-          countryRecordView.countryRecordPeriodType = country.periodType;
-          countryRecordView.countryRecordPeriodValue = country.periodValue;
+          countryRecordView.countryRecordNumOfCountries = countryIt.numOfCountries;
+          countryRecordView.countryRecordOrderBy = countryIt.orderBy;
+          countryRecordView.countryRecordOrder = countryIt.order;
+          countryRecordView.countryRecordPeriodType = countryIt.periodType;
+          countryRecordView.countryRecordPeriodValue = countryIt.periodValue;
 
           // Connect slots: this is done by creating two spans 
           // with the "slot" attribute set to match the slot name. We then put these two
@@ -110,11 +111,11 @@ export default class CountryFinder extends HTMLElement {
           // the shadow DOM will pull the slot values from.
           let countryNameSpan = document.createElement("span");
           countryNameSpan.slot = "country";
-          countryNameSpan.innerText = country.country;
+          countryNameSpan.innerText = countryIt.name;
 
           let shareTempChangeGhgSpan = document.createElement("span");
           shareTempChangeGhgSpan.slot = "share-temp-change-ghg";
-          shareTempChangeGhgSpan.innerText = country.shareTempChangeGhg;
+          shareTempChangeGhgSpan.innerText = countryIt.shareOfTempChangeFromGhg != null ? countryIt.shareOfTempChangeFromGhg : "No info";
 
           countryRecordView.appendChild(countryNameSpan);
           countryRecordView.appendChild(shareTempChangeGhgSpan);

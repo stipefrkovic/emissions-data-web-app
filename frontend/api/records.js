@@ -144,18 +144,18 @@ export default {
    */
   async getEnergyRecord(
     /** @type {number} */ year,
-    /** @type {string} */ orderBy = "descending",
+    /** @type {string} */ orderBy = "DESC",
     /** @type {number} */ batchSize = 10,
     /** @type {number} */ batchIndex = 1
   ) {
     const apiResponse = await apiCall(`records/${year}/energy`, "GET", {
-      orderBy: orderBy,
-      batchSize: batchSize,
-      batchIndex: batchIndex,
+      order_dir: orderBy == "descending" ? "DESC" : "ASC",
+      batch_size: batchSize,
+      batch_index: batchIndex,
     });
     if (!apiResponse.ok) throw new Error(await apiResponse.text());
 
-    return EnergyRecord.fromJson(await apiResponse.json());
+    return (await apiResponse.json()).map(EnergyRecord.fromJson);
   },
 
   /**
@@ -175,14 +175,13 @@ export default {
     /** @type {number} */ periodValue
   ) {
     const apiResponse = await apiCall(`records/countries`, "GET", {
-      ncountries: ncountries,
+      num_countries: ncountries,
       orderBy: orderBy,
       order: order,
-      periodType: periodType,
-      periodValue: periodValue,
+      period_type: periodType,
+      period_value: periodValue,
     });
     if (!apiResponse.ok) throw new Error(await apiResponse.text());
-
-    return CountryRecord.fromJson(await apiResponse.json());
+    return (await apiResponse.json()).map(CountryRecord.fromJson);
   },
 };

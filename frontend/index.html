@@ -396,7 +396,7 @@
 
             <div class="col-12 col-md-5">
                 <label for="batches-options" class="form-label">Return in batches of:</label>
-                <select class="form-select" id="batches-options">
+                <select class="form-select" id="batches-options-val">
                     <option value="10">10</option>
                     <option value="20">20</option>
                     <option value="50">50</option>
@@ -433,7 +433,11 @@
             integrity="sha384-rbsA2VBKQhggwzxH7pPCaAqO46MgnOM80zW1RWuH61DGLwZJEdK2Kadq2F9CUG65" crossorigin="anonymous">
         <div class="bg-light p-3 mt-2 rounded">
             <h5 class="mb-0">
-                <slot name="energy-per-capita"></slot> <slot name="gdp-per-capita"></slot>
+                <slot name="energy-country"></slot> 
+                <span>- Energy per capita: </span>
+                <slot name="energy-per-capita"></slot>
+                <span>- Energy per gdp: </span>
+                <slot name="energy-per-gdp"></slot>
             </h5>
         </div>
 
