@@ -83,7 +83,7 @@ export default class SpecialPoster extends HTMLElement {
         // result, and create two spans that connect to the two slots in SpecialSummary's
         // template.
         let specialView = new SpecialSummary();
-        specialView.specialRecordUrl = country.url;
+        specialView.specialRecordUrl = urlName;
 
         // Connect slots: this is done by creating one span 
         // with the "slot" attribute set to match the slot name. We then put this
@@ -91,12 +91,12 @@ export default class SpecialPoster extends HTMLElement {
         // the shadow DOM will pull the slot values from.
         let urlSpan = document.createElement("span");
         urlSpan.slot = "emissions-csv-url";
-        urlSpan.innerText = country.url;
+        urlSpan.innerText = urlName;
 
         specialView.appendChild(urlSpan);
 
-        // Add an event listener: we want to trigger a "country-record-selected" event when
-        // the user clicks a specific country record.
+        // Add an event listener: we want to trigger a "special-record-selected" event when
+        // the user clicks a specific special record.
         specialView.addEventListener("click", () => {
             this.dispatchEvent(
                 new SpecialRecordSelectedEvent(specialView.specialRecordUrl)
