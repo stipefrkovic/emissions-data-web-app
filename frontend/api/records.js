@@ -10,6 +10,7 @@ export default {
   /**
    * A function for posting a new general record.
    * @param {string} country 
+   * @param {string} isoCode 
    * @param {number} year 
    * @param {number} GDP 
    * @param {number} population 
@@ -17,14 +18,16 @@ export default {
    */
   async postGeneralRecord(
     /** @type {string} */ country,
+    /** @type {string} */ iso_code,
     /** @type {number} */ year,
-    /** @type {number} */ GDP,
+    /** @type {number} */ gdp,
     /** @type {number} */ population
   ) {
     const data = {};
     if (country !== undefined) data.country = country;
+    if (iso_code !== undefined) data.iso_code = iso_code;
     if (year !== undefined) data.year = year;
-    if (GDP !== undefined) data.GDP = GDP;
+    if (gdp !== undefined) data.gdp = gdp;
     if (population !== undefined) data.population = population;
 
     const apiResponse = await apiCall(`records/general`, "POST", data);
@@ -60,13 +63,13 @@ export default {
   async putGeneralRecord(
     /** @type {string} */ country,
     /** @type {number} */ year,
-    /** @type {number} */ GDP,
+    /** @type {number} */ gdp,
     /** @type {number} */ population
   ) {
     const data = {};
     if (country !== undefined) data.country = country;
     if (year !== undefined) data.year = year;
-    if (GDP !== undefined) data.GDP = GDP;
+    if (gdp !== undefined) data.gdp = gdp;
     if (population !== undefined) data.population = population;
 
     const apiResponse = await apiCall(`records/${country}/${year}/general`, "PUT", data);
