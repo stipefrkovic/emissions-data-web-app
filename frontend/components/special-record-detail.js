@@ -89,7 +89,7 @@ export default class SpecialDetail extends HTMLElement {
 
         this.initializeTemplate();
 
-        this.#url.innerText = record.url;
+        this.#url.innerText = this.specialRecordUrl;
     }
 };
 
