@@ -99,9 +99,7 @@ export default {
     );
     if (!apiResponse.ok) throw new Error(await apiResponse.text());
 
-  
-    //TODO add delete message
-    return; //GeneralRecord.fromJson(await apiResponse.json());
+      return; //GeneralRecord.fromJson(await apiResponse.json());
   },
 
   /**
