@@ -193,7 +193,7 @@ export default {
   async getCountryRecord(
     /** @type {number} */ ncountries,
     /** @type {string} */ orderBy = "share_of_temperature_change_from_ghg",
-    /** @type {string} */ order = "descending",
+    /** @type {string} */ order = "DESC",
     /** @type {string} */ periodType = "specific-year",
     /** @type {number} */ periodValue,
     /** @type {string} */ content
