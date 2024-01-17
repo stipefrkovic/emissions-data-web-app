@@ -92,7 +92,21 @@ As mentioned, the three tiers: database, back-end, and front-end, are all implem
 
 #### Front-end
 
-TODO
+- Simplistic UI was created for frontend that showcases all the functionalities implemented in the back-end.
+- Vanilla Javascript was used to create the front-end functionality due to the following:
+  - It requires no dependencies as React and Vue do, thus simplifying the web development.
+  - Due to no dependecies, the content on the frontend loads faster, meaning it is more time efficient which is appreciated a lot by nowaday users.
+  - It helped us to properly learn the fundamentals of Javascript due to having no additional complex and abstract features.
+- We have chosen to use Javascript for front-end rather tan Typescript due to one simple reason: its dynamic typing. The dynamic typing enabled us to create custom elements that can work with variables/objects whose typing is not easily predictable whereas with Typescript we would not even be able to render these elements.
+- In order to render the UI elements, next to Vanilla Javascript, HTML was used.
+- Our frontend involved using the following web development components:
+  - Custom elements - HTML elements with custom behavior that are defined using Javascript.
+  - Shadow DOM - closed-off "sub-page" that enables encapsulation of custom element's structure and its styling. This way any code written outside of Shadow DOM was not affected by its styles and scripts and vice versa.
+  - Templates - HTML elements that enable support of variable data stored in "slots" and can be re-used multiple times. This enabled us to write all necessary information, fetched from back-end, using Javascript in a reusable HTML element.
+- Our frontend was separated in three modules:
+  - components - a module responsible for defining all the necessary web development components that will be rendered on the web page.
+  - api - a module responsible for sending correct API calls to the back-end based on the user's input in the UI.
+  - model - a module responsible for defining objects that contain the information that the users want, namely records.
 
 ## Work Distribution
 
@@ -104,11 +118,15 @@ TODO
   - docker-compose
   - README
   - OpenAPI specification
+
 - Andro
 
   In order of contribution:
-  - first thing
-  - second thing
+  - Front-end
+  - Back-end
+  - OpenAPI specification
+  - README
+
 - Christopher
 
   In order of contribution:
