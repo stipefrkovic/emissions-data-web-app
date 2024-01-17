@@ -1,29 +1,6 @@
 import records from "../api/records.js";
 import TempChangeSummary from "./temp-change-record-summary.js";
-// ApiTempChangeSummary maybe needed
-// TempChangeSummary maybe needed
 
-/**
- * This is a custom Event to represent a temperature change record being selected,
- * carrying a continentId field with it to represent which temperature change record is
- * being selected. This is used in the TempChangeRecordFinder element, to
- * inform the rest of the application that the user selected a temperature change record.
- */
-export class TempChangeRecordSelectedEvent extends Event {
-    /** @type {number} */
-    continentId;
-
-    /**
-     * @param {number} countinentId 
-     */
-    constructor(continentId) {
-        // We call the parent constructor with a string representing
-        // the name of this event. This is what we listen to.
-        super("temp-change-record-selected");
-
-        this.continentId = continentId;
-    }
-}
 
 /**
  * This is a custom element representing a temperature change record finder as a whole.
@@ -134,12 +111,6 @@ export default class TempChangeRecordFinder extends HTMLElement {
             tempChangeRecordView.appendChild(tempChangeN2OSpan);
             tempChangeRecordView.appendChild(tempChangeGhgSpan);
             tempChangeRecordView.appendChild(tempChangeCh4Span);
-
-            // Add an event listener: we want to trigger a "movie-selected" event when
-            // the user clicks a specific movie.
-            tempChangeRecordView.addEventListener("click", () => {
-                this.dispatchEvent(new TempChangeRecordSelectedEvent(tempChangeRecordView.id));
-            });
 
             this.#result.appendChild(tempChangeRecordView);
         }

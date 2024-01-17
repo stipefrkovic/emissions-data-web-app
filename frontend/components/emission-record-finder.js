@@ -1,29 +1,5 @@
 import records from "../api/records.js";
 import EmissionSummary from "./emission-record-summary.js";
-// ApiGeneralSummary maybe needed
-// GeneralSummary maybe needed
-
-/**
- * This is a custom Event to represent an emission record being selected,
- * carrying a countryId field with it to represent which emission record is
- * being selected. This is used in the EmissionFinder element, to
- * inform the rest of the application that the user selected an emission record.
- */
-export class EmissionRecordSelectedEvent extends Event {
-  /** @type {number} */
-  countryId;
-
-  /**
-   * @param {number} countryId
-   */
-  constructor(countryId) {
-    // We call the parent constructor with a string representing
-    // the name of this event. This is what we listen to.
-    super("emission-record-selected");
-
-    this.countryId = countryId;
-  }
-}
 
 /**
  * This is a custom element representing an emission record finder as a whole.
@@ -125,13 +101,6 @@ export default class EmissionRecordFinder extends HTMLElement {
       emissionRecordView.appendChild(nitrousOxideSpan);
       emissionRecordView.appendChild(totalGhgSpan);
 
-      // Add an event listener: we want to trigger a "emission-record-selected" event when
-      // the user clicks a specific emission record.
-      emissionRecordView.addEventListener("click", () => {
-        this.dispatchEvent(
-          new EmissionRecordSelectedEvent(emissionRecordView.emissionRecordId)
-        );
-      });
 
       this.#result.appendChild(emissionRecordView);
     }

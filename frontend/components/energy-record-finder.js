@@ -2,28 +2,6 @@ import records from "../api/records.js";
 import EnergySummary from "./energy-record-summary.js";
 
 /**
- * This is a custom Event to represent an energy record being selected,
- * carrying a energyId field with it to represent which energy record is
- * being selected. This is used in the EnergyFinder element, to
- * inform the rest of the application that the user selected an energy record.
- */
-export class EnergyRecordSelectedEvent extends Event {
-    /** @type {number} */
-    energyId;
-
-    /**
-     * @param {number} energyId 
-     */
-    constructor(energyId) {
-        // We call the parent constructor with a string representing
-        // the name of this event. This is what we listen to.
-        super("energy-record-selected");
-
-        this.energyId = energyId;
-    }
-}
-
-/**
  * This is a custom element representing an energy record finder as a whole.
  * It contains a small form where the user can enter a year, how to order by and the batches size
  * to search for, and will show all matching results with pagination. The user can pick any of 
@@ -185,12 +163,6 @@ export default class EnergyFinder extends HTMLElement {
             energyView.appendChild(countrySpan);
             energyView.appendChild(energyPerCapitaSpan);
             energyView.appendChild(energyPerGdp);
-
-            // Add an event listener: we want to trigger a "energy-record-selected" event when
-            // the user clicks a specific energy record.
-            energyView.addEventListener("click", () => {
-                this.dispatchEvent(new EnergyRecordSelectedEvent(energyView.energyRecordYear));
-            });
 
             this.#results.appendChild(energyView);
             this.#hasResults = true;

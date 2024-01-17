@@ -146,5 +146,6 @@ As mentioned, the three tiers: database, back-end, and front-end, are all implem
 - Christopher
 
   In order of contribution:
-  - first thing
-  - second thing
+  - Front-end
+  - Back-end
+  - OpenAPI specification

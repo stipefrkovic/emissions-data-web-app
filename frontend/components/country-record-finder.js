@@ -119,12 +119,6 @@ export default class CountryFinder extends HTMLElement {
           countryRecordView.appendChild(countryNameSpan);
           countryRecordView.appendChild(shareTempChangeGhgSpan);
 
-          // Add an event listener: we want to trigger a "country-record-selected" event when
-          // the user clicks a specific country record.
-          countryRecordView.addEventListener("click", () => {
-              this.dispatchEvent(new CountryRecordSelectedEvent(countryRecordView.countryRecordId));
-          });
-
           this.#result.appendChild(countryRecordView);
       }
       }

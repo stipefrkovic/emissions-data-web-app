@@ -95,14 +95,6 @@ export default class SpecialPoster extends HTMLElement {
 
         specialView.appendChild(urlSpan);
 
-        // Add an event listener: we want to trigger a "special-record-selected" event when
-        // the user clicks a specific special record.
-        specialView.addEventListener("click", () => {
-            this.dispatchEvent(
-                new SpecialRecordSelectedEvent(specialView.specialRecordUrl)
-            );
-        });
-
         this.#result.appendChild(specialView);
     }
 }
