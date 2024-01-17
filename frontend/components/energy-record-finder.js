@@ -76,7 +76,6 @@ export default class EnergyFinder extends HTMLElement {
             this.#batches =
                 this.#batchesSearch.options[this.#batchesSearch.selectedIndex].value;
             let energyResult;
-            console.log(this.#orderBySearch.value);
             try {
                 energyResult = await records.getEnergyRecord(
                     this.#yearSearch.value,

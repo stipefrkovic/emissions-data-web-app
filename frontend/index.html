@@ -265,9 +265,14 @@
             integrity="sha384-rbsA2VBKQhggwzxH7pPCaAqO46MgnOM80zW1RWuH61DGLwZJEdK2Kadq2F9CUG65" crossorigin="anonymous">
         <div class="bg-light p-3 mt-2 rounded">
             <h5 class="mb-0">
-                <slot name="co2"></slot> 
+                <slot name="year"></slot>
+                <span>CO2:</span> 
+                <slot name="co2"></slot>
+                <span>CH4:</span> 
                 <slot name="methane"></slot>
+                <span>N2O:</span> 
                 <slot name="nitrous-oxide"></slot>
+                <span>Total Gasses:</span> 
                 <slot name="total-ghg"></slot>
             </h5>
         </div>
@@ -340,11 +345,17 @@
             integrity="sha384-rbsA2VBKQhggwzxH7pPCaAqO46MgnOM80zW1RWuH61DGLwZJEdK2Kadq2F9CUG65" crossorigin="anonymous">
         <div class="bg-light p-3 mt-2 rounded">
             <h5 class="mb-0">
+                <slot name="year"></slot> 
+                <span>Share:</span>
                 <slot name="share-temp-change"></slot> 
+                <span>CO2:</span>
                 <slot name="temp-change-co2"></slot>
+                <span>N2O:</span>
                 <slot name="temp-change-n2o"></slot>
-                <slot name="temp-change-ghg"></slot>
+                <span>CH4:</span>
                 <slot name="temp-change-ch4"></slot>
+                <span>GHG:</span>
+                <slot name="temp-change-ghg"></slot>
             </h5>
         </div>
 
@@ -491,7 +502,8 @@
         document
         .getElementById("genRecordPoster")
         .addEventListener("general-record-selected", (ev) => {
-        document.getElementById("detail").generalRecordId = ev.generalRecordId;
+        document.getElementById("detail").generalRecordId = ev.countryId;
+        document.getElementById("detail").generalRecordYear = ev.countryYear;
         });
         document
         .getElementById("emissionRecord")

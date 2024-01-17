@@ -104,6 +104,10 @@ export default class TempChangeRecordFinder extends HTMLElement {
             // with the "slot" attribute set to match the slot name. We then put these five
             // spans inside the custom element as if they were child nodes - this is where
             // the shadow DOM will pull the slot values from. 
+            let yearSpan = document.createElement("span");
+            yearSpan.slot = "year";
+            yearSpan.innerText = continent.year;
+
             let shareTempChangeSpan = document.createElement("span");
             shareTempChangeSpan.slot = "share-temp-change";
             shareTempChangeSpan.innerText = continent.shareOfTempChangeFromGhg;
@@ -124,6 +128,7 @@ export default class TempChangeRecordFinder extends HTMLElement {
             tempChangeCh4Span.slot = "temp-change-ch4";
             tempChangeCh4Span.innerText = continent.tempChangeFromCH4;
 
+            tempChangeRecordView.appendChild(yearSpan);
             tempChangeRecordView.appendChild(shareTempChangeSpan);
             tempChangeRecordView.appendChild(tempChangeCo2Span);
             tempChangeRecordView.appendChild(tempChangeN2OSpan);

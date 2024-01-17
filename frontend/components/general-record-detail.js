@@ -116,7 +116,7 @@ export default class GeneralDetail extends HTMLElement {
         this.#id.innerText = this.generalRecordId;
         this.#year.innerText = this.generalRecordYear;
         this.#gdp.innerText = record.gdp != null ? record.gdp : "No info" ;
-        this.#population.innerText = record.population;
+        this.#population.innerText = record.population != null ? record.population : "No Info";
     }
 };
 

@@ -23,7 +23,6 @@ export default class Emission{
     static fromJson(json){
         let emission = new Emission();
 
-        emission.id = json.id;
         emission.year = json.year;
         emission.co2 = json.co2;
         emission.methane = json.methane;

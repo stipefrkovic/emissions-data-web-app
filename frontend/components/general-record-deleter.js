@@ -55,9 +55,7 @@ export default class GeneralDeleter extends HTMLElement {
     try {
       countryResult = await records.deleteGeneralRecord(countryName, year);
     } catch (e) {
-      console.log("hello\n");
       alert(e);
-      console.log("hello\n");
       return;
     }
 

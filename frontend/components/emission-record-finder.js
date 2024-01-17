@@ -28,8 +28,8 @@ export class EmissionRecordSelectedEvent extends Event {
 /**
  * This is a custom element representing an emission record finder as a whole.
  * It contains a small form where the user can enter a country name or ISO code and a year
- * to search for, and will show all matching results. The user can pick the 
- * result, after which the element will emit a "emission-record-selected" event as 
+ * to search for, and will show all matching results. The user can pick the
+ * result, after which the element will emit a "emission-record-selected" event as
  * defined above.
  */
 export default class EmissionRecordFinder extends HTMLElement {
@@ -38,8 +38,8 @@ export default class EmissionRecordFinder extends HTMLElement {
   /** @type {HTMLButtonElement} */ #retrieve;
   /** @type {HTMLDivElement} */ #result;
 
-    constructor() {
-        super();
+  constructor() {
+    super();
 
     // We start by finding the template and taking its contents.
     const template = document.getElementById("emission-record-finder");
@@ -63,14 +63,14 @@ export default class EmissionRecordFinder extends HTMLElement {
     });
   }
 
-    /**
-       * A function that extracts the values from the small input form and searches the
-       * extracted information by calling the API. Once the necessary information has
-       * been found, it is displayed on the web page using the EmissionSummary object.
-       */
-    async search() {
-        let countryName = this.#countrySearch.value;
-        let year = this.#yearSearch.value;
+  /**
+   * A function that extracts the values from the small input form and searches the
+   * extracted information by calling the API. Once the necessary information has
+   * been found, it is displayed on the web page using the EmissionSummary object.
+   */
+  async search() {
+    let countryName = this.#countrySearch.value;
+    let year = this.#yearSearch.value;
 
     /** @type {ApiRecordSummary[]} */
     let countryResult;
@@ -85,51 +85,58 @@ export default class EmissionRecordFinder extends HTMLElement {
     // the front-end is always in a usable state.
     this.#result.innerHTML = "";
 
-        // Build the new view: we instantiate an EmissionSummary custom element for every
-        // result, and create four spans that connect to the four slots in EmissionSummary's
-        // template.
-        for (let country of countryResult) {
-            // Create a new summary instance and set its attributes (for later reference)
-            let emissionRecordView = new EmissionSummary();
-            emissionRecordView.emissionRecordId = country.id;
-            emissionRecordView.emissionRecordYear = country.year;
+    // Build the new view: we instantiate an EmissionSummary custom element for every
+    // result, and create four spans that connect to the four slots in EmissionSummary's
+    // template.
+    for (let country of countryResult) {
+      // Create a new summary instance and set its attributes (for later reference)
+      let emissionRecordView = new EmissionSummary();
+      emissionRecordView.emissionRecordId = country.id;
+      emissionRecordView.emissionRecordYear = country.year;
 
-            // Connect slots: this is done by creating four spans
-            // with the "slot" attribute set to match the slot name. We then put these four
-            // spans inside the custom element as if they were child nodes - this is where
-            // the shadow DOM will pull the slot values from. They are never displayed like
-            // this directly, so the order or structure does not matter.
-            let co2Span = document.createElement("span");
-            co2Span.slot = "co2";
-            co2Span.innerText = country.co2;
+      // Connect slots: this is done by creating four spans
+      // with the "slot" attribute set to match the slot name. We then put these four
+      // spans inside the custom element as if they were child nodes - this is where
+      // the shadow DOM will pull the slot values from. They are never displayed like
+      // this directly, so the order or structure does not matter.
+      let yearspan = document.createElement("span");
+      yearspan.slot = "year";
+      yearspan.innerText = country.year;
 
-    let methaneSpan = document.createElement("span");
-    methaneSpan.slot = "methane";
-    methaneSpan.innerText = country.methane;
+      let co2Span = document.createElement("span");
+      co2Span.slot = "co2";
+      co2Span.innerText = country.co2 != null ? country.co2 : "No Info";
 
-    let nitrousOxideSpan = document.createElement("span");
-    nitrousOxideSpan.slot = "nitrous-oxide";
-    nitrousOxideSpan.innerText = country.nitrousOxide;
+      let methaneSpan = document.createElement("span");
+      methaneSpan.slot = "methane";
+      methaneSpan.innerText = country.methane != null ? country.methane : "No Info";
 
-    let totalGhgSpan = document.createElement("span");
-    totalGhgSpan.slot = "total-ghg";
-    totalGhgSpan.innerText = country.totalGhg;
+      let nitrousOxideSpan = document.createElement("span");
+      nitrousOxideSpan.slot = "nitrous-oxide";
+      nitrousOxideSpan.innerText = country.nitrousOxide != null ? country.nitrousOxide : "No Info";
 
-    emissionRecordView.appendChild(co2Span);
-    emissionRecordView.appendChild(methaneSpan);
-    emissionRecordView.appendChild(nitrousOxideSpan);
-    emissionRecordView.appendChild(totalGhgSpan);
+      let totalGhgSpan = document.createElement("span");
+      totalGhgSpan.slot = "total-ghg";
+      totalGhgSpan.innerText = country.totalGhg != null ? country.totalGhg : "No Info";
 
-            // Add an event listener: we want to trigger a "emission-record-selected" event when
-            // the user clicks a specific emission record.
-            emissionRecordView.addEventListener("click", () => {
-                this.dispatchEvent(new EmissionRecordSelectedEvent(emissionRecordView.emissionRecordId));
-            });
+      emissionRecordView.appendChild(yearspan);
+      emissionRecordView.appendChild(co2Span);
+      emissionRecordView.appendChild(methaneSpan);
+      emissionRecordView.appendChild(nitrousOxideSpan);
+      emissionRecordView.appendChild(totalGhgSpan);
 
-    this.#result.appendChild(emissionRecordView);
+      // Add an event listener: we want to trigger a "emission-record-selected" event when
+      // the user clicks a specific emission record.
+      emissionRecordView.addEventListener("click", () => {
+        this.dispatchEvent(
+          new EmissionRecordSelectedEvent(emissionRecordView.emissionRecordId)
+        );
+      });
+
+      this.#result.appendChild(emissionRecordView);
+    }
   }
 }
-};
 
 // Define the EmissionRecordFinder class as a custom element.
-window.customElements.define('emission-record-finder', EmissionRecordFinder);
+window.customElements.define("emission-record-finder", EmissionRecordFinder);

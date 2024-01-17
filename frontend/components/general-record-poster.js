@@ -30,7 +30,7 @@ export default class GeneralPoster extends HTMLElement {
     // Initialize Shadow DOM.
     this.attachShadow({ mode: "open" });
     this.shadowRoot.appendChild(templateContent.cloneNode(true));
-    
+
     // Find elements inside the templates and cache them for
     // future reference.
     this.#country = this.shadowRoot.getElementById("country");
@@ -54,9 +54,9 @@ export default class GeneralPoster extends HTMLElement {
    */
   async search() {
     let countryName = this.#country.value;
-    let year = this.#year.value;
-    let gdp = this.#gdp.value;
-    let population = this.#population.value;
+    let year = parseInt(this.#year.value);
+    let gdp = parseInt(this.#gdp.value);
+    let population = parseInt(this.#population.value);
 
     let countryResult;
     try {
@@ -78,37 +78,38 @@ export default class GeneralPoster extends HTMLElement {
     // Build the new view: we instantiate a GeneralSummary custom element for every
     // result, and create two spans that connect to the two slots in GeneralSummary's
     // template.
-    for (let country of countryResult) {
-      // Create a new summary instance and set its attributes (for later reference)
-      let recordView = new GeneralSummary();
-      recordView.generalRecordId = country.id;
-      recordView.generalRecordYear = country.year;
+    // Create a new summary instance and set its attributes (for later reference)
+    let recordView = new GeneralSummary();
+    recordView.generalRecordId = countryName;
+    recordView.generalRecordYear = year;
 
-      // Connect slots: this is done by creating two spans 
-      // with the "slot" attribute set to match the slot name. We then put these two
-      // spans inside the custom element as if they were child nodes - this is where
-      // the shadow DOM will pull the slot values from.
-      let countrySpan = document.createElement("span");
-      countrySpan.slot = "country";
-      countrySpan.innerText = country.id;
+    // Connect slots: this is done by creating two spans
+    // with the "slot" attribute set to match the slot name. We then put these two
+    // spans inside the custom element as if they were child nodes - this is where
+    // the shadow DOM will pull the slot values from.
+    let countrySpan = document.createElement("span");
+    countrySpan.slot = "country";
+    countrySpan.innerText = countryName;
 
-      let yearSpan = document.createElement("span");
-      yearSpan.slot = "year";
-      yearSpan.innerText = country.year;
+    let yearSpan = document.createElement("span");
+    yearSpan.slot = "year";
+    yearSpan.innerText = year;
 
-      recordView.appendChild(countrySpan);
-      recordView.appendChild(yearSpan);
+    recordView.appendChild(countrySpan);
+    recordView.appendChild(yearSpan);
 
-      // Add an event listener: we want to trigger a "general-record-selected" event when
-      // the user clicks a specific general record.
-      recordView.addEventListener("click", () => {
-        this.dispatchEvent(
-          new GeneralSelectedEvent(recordView.generalRecordId)
-        );
-      });
+    // Add an event listener: we want to trigger a "general-record-selected" event when
+    // the user clicks a specific general record.
+    recordView.addEventListener("click", () => {
+      this.dispatchEvent(
+        new GeneralSelectedEvent(
+          recordView.generalRecordId,
+          recordView.generalRecordYear
+        )
+      );
+    });
 
-      this.#result.appendChild(recordView);
-    }
+    this.#result.appendChild(recordView);
   }
 }
 
