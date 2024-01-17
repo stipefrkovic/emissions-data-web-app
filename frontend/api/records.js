@@ -169,7 +169,7 @@ export default {
     /** @type {string} */ content
   ) {
     const apiResponse = await apiCall(`records/${year}/energy`, "GET", {
-      order_dir: orderBy == "descending" ? "DESC" : "ASC",
+      order_dir: orderBy,
       batch_size: batchSize,
       batch_index: batchIndex,
       },
@@ -201,7 +201,7 @@ export default {
     const apiResponse = await apiCall(`records/countries`, "GET", {
       num_countries: ncountries,
       orderBy: orderBy,
-      order: order,
+      order_dir: order,
       period_type: periodType,
       period_value: periodValue,
       },
