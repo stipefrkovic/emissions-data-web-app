@@ -1,5 +1,14 @@
 version: '3.8'
 services:
+  frontend:
+    image: frontend
+    build: ./frontend
+    ports:
+      - ${FRONTEND_PORT:?}:80
+    environment:
+    # TODO is this needed?
+      - BACKENDS
+
   mariadb:
     image: mariadb:11.1
     environment:
@@ -30,14 +39,3 @@ services:
       - ./backend:/usr/src/app
     env_file:
       - .env
-  
-  frontend:
-    image: frontend
-    build: ./frontend
-    depends_on:
-      - backend
-    ports:
-      - ${FRONTEND_PORT:?}:${FRONTEND_PORT}
-    environment:
-    # TODO is this needed?
-      - BACKENDS
