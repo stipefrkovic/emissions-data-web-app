@@ -4,6 +4,7 @@ import EmissionRecord from "../models/emission.js";
 import EnergyRecord from "../models/energy.js";
 import TempChangeRecord from "../models/temp-change.js";
 import CountryRecord from "../models/country.js";
+import SpecialRecord from "../models/special.js";
 
 export default {
   /**
@@ -183,5 +184,22 @@ export default {
     });
     if (!apiResponse.ok) throw new Error(await apiResponse.text());
     return (await apiResponse.json()).map(CountryRecord.fromJson);
+  },
+
+  /**
+   * A function for posting an emissions CSV dataset.
+   * @param {string} url 
+   * @returns {Record<string, any>}
+   */
+  async postSpecialRecord(
+    /** @type {string} */ url
+  ) {
+    const data = {};
+    if (country !== undefined) data.url = url;
+
+    const apiResponse = await apiCall(`records/fill`, "POST", data);
+    if (!apiResponse.ok) throw new Error(await apiResponse.text());
+
+    return SpecialRecord.fromJson(await apiResponse.json());
   },
 };
