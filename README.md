@@ -63,7 +63,7 @@ docker compose up --build
 This will build and run the database, the back-end, and the front-end containers, in that order.
 If the docker-compose is set to seed the database, this command may have to be run twice!
 
-4. Use the front-end with a Chromium(!) browser at the specified port or the backend directly through the API specification.
+4. Use the front-end with a Chromium(!) browser at the specified URL ([default](http://localhost:3001)) or the back-end directly through the [API specification](spec.yml).
 
 ### Troubleshooting
 
