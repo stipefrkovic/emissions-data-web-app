@@ -222,7 +222,7 @@ export default {
     /** @type {string} */ content
   ) {
     const data = {};
-    if (url !== undefined) data.url = url;
+    if (url !== undefined) data.emissions_csv_url = url;
 
     const apiResponse = await apiCall(`records`, "PUT", data, content);
     if (!apiResponse.ok) throw new Error(await apiResponse.text());
