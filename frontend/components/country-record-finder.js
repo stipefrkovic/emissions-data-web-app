@@ -95,7 +95,6 @@ export default class CountryFinder extends HTMLElement {
         // Build the new view: we instantiate a CountrySummary custom element for every
         // result, and create two spans that connect to the two slots in CountrySummary's
         // template.
-        console.log(countryResult);
         for (let countryIt of countryResult) {
           // Create a new summary instance and set its attributes (for later reference)
           let countryRecordView = new CountrySummary();

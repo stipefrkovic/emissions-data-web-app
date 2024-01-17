@@ -203,7 +203,7 @@
             integrity="sha384-rbsA2VBKQhggwzxH7pPCaAqO46MgnOM80zW1RWuH61DGLwZJEdK2Kadq2F9CUG65" crossorigin="anonymous">
         <div class="bg-light p-3 mt-2 rounded">
             <h5 class="mb-0">
-                <slot name="country"></slot> <slot name="year"></slot> <slot name="population"></slot>
+                <slot name="country"></slot> <slot name="year"></slot> <slot name="gdp"></slot><slot name="population"></slot>
             </h5>
         </div>
 
@@ -220,7 +220,7 @@
 
         <div class="bg-light p-5 rounded mt-4" id="general-record-details">
             <div class="row">
-                <h5><span id="country"></span> <span class="ms-2 badge" id="year"></span></h5>
+                <h5><span id="country"></span> <span id="year"></span></h5>
                 <div class="col-12 col-md-6">
                     <p id="desc"></p>
                     <p>GDP: <strong id="gdp"></strong></p>
