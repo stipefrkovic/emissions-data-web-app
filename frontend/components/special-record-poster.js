@@ -69,7 +69,7 @@ export default class SpecialPoster extends HTMLElement {
 
         let specialResult;
         try {
-            specialResult = await records.postSpecialRecord(urlName);
+            specialResult = await records.postSpecialRecord(urlName, document.getElementById("content-type").value);
         } catch (e) {
             alert(e);
             return;

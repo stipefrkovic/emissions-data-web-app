@@ -81,7 +81,8 @@ export default class EnergyFinder extends HTMLElement {
                     this.#yearSearch.value,
                     this.#orderBySearch.value,
                     parseInt(this.#batches),
-                    1
+                    1,
+                    document.getElementById("content-type").value
                 );
             } catch (e) {
                 alert(e);
@@ -143,7 +144,8 @@ export default class EnergyFinder extends HTMLElement {
                 year,
                 orderby,
                 parseInt(this.#batchesSearch.options[this.#batchesSearch.selectedIndex].value),
-                parseInt(this.#currentOffset)
+                parseInt(this.#currentOffset),
+                document.getElementById("content-type").value
             );
         } catch (e) {
             alert(e);

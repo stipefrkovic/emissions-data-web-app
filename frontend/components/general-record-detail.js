@@ -102,7 +102,7 @@ export default class GeneralDetail extends HTMLElement {
         let record;
         try {
             if (this.generalRecordYear != null && this.generalRecordId != null) {
-                record = await records.getGeneralRecord(this.generalRecordId, this.generalRecordYear);
+                record = await records.getGeneralRecord(this.generalRecordId, this.generalRecordYear, document.getElementById("content-type").value);
             } else {
                 alert("General record year is null (invalid value).");
             }

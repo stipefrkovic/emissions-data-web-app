@@ -81,7 +81,7 @@ export default class TempChangeRecordFinder extends HTMLElement {
 
         let continentResult;
         try {
-            continentResult = await records.getTempChangeRecord(continentName, year);
+            continentResult = await records.getTempChangeRecord(continentName, year, document.getElementById("content-type").value);
         } catch (e) {
             alert(e);
             return;
