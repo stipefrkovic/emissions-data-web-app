@@ -212,19 +212,19 @@ export default {
   },
 
   /**
-   * A function for posting an emissions CSV dataset.
+   * A function for updating an emissions CSV dataset.
    * @param {string} url 
    * @param {string} content
    * @returns {Record<string, any>}
    */
-  async postSpecialRecord(
+  async putSpecialRecord(
     /** @type {string} */ url,
     /** @type {string} */ content
   ) {
     const data = {};
-    if (country !== undefined) data.url = url;
+    if (url !== undefined) data.url = url;
 
-    const apiResponse = await apiCall(`records/fill`, "POST", data, content);
+    const apiResponse = await apiCall(`records/fill`, "PUT", data, content);
     if (!apiResponse.ok) throw new Error(await apiResponse.text());
 
     return SpecialRecord.fromJson(await apiResponse.json());

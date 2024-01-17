@@ -22,9 +22,9 @@ export class SpecialRecordSelectedEvent extends Event {
 }
 
 /**
- * A custom element representing a special record poster.
+ * A custom element representing a special record updater.
  * It contains a small form where the user can enter a URL.
- * Summary information of the special record will be posted and displayed.
+ * Summary information of the special record will be updated and displayed.
  */
 export default class SpecialPoster extends HTMLElement {
   /** @type {HTMLInputElement} */ #url;
@@ -69,7 +69,7 @@ export default class SpecialPoster extends HTMLElement {
 
         let specialResult;
         try {
-            specialResult = await records.postSpecialRecord(urlName, document.getElementById("content-type").value);
+            specialResult = await records.putSpecialRecord(urlName, document.getElementById("content-type").value);
         } catch (e) {
             alert(e);
             return;
@@ -90,7 +90,7 @@ export default class SpecialPoster extends HTMLElement {
         // span inside the custom element as if they were child nodes - this is where
         // the shadow DOM will pull the slot values from.
         let urlSpan = document.createElement("span");
-        urlSpan.slot = "csv-emissions-url";
+        urlSpan.slot = "emissions-csv-url";
         urlSpan.innerText = country.url;
 
         specialView.appendChild(urlSpan);

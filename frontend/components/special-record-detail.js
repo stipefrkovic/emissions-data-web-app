@@ -81,7 +81,7 @@ export default class SpecialDetail extends HTMLElement {
         let record;
         try {
 
-            record = await records.getSpecialRecord(this.specialRecordUrl);
+            record = await records.putSpecialRecord(this.specialRecordUrl);
         } catch (e) {
             alert(e);
             return;
