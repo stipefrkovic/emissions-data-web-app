@@ -189,13 +189,13 @@ components:
             error-message: Server error; no results, try again later.
 
 paths:
-  /records/fill:
-    post:
+  /records/:
+    put:
       summary: Fill database with Emissions CSV dataset from source URL
       tags: 
         - All Records
         - Special
-      description: Fill database with Emissions CSV dataset from source URL
+      description: Fill database with Emissions CSV dataset from source URL (new entities may be created)
       parameters:
         - name: emissions_csv_url
           in: query

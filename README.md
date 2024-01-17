@@ -30,7 +30,16 @@ Can be found [here](spec.yml)
 
 ## REST Maturity
 
-<!-- TODO -->
+We believe our API is at the second level of REST maturity:
+  - Resources are uniquley identified by URIs, e.g. `records/{country}/{year}/general` and `/records/{country}/emission`
+  - HTTP verbs are used correctly: POST creates new entity/entities, PUT updates an existing entity, GET retrieves an existing entity, and DELETE removes an existing entity.
+  - HTTP status codes are used to communicate how a request was processed
+  - Headers are used in POST requests to specify location of created resource
+
+Furthermore:
+  - Resources are provided in multiple representations and basic content type negotiation is implemented: JSON is default, CSV is available on request
+  - Query parameters are provided for some endpoints, e.g. filtering the year in `/records/{country}/emission`
+  - Multiple URIs are provided for the same resource for some endpoints, e.g. `/records/HRV/emission` and `/records/Croatia/emission` represent the same resource(s)
 
 ## Running The Application(s)
 
@@ -46,7 +55,6 @@ cp .env.example .env
 - "./data/mariadb/sql:/docker-entrypoint-initdb.d"
 ```
 
-
 3. Make sure Docker Engine is running and then build and run the docker-compose.
 
 ```bash
@@ -56,6 +64,12 @@ This will build and run the database, the back-end, and the front-end containers
 If the docker-compose is set to seed the database, this command may have to be run twice!
 
 4. Use the front-end with a Chromium(!) browser at the specified port or the backend directly through the API specification.
+
+### Troubleshooting
+
+If the error `exec: "docker-credential-desktop.exe"` is encountered, consult the following [page](https://stackoverflow.com/questions/65896681/exec-docker-credential-desktop-exe-executable-file-not-found-in-path).
+
+As mentioned before, if the docker-compose is set to seed the database, the docker-compose may need to be run a second time.
 
 ## Requirements
 
@@ -72,7 +86,7 @@ If the docker-compose is set to seed the database, this command may have to be r
 
 ### Additional Endpoints
 
-We created an endpoint `records/fill` that accepts a POST request with a URL parameter for the emissions CSV. The API will fetch the CSV, process it (remove columns, choose only specific years, etc.), create corresponding entities for each entry, and save them to the database. In short, it will fill the databse from a CSV located at the provided URL.
+We created an endpoint `/records/` that accepts a PUT request with a URL parameter for the emissions CSV. The API will fetch the CSV, process it (remove columns, choose only specific years, etc.), create corresponding entities for each entry, and save them to the database. In short, it will fill the databse from a CSV located at the provided URL.
 
 ### Containerization
 

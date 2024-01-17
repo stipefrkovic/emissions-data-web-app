@@ -303,6 +303,7 @@ export class RecordsController {
         
         res.status(201);
         const message = {message: `Succesfully created ${data.length} records`};
+        console.log(message);
         resourceConvertor(message, req, res);
     }
 }
