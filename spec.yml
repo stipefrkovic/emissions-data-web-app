@@ -549,7 +549,7 @@ paths:
           enum:
             - ASC
             - DESC
-          default: descending
+          default: DESC
       - name: period_type
         in: query
         required: true
