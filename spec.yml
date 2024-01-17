@@ -196,14 +196,16 @@ paths:
         - All Records
         - Special
       description: Fill database with Emissions CSV dataset from source URL (new entities may be created)
-      parameters:
-        - name: emissions_csv_url
-          in: query
-          required: true
-          description: Source URL for the Emissions CSV dataset
-          schema:
-            type: string
-            default: https://nyc3.digitaloceanspaces.com/owid-public/data/co2/owid-co2-data.csv
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: string
+              default: 
+                emissions_csv_url: https://nyc3.digitaloceanspaces.com/owid-public/data/co2/owid-co2-data.csv
+            example:
+              emissions_csv_url: https://nyc3.digitaloceanspaces.com/owid-public/data/co2/owid-co2-data.csv
       responses:
         '201':
           description: Succesfully created

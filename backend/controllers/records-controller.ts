@@ -235,7 +235,7 @@ export class RecordsController {
     }
 
     public async fillDatabaseAsync(req: Request, res: Response, next: NextFunction): Promise <void> {        
-        let  emissionsCsvUrl : any = req.query.emissions_csv_url;
+        let  emissionsCsvUrl : any = req.body.emissions_csv_url;
         if (isEmpty(emissionsCsvUrl)) {
             console.error(emissionsCsvUrl);
             const error = new CustomError("URL not provided", 400);
