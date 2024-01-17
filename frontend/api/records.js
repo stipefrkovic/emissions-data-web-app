@@ -19,7 +19,6 @@ export default {
    */
   async postGeneralRecord(
     /** @type {string} */ country,
-    /** @type {string} */ iso_code,
     /** @type {number} */ year,
     /** @type {number} */ gdp,
     /** @type {number} */ population,
@@ -27,7 +26,6 @@ export default {
   ) {
     const data = {};
     if (country !== undefined) data.country = country;
-    if (iso_code !== undefined) data.iso_code = iso_code;
     if (year !== undefined) data.year = year;
     if (gdp !== undefined) data.gdp = gdp;
     if (population !== undefined) data.population = population;

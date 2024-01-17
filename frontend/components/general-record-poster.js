@@ -10,7 +10,6 @@ import GeneralSelectedEvent from "./general-record-selected-event.js";
  */
 export default class GeneralPoster extends HTMLElement {
   /** @type {HTMLInputElement} */ #country;
-  /** @type {HTMLInputElement} */ #iso_code;
   /** @type {HTMLInputElement} */ #year;
   /** @type {HTMLInputElement} */ #gdp;
   /** @type {HTMLInputElement} */ #population;
@@ -35,7 +34,6 @@ export default class GeneralPoster extends HTMLElement {
     // Find elements inside the templates and cache them for
     // future reference.
     this.#country = this.shadowRoot.getElementById("country");
-    this.#iso_code = this.shadowRoot.getElementById("iso_code");
     this.#year = this.shadowRoot.getElementById("year");
     this.#gdp = this.shadowRoot.getElementById("gdp");
     this.#population = this.shadowRoot.getElementById("population");
@@ -56,7 +54,6 @@ export default class GeneralPoster extends HTMLElement {
    */
   async search() {
     let countryName = this.#country.value;
-    let isoCode = this.#iso_code.value;
     let year = parseInt(this.#year.value);
     let gdp = parseInt(this.#gdp.value);
     let population = parseInt(this.#population.value);
@@ -65,7 +62,6 @@ export default class GeneralPoster extends HTMLElement {
     try {
       countryResult = await records.postGeneralRecord(
         countryName,
-        isoCode,
         year,
         gdp,
         population
