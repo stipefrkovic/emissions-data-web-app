@@ -2,11 +2,19 @@ import { Request, Response } from "express";
 import Papa from "papaparse";
 
 
-// may throw error, call in try-catch block
+// Self-describing, may throw error
 export function jsonToCSV(data: any): string {
   let csv = Papa.unparse(data);
   return csv;
 }
+
+// Self-describing, may throw error
+export function csvToJson(data: string): any {
+  let json = Papa.parse(data);
+  return json;
+}
+
+// Converts resource into JSON or CSV representation
 export function resourceConvertor(result: any, req: Request, res: Response) {
   let acceptHeader = req.headers['accept'];
   if (acceptHeader) {
@@ -15,7 +23,7 @@ export function resourceConvertor(result: any, req: Request, res: Response) {
         res.setHeader('Content-Type', 'text/csv');
         res.send(jsonToCSV(result));
       } catch (error) {
-        console.log(error);
+        console.error(error);
         res.status(500);
         res.send('Server error; no results, try again later');
       }
@@ -24,5 +32,3 @@ export function resourceConvertor(result: any, req: Request, res: Response) {
   }
   res.json(result);
 }
-
-

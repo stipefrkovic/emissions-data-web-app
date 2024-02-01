@@ -5,7 +5,7 @@
  * @param data
  * @returns a promise
  */
-export default async function apiCall(url, method = "GET",  data = null)  {
+export default async function apiCall(url, method = "GET",  data = null, content = "application/json")  {
     // We obtain the server preference from the state storage (implemented using
     // local storage APIs in this case)
     const server = "http://localhost:3000";
@@ -18,10 +18,10 @@ export default async function apiCall(url, method = "GET",  data = null)  {
     const requestConfig = {
         method: method,
         headers: {
-            //TODO option menu csv
-            "Content-Type": "application/json",
+            "Content-Type": content,
         },
     };
+    console.log(content);
   
     // Set data: in this case we want to send the request data as
     // URL parameters for GET/HEAD/DELETE requests and only as request body

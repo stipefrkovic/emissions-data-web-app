@@ -3,8 +3,8 @@ import General from "../models/general.js";
 
 /**
  * A custom element for a detailed general record view.
- * The current general record ID is stored as an attribute on the element itself.
- * when this ID changes, the view is recreated to reflect the information of the new record.
+ * Each current general record attributes (e.g. ID) is stored as an attribute on the element itself.
+ * When this ID changes, the view is recreated to reflect the information of the new record.
  */
 export default class GeneralDetail extends HTMLElement {
     /** @type {HTMLTemplateElement} */ #template;
@@ -15,7 +15,7 @@ export default class GeneralDetail extends HTMLElement {
     /** @type {HTMLElement} */ #population;
 
     /**
-     * Get and set the general record ID.
+     * Get and set the general record ID attribute.
      */
     get generalRecordId() {
         return this.getAttribute("general-record-id");
@@ -29,7 +29,7 @@ export default class GeneralDetail extends HTMLElement {
     }
 
     /**
-     * Get and set the general record year.
+     * Get and set the general record year attribute.
      */
     get generalRecordYear() {
         return this.getAttribute("general-record-year");
@@ -42,10 +42,20 @@ export default class GeneralDetail extends HTMLElement {
             this.setAttribute("general-record-year", value);
     }
 
+    /**
+     * This indicates to the browser that we want to be notified of any changes
+     * to each attribute of a general record. The browser will then call "attributeChangedCallback"
+     * for us. This will also be called when someone sets a new value to the property
+     * above, since that set operation is translated into setting a new attribute
+     * value.
+     */
     static get observedAttributes() {
         return ["general-record-id", "general-record-year"];
     }
 
+    /**
+     * A constructor for setting up the proper template environment.
+     */
     constructor() {
         super();
 
@@ -55,6 +65,11 @@ export default class GeneralDetail extends HTMLElement {
         this.initializeTemplate();
     }
 
+    /**
+     * A function that clones the template and sets the HTML references. 
+     * This allows to completely refresh the contents when loading a new general record, instead 
+     * of clearing all fields separately.
+     */
     initializeTemplate() {
         if (this.shadowRoot != null) {
             this.shadowRoot.innerHTML = "";
@@ -69,8 +84,12 @@ export default class GeneralDetail extends HTMLElement {
         }
     }
 
+    /**
+     * A function for updating the contents of template that is called by the browser when
+     * the ID or year attribute changes.
+     */
     async attributeChangedCallback() {
-        if(!this.generalRecordId) {
+        if(!this.generalRecordId || !this.generalRecordYear) {
             if (this.shadowRoot != null) {
                 this.shadowRoot.innerHTML = "";
             } else {
@@ -82,8 +101,8 @@ export default class GeneralDetail extends HTMLElement {
         /** @type {General} */
         let record;
         try {
-            if (this.generalRecordYear != null) {
-                record = await records.getGeneralRecord(this.generalRecordId, this.generalRecordYear);
+            if (this.generalRecordYear != null && this.generalRecordId != null) {
+                record = await records.getGeneralRecord(this.generalRecordId, this.generalRecordYear, document.getElementById("content-type").value);
             } else {
                 alert("General record year is null (invalid value).");
             }
@@ -94,11 +113,12 @@ export default class GeneralDetail extends HTMLElement {
 
         this.initializeTemplate();
 
-        this.#id.innerText = record.id;
-        this.#year.innerText = record.year;
-        this.#gdp.innerText = record.gdp;
-        this.#population.innerText = record.population;
+        this.#id.innerText = this.generalRecordId;
+        this.#year.innerText = this.generalRecordYear;
+        this.#gdp.innerText = record.gdp != null ? record.gdp : "No info" ;
+        this.#population.innerText = record.population != null ? record.population : "No Info";
     }
 };
 
+// Define the GeneralDetail class as a custom element
 window.customElements.define("general-record-detail", GeneralDetail);

@@ -2,11 +2,13 @@ import records from "../api/records.js";
 import GeneralSummary from "./general-record-summary.js";
 import GeneralSelectedEvent from "./general-record-selected-event.js";
 
-// This is a custom element representing a movie finder as a whole.
-// It contains a small form where the user can enter a title and year
-// to search for, and will show all matching results with pagination.
-// The user can pick any of the results, after which the element will
-// emit a "movie-selected" event as defined above.
+/**
+ * This is a custom element representing a general record finder as a whole.
+ * It contains a small form where the user can enter a country name or ISO code and a year
+ * to search for, and will show all matching results. The user can pick any of 
+ * the results, after which the element will emit a "general-record-selected" event as 
+ * defined above.
+ */
 export default class GeneralFinder extends HTMLElement {
   /** @type {HTMLInputElement}*/ #countrySearch;
   /** @type {HTMLInputElement}*/ #yearSearch;
@@ -14,13 +16,13 @@ export default class GeneralFinder extends HTMLElement {
   /** @type {HTMLDivElement}*/ #result;
 
   constructor() {
-    // Always call the parent constructor!
     super();
 
     // We start by finding the template and taking its contents.
     const template = document.getElementById("general-record-finder");
     const templateContent = template.content;
 
+    // Initialize Shadow DOM.
     this.attachShadow({ mode: "open" });
     this.shadowRoot.appendChild(templateContent.cloneNode(true));
 
@@ -38,6 +40,11 @@ export default class GeneralFinder extends HTMLElement {
     });
   }
 
+  /**
+   * A function that extracts the values from the small input form and searches the
+   * extracted information by calling the API. Once the necessary information has
+   * been found, it is displayed on the web page using the GeneralSummary object.
+   */
   async search() {
     let countryName = this.#countrySearch.value;
     let year = this.#yearSearch.value;
@@ -45,41 +52,47 @@ export default class GeneralFinder extends HTMLElement {
     /** @type {} */
     let countryResult;
     try {
-      countryResult = await records.getGeneralRecord(countryName, year);
+      countryResult = await records.getGeneralRecord(countryName, year, document.getElementById("content-type").value);
     } catch (e) {
       alert(e);
       return;
     }
 
-    //Clear view
+    // Clear old rendered results only after we received a new set of results, so
+    // the front-end is always in a usable state.
     this.#result.innerHTML = "";
 
-    //Build new view
+    // Build the new view: we instantiate a GeneralSummary custom element for every
+    // result, and create two spans that connect to the two slots in GeneralSummary's
+    // template.
     let recordView = new GeneralSummary();
-    recordView.generalRecordId = countryResult.id;
-    recordView.generalRecordYear = countryResult.year;
+    recordView.generalRecordId = countryName;
+    recordView.generalRecordYear = year;
 
+    // Connect slots: this is done by creating two spans 
+    // with the "slot" attribute set to match the slot name. We then put these two
+    // spans inside the custom element as if they were child nodes - this is where
+    // the shadow DOM will pull the slot values from.
     let countrySpan = document.createElement("span");
     countrySpan.slot = "country";
-    countrySpan.innerText = countryResult.id;
+    countrySpan.innerText = countryName
 
     let yearSpan = document.createElement("span");
     yearSpan.slot = "year";
-    yearSpan.innerText = countryResult.year;
+    yearSpan.innerText = year
 
     recordView.appendChild(countrySpan);
     recordView.appendChild(yearSpan);
 
+    // Add an event listener: we want to trigger a "general-record-selected" event when
+    // the user clicks a specific general record.
     recordView.addEventListener("click", () => {
-      this.dispatchEvent(new GeneralSelectedEvent(recordView.generalRecordId));
+      this.dispatchEvent(new GeneralSelectedEvent(recordView.generalRecordId, recordView.generalRecordYear));
     });
 
     this.#result.appendChild(recordView);
   }
 }
 
-// This function will start a "getMovies" operation from the API. It will take the
-// local form state and get the appropriate results.
-
-// Define the MovieFinder class as a custom element
+// Define the GeneralFinder class as a custom element
 window.customElements.define("general-record-finder", GeneralFinder);

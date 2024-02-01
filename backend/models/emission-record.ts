@@ -1,5 +1,6 @@
 import { Column, Entity, PrimaryColumn } from "typeorm";
 
+// Emission record entity for the database
 @Entity()
 export class EmissionRecord {
     @PrimaryColumn({ type: 'varchar'})

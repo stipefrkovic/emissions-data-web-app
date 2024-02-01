@@ -1,8 +1,6 @@
-import { Column, Entity, OneToMany, PrimaryColumn } from "typeorm";
-import { GeneralRecord } from "./general-record";
-import { EmissionRecord } from "./emission-record";
-import { EnergyRecord } from "./energy-record";
+import { Column, Entity, PrimaryColumn } from "typeorm";
 
+// Country entity for the database
 @Entity()
 export class Country {
     @PrimaryColumn({ type: 'varchar'})
@@ -12,6 +10,7 @@ export class Country {
     iso_code!: string;
 }
 
+// Check if string is of ISO31661Alpha3 code format
 export function isISOCode(id: string): boolean {
   return (/^[A-Z]{3}$/).test(id);
 }

@@ -4,9 +4,8 @@ services:
     image: frontend
     build: ./frontend
     ports:
-        - ${FRONTEND_PORT:?}:80
-    environment:
-        - BACKENDS
+      - ${FRONTEND_PORT:?}:80
+
   mariadb:
     image: mariadb:11.1
     environment:
@@ -14,10 +13,11 @@ services:
       MYSQL_DATABASE: ${DATABASE_NAME:?}
       MYSQL_USER: ${DATABASE_USER:?}
       MYSQL_PASSWORD: ${DATABASE_PASSWORD:?}
+    # DO NOT CHANGE
     ports:
-      - ${DATABASE_PORT:-3306}:3306
+      - 3306:3306
     volumes:
-      - ./data/mariadb/db:/var/lib/mysql
+    # remove if the database should not be seeded
       - "./data/mariadb/sql:/docker-entrypoint-initdb.d"
     restart: always
 
@@ -27,7 +27,8 @@ services:
       context: ./backend
     depends_on:
       - mariadb
+    restart: unless-stopped
     ports:
-      - ${BACKEND_PORT:?}:80
-    volumes:
-      - ./backend:/usr/src/app
+      - ${BACKEND_PORT:?}:${BACKEND_PORT}
+    env_file:
+      - .env

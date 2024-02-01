@@ -10,10 +10,8 @@ class App {
     constructor() {
         this.app = express();
 
-        // configure middleware
         this.configMiddleware();
 
-        // configure routers
         (new MainRouter()).attach(this.app);
     }
 

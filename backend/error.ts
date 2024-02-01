@@ -22,28 +22,23 @@ export class CustomError extends Error {
     }
 }
 
-export function resourceNotFound(result: any, res: Response, next: NextFunction) {
-    if (!result) {
-        let error = new CustomError("Resource not found", 404);
-        next(error);
-        return true;
-    }
-    return false;
-}
-
-export function emptyList(list: any, req: Request, res: Response): boolean {
-    if (list.length == 0) {
-      res.status(204);
-      resourceConvertor({message: "List empty; no results"}, req, res);
-      return true;
-    }
-    return false;
-  }
-export function alreadyExists(count: number, res: Response): boolean {
-  if (count > 0) {
-    res.status(409);
-    res.json({ error: "Record with the same name already exists" });
+export function emptyList(list: any, req: Request, res: Response, message: string): boolean {
+  if (list.length == 0) {
+    res.status(204);
+    resourceConvertor({message: message}, req, res);
     return true;
   }
   return false;
+}
+
+export function resourceNotFound(result: any) {
+    if (!result) {
+      throw new CustomError("Resource not found", 404);
+    }
+}
+
+export function alreadyExists(count: number) {
+  if (count > 0) {
+    throw new CustomError("Record with the same name already exists", 409)
+  }
 }
