@@ -2,14 +2,6 @@
 
 Web application using and showcasing the [CO2 and Greenhouse Emissions data](https://github.com/gyleodhis/owid_co2_data). Created by Group 23 of the 2023-24 Web Engineering course.
 
-## Deliverable Deadlines
-
-- D2: 6.12.2023 
-- D3: 14.12.2023
-- D4: 10.1.2024
-
-All at 23:59 Amsterdam time.
-
 ## Technology Stack
 
 - Database: MariaDB
