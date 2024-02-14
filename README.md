@@ -1,6 +1,6 @@
 # Emissions Data Web Application
 
-2023-24 Web Engineering Project - Group 23 
+Web application using and showcasing the [CO2 and Greenhouse Emissions data](https://github.com/gyleodhis/owid_co2_data). Created by Group 23 of the 2023-24 Web Engineering course.
 
 ## Deliverable Deadlines
 
